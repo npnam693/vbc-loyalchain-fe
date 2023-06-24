@@ -20,6 +20,7 @@ import { useToggleNoti } from "../../state/popup/hooks";
 //import css
 import { VBC } from "../../constants/image";
 import "./Login.css";
+import { Header } from "../../layouts/components";
 
 // const EthereumTx = require("ethereumjs-tx");
 
@@ -52,7 +53,8 @@ const Login = () => {
   const handleSignIn = (values: FormikValues) => {};
 
   return (
-    <div className="position-relative vh-100 vw-100">
+    <div className="position-relative vh-100 vw-100 .app-sidebar">
+      <Header />
       <div className="vh-100 vw-100 overflow-hidden bg-second"></div>
       <div className="d-flex flex-row vh-100 vw-100 overflow-hidden position-absolute top-0 left-0 fixed-top">
         <div className="d-flex w-100 align-items-center vh-100">
