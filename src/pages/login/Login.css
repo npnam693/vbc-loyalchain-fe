@@ -1,0 +1,11 @@
+.logoAGD{
+    height: 50px;
+    margin-top: 20px;
+}
+.bg-parking{
+    background-image: url("https://res.cloudinary.com/agridential/image/upload/v1656044194/images/bgCarParking3_xlehqn.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: center;
+    filter: blur(3px);
+}

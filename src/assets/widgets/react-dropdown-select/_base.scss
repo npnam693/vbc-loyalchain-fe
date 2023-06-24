@@ -1,0 +1,19 @@
+// React Dropdown Select
+
+.react-dropdown-select {
+  font-size: $font-size-sm !important;
+  z-index: 45;
+
+  .react-dropdown-select-option {
+    background: $primary;
+    color: $white;
+  }
+
+  .react-dropdown-select-option-remove {
+    color: $white;
+
+    &:hover {
+      color: $white !important;
+    }
+  }
+}

@@ -1,0 +1,18 @@
+@media (max-width:500px){
+    .tab-mobile{
+        margin-bottom: 1.5rem !important;
+        border-radius: 5px;
+    }
+    .p-right-tab{
+        padding-right: 0rem !important;
+    }
+    .p-left-tab{
+        padding-left: 0rem !important;
+    }
+    .app-sidebar-fixed .app-content{
+        padding-right: 0px !important;
+    }
+    .justify-mobile-pagetitle{
+        justify-content: flex-start;
+    }
+}

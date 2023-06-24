@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "home": "Home",
+    "lang": "Language"
+  },
+  "login": {
+    "register": "Sign up",
+    "login": "Sign in",
+    "haveAccount": "Already have account?",
+    "noAccount": "Don't have account?",
+    "username": "Username",
+    "name": "Username",
+    "email": "Email",
+    "pass": "Password",
+    "phone": "Phone",
+    "sendEmail": "Send email",
+    "motto": "VietNam Blockchain Corporation",
+    "enterOTP": "Enter OTP",
+    "forgotPass": "Forgot Pass"
+  },
+  "overview": {
+    "link": "Overall Dashboard"
+  },
+  "user": {
+    "link": "User Management",
+    "link1": "Officer Management",
+    "link2": "Owner Managerment"
+  },
+  "bays": {
+    "link": "Bays Management",
+    "list": "Bays list",
+    "overview": "Realtime figures",
+    "detail": "Bay detail"
+  },
+  "infringement":{
+    "link": "Infrigement Management"
+  },
+  "log":{
+    "link": "System log"
+  },
+  "show": "Show",
+  "row": "row",
+  "profile":{
+    "showPass": "Show password"
+  }
+}
+  
