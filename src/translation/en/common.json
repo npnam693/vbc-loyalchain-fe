@@ -1,7 +1,10 @@
 {
   "nav": {
-    "home": "Home",
-    "lang": "Language"
+    "home": "Introduction",
+    "market": "Marketplace",
+    "rewards": "Rewards",
+    "blog": "Blogs",
+    "about": "About"
   },
   "login": {
     "register": "Sign up",

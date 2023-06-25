@@ -1,4 +1,4 @@
-import React from "react";
+import React  from "react";
 import { Bell } from "react-feather";
 import Language from "./Language";
 
@@ -11,5 +11,4 @@ const HeaderDots = () => {
     </div>
   );
 };
-
 export default HeaderDots;

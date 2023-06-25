@@ -1,7 +1,10 @@
 {
   "nav": {
-    "home": "Trang chủ",
-    "lang": "Ngôn ngữ"
+    "home": "Giới thiệu",
+    "market": "Trao đổi",
+    "rewards": "Đổi thưởng",
+    "blog": "Blog",
+    "about": "Thông tin"
   },
   "login": {
     "register": "Đăng ký",

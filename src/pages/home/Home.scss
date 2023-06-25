@@ -1,0 +1,116 @@
+$padding-v-intro: 40px;
+
+.app-home{
+    margin: 0 var(--app-margin) 0 var(--app-margin);
+    &--intro1 {
+        padding: $padding-v-intro 0 100px 0;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        height: 800px;
+        
+        .intro-left{
+            flex:0.6;
+            .title {
+                font-size: 3rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+                color: var(--color-text-white)
+            }   
+            .desc {
+                font-size: 1.6rem;
+                font-weight: 400;
+                color: var(--color-text-white);
+                margin-bottom: 24px;
+            }
+            .btn-1 {
+                background-color: transparent;
+                border-color: var(--color-secondary);
+                color: #DDDDDD;
+                font-weight: 500;
+                font-size: 1.4rem;
+                margin-right: 20px;
+            }
+            .btn-2 {
+                background-color: var(--color-secondary);
+                color: #DDDDDD;
+                font-weight: 500;
+                font-size: 1.4rem;
+            }
+        }
+
+        .intro-right {
+            flex: 0.4;
+            position: relative;
+            img {
+                position: absolute;                
+                height: 500px;
+                bottom: 50px;
+                right: -10vw;
+            }
+        }
+
+    }
+
+    &--intro2{
+        padding:  0 0 200px 0;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        height: 700px;
+        .intro-right{
+            flex:0.6;
+            .title {
+                font-size: 3rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+                color: var(--color-text-white);
+                text-align: right;
+            }   
+            .desc {
+                font-size: 1.6rem;
+                font-weight: 400;
+                color: var(--color-text-white);
+                margin-bottom: 24px;
+                text-align: right;
+
+            }
+            .btn-1 {
+                background-color: transparent;
+                border-color: var(--color-secondary);
+                color: #DDDDDD;
+                font-weight: 500;
+                font-size: 1.4rem;
+                margin-right: 20px;
+            }
+            .btn-2 {
+                background-color: var(--color-secondary);
+                color: #DDDDDD;
+                font-weight: 500;
+                font-size: 1.4rem;
+            }
+            .btn-group {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+        }
+        .intro-left{
+            flex: 0.4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    &--whychoose{
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--color-text-white);
+            text-align: center;
+        }   
+    }
+}
+

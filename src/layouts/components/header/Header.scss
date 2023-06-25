@@ -17,7 +17,7 @@
     }
 
     p {
-      color: white;
+      color: var(--color-text-white);
       font-size: 1.4rem;
       font-weight: 400;
     }
@@ -34,20 +34,22 @@
 .app-header{
   background-color: rgba(255,255,255,.04);
   height: var(--header-height);
+  width: 100%;
 }
 
 .btn-connect_wallet {
-  height: 36px;
-  width: 140px;
-  background-color: var(--color-secondary);
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  // height: 36px;
+  // width: 140px;
+  // background-color: var(--color-secondary);
+  // border-radius: 5px;
+  // display: flex;
+  // align-items: center;
+  // justify-content: center;
 
-  p {
+    background: #15BFFD;
+    margin-left: 24px;
+
     color: white;
     font-size: 1.4rem;
     font-weight: 600;
-  }
 }
