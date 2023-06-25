@@ -5,13 +5,20 @@ import HeaderDots from "./HeaderDots";
 import HeaderUserbox from "./HeaderUserbox";
 import Logo from "../../../assets/svg/logo_loyal-chain.svg";
 import { Search } from "react-feather";
-import { Input, Space, Button } from "antd";
+import { Input, Button } from "antd";
 import { useTranslation } from "react-i18next";
-
 import "./Header.scss";
 
 const Header = () => {
   const { t } = useTranslation("common");
+  const [headerShow, setheaderShow] = useState(false);
+  window.onscroll = function () {
+    if (!headerShow && window.scrollY >= 60) {
+      setheaderShow(true);
+    } else if (headerShow && window.scrollY < 60) {
+      setheaderShow(false);
+    }
+  };
 
   const {
     headerShadow,
@@ -21,6 +28,7 @@ const Header = () => {
   } = useAppSelector((state) => state.ThemeOptions);
 
   const [openSearch, setOpenSearch] = useState(false);
+
   const inputRef = useRef<any>(null);
 
   const toggleSidebarMobile = () => {
@@ -29,7 +37,7 @@ const Header = () => {
 
   useEffect(() => {
     if (openSearch && inputRef.current != null) {
-      inputRef.current.focus("common");
+      inputRef.current.focus();
     }
   }, [openSearch]);
 
@@ -37,7 +45,7 @@ const Header = () => {
     <>
       <div
         className={clsx("app-header", {
-          "app-header--shadow": headerShadow,
+          "app-header--shadow": headerShow,
           "app-header--opacity-bg": headerBgTransparent,
         })}
       >
@@ -90,8 +98,7 @@ const Header = () => {
           >
             {openSearch ? (
               <Input.Search
-                placeholder="input search text"
-                style={{ width: 200 }}
+                placeholder="Input search text"
                 ref={inputRef}
                 size="large"
                 onBlur={() => setOpenSearch(!openSearch)}

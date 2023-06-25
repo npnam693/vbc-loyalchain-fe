@@ -3,12 +3,11 @@ $padding-v-intro: 40px;
 .app-home{
     margin: 0 var(--app-margin) 0 var(--app-margin);
     &--intro1 {
-        padding: $padding-v-intro 0 100px 0;
+        padding: 200 0 100px 0;
         display: flex;
         flex-direction: row;
         align-items: flex-end;
         height: 800px;
-        
         .intro-left{
             flex:0.6;
             .title {
@@ -48,8 +47,13 @@ $padding-v-intro: 40px;
                 bottom: 50px;
                 right: -10vw;
             }
+            .lottie-gift {
+                height: 200px;
+                position: absolute;
+                right: 180px;
+                top: -340px
+            }
         }
-
     }
 
     &--intro2{
@@ -57,7 +61,7 @@ $padding-v-intro: 40px;
         display: flex;
         flex-direction: row;
         align-items: flex-end;
-        height: 700px;
+        height: 800px;
         .intro-right{
             flex:0.6;
             .title {

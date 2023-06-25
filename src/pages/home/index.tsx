@@ -1,6 +1,9 @@
 import React from "react";
 import SVGIntro1 from "../../assets/svg/home/intro1.svg";
 import SVGIntro2 from "../../assets/svg/home/intro2.svg";
+import Lottie from "lottie-react";
+import giftLotite from "../../assets/lottie/gift.json";
+
 import { Button } from "antd";
 import "./Home.scss";
 export default function Home() {
@@ -30,6 +33,11 @@ export default function Home() {
         </div>
         <div className="intro-right">
           <img src={SVGIntro1} alt="loyalChain" />
+          <Lottie
+            animationData={giftLotite}
+            loop={true}
+            className="lottie-gift"
+          />
         </div>
       </div>
 
