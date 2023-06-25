@@ -3,7 +3,6 @@ import { ChevronRight } from "react-feather";
 import { useTranslation } from "react-i18next";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import { NavLink } from "react-router-dom";
-import { UncontrolledCollapse } from "reactstrap";
 import UserRoutes from "../../../router/list/UserRoutes";
 import { RouteProps } from "../../../types/route";
 import clsx from "clsx";
@@ -30,7 +29,7 @@ const SidebarUser = () => {
               <ChevronRight />
             </span>
           </a>
-          <UncontrolledCollapse toggler={"#toggler" + index}>
+          {/* <UncontrolledCollapse toggler={"#toggler" + index}>
             <ul>
               {item.list?.map((mini, idx) => (
                 <li className="px-3" key={idx}>
@@ -43,7 +42,7 @@ const SidebarUser = () => {
                 </li>
               ))}
             </ul>
-          </UncontrolledCollapse>
+          </UncontrolledCollapse> */}
         </li>
       );
     } else {

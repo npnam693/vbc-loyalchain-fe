@@ -1,6 +1,5 @@
 import React from "react";
 import { Bell } from "react-feather";
-import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from "reactstrap";
 import Language from "./Language";
 
 const HeaderDots = () => {

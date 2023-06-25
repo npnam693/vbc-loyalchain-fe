@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "reactstrap";
+// import { Button } from "reactstrap";
 import { AGD } from "../../constants/image";
 
 const NotFound = () => {
@@ -16,9 +16,9 @@ const NotFound = () => {
         We are doing our best and we will be back soon!
       </h4>
       <div className="mt-5">
-        <Button color="success" size="lg" className="font-weight-bold">
+        {/* <Button color="success" size="lg" className="font-weight-bold">
           BACK TO HOME
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

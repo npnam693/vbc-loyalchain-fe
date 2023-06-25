@@ -16,3 +16,7 @@ export interface RouteProps {
   isCollapsed?: boolean;
   list?: ItemRouteProps[];
 }
+
+export interface LayoutProps {
+  children: JSX.Element;
+}

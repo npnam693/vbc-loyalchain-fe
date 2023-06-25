@@ -1,0 +1,56 @@
+.app-footer{
+    height: 200px;
+    width: 100%;
+    background-color: rgba(255,255,255,.04);
+
+    p {
+        color: #DDDDDD;
+        font-size: 1.4rem;
+    }
+    
+    &--container {
+        margin: 0 var(--app-margin) 0 var(--app-margin);
+        padding: 20px 0 20px 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        .app-footer--intro{
+            flex: 0.3;
+        }
+
+        .app-footer--content {
+            flex: 0.5;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .app-footer--sitemap {
+                flex: 0.28;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            .app-footer--company {
+                flex: 0.28;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+
+            }
+
+            .app-footer--language {
+                flex: 0.28;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+        }
+
+    }
+
+    &--logovbc {
+        height: 60px;
+    }
+}
+

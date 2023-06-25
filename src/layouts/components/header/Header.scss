@@ -1,0 +1,53 @@
+.css-flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.app-header--option{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  div {
+    margin: 0 0 0 3rem;
+    cursor: pointer;
+    &:hover {
+      border-bottom: 1px solid var(--color-secondary);
+      margin-bottom: 2px;
+    }
+
+    p {
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 400;
+    }
+  }
+} 
+.app-header--pane{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  margin: 0 var(--app-margin) 0 var(--app-margin);
+}
+.app-header{
+  background-color: rgba(255,255,255,.04);
+  height: var(--header-height);
+}
+
+.btn-connect_wallet {
+  height: 36px;
+  width: 140px;
+  background-color: var(--color-secondary);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+}

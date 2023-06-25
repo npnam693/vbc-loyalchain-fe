@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Circle, Disc } from "react-feather";
 import { useDispatch } from "react-redux";
 import { NavLink } from "react-router-dom";
-import { UncontrolledTooltip } from "reactstrap";
+// import { UncontrolledTooltip } from "reactstrap";
 import { BECAS_LOGO, VBC } from "../../../constants/image";
 import { useAppSelector } from "../../../state/hooks";
 import {
@@ -66,13 +66,13 @@ const SidebarHeader = () => {
         >
           <Disc size={18} />
         </button>
-        <UncontrolledTooltip
+        {/* <UncontrolledTooltip
           target="CollapseSidebarTooltip"
           container=".app-sidebar"
           placement="right"
         >
           Collapse sidebar
-        </UncontrolledTooltip>
+        </UncontrolledTooltip> */}
         <button
           className={clsx(
             "navbar-toggler hamburger hamburger--elastic toggle-mobile-sidebar-btn",
@@ -91,13 +91,13 @@ const SidebarHeader = () => {
         >
           <Circle size={16} />
         </button>
-        <UncontrolledTooltip
+        {/* <UncontrolledTooltip
           target="ExpandSidebarTooltip"
           container=".app-sidebar"
           placement="right"
         >
           Expand sidebar
-        </UncontrolledTooltip>
+        </UncontrolledTooltip> */}
       </div>
     </>
   );

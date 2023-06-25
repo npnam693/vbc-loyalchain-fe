@@ -5,11 +5,12 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { PersistGate } from "redux-persist/lib/integration/react";
-import AlertContainer from "./components/alert";
-import ErrorBoundary from "./components/errorHandle/ErrorHandle";
+// import AlertContainer from "./components/alert";
+// import ErrorBoundary from "./components/errorHandle/ErrorHandle";
 import RouterList from "./router";
 import store, { persistor } from "./state/index";
 import i18next from "./translation/index";
+import Layout from "./layouts";
 
 const queryClient = new QueryClient();
 
@@ -19,15 +20,17 @@ function App() {
       <PersistGate persistor={persistor}>
         <BrowserRouter>
           <I18nextProvider i18n={i18next}>
-            <ErrorBoundary>
+            {/* <ErrorBoundary> */}
               <QueryClientProvider client={queryClient}>
-                <RouterList />
+                <Layout>
+                  <RouterList />
+                </Layout>
               </QueryClientProvider>
-            </ErrorBoundary>
+            {/* </ErrorBoundary> */}
           </I18nextProvider>
         </BrowserRouter>
       </PersistGate>
-      <AlertContainer />
+      {/* <AlertContainer /> */}
       <ToastContainer position={toast.POSITION.TOP_RIGHT} />
     </Provider>
   );

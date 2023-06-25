@@ -1,4 +1,4 @@
-import IMG_LOADING from "../assets/images/loading/loader.gif"
+// import IMG_LOADING from "../assets/images/loading/loader.gif"
 
 const AGD = "https://res.cloudinary.com/agridential/image/upload/v1656042983/images/becasLogo_ua0rev.png"
 
@@ -17,7 +17,7 @@ export {
     AGD,
     AGD_VERTICAL,
     VBC,
-    IMG_LOADING,
+    // IMG_LOADING,
     AGD_LOGO,
     MAX_IMAGE,
     BECAS_LOGO

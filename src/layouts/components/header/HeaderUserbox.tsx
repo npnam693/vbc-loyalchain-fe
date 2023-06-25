@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { List, LogOut, User } from "react-feather";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import {
-  Badge,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  UncontrolledDropdown,
-} from "reactstrap";
+// import {
+//   Badge,
+//   DropdownItem,
+//   DropdownMenu,
+//   DropdownToggle,
+//   UncontrolledDropdown,
+// } from "reactstrap";
 import authApi from "../../../api/authenApi";
 import { AGD_LOGO } from "../../../constants/image";
 import { ROLE } from "../../../constants/role";
@@ -84,7 +84,8 @@ const HeaderUserbox = () => {
 
   return (
     <>
-      <UncontrolledDropdown className="position-relative ml-3 bg-white rounded px-3 py-1">
+    <p>Halo</p>
+      {/* <UncontrolledDropdown className="position-relative ml-3 bg-white rounded px-3 py-1">
         <DropdownToggle
           onClick={() => setIsOpen(!isOpen)}
           color="link"
@@ -114,7 +115,7 @@ const HeaderUserbox = () => {
               </DropdownItem>
               <DropdownItem divider />
             </>
-          ) : null} */}
+          ) : null} 
           <DropdownItem
             onClick={() => handleRedirect("/profile")}
             className="text-black"
@@ -131,7 +132,8 @@ const HeaderUserbox = () => {
           </DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
-    </>
+    */}
+    </> 
   );
 };
 
