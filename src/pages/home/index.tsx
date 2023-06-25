@@ -1,11 +1,12 @@
 import React from "react";
+import { Button } from "antd";
+
 import SVGIntro1 from "../../assets/svg/home/intro1.svg";
 import SVGIntro2 from "../../assets/svg/home/intro2.svg";
-import Lottie from "lottie-react";
-import giftLotite from "../../assets/lottie/gift.json";
-
-import { Button } from "antd";
+import Logo from "../../assets/svg/logo_loyal-chain.svg";
+import WhyChoose from "../../components/home/whychoose";
 import "./Home.scss";
+
 export default function Home() {
   return (
     <div className="app-home">
@@ -33,11 +34,6 @@ export default function Home() {
         </div>
         <div className="intro-right">
           <img src={SVGIntro1} alt="loyalChain" />
-          <Lottie
-            animationData={giftLotite}
-            loop={true}
-            className="lottie-gift"
-          />
         </div>
       </div>
 
@@ -72,6 +68,70 @@ export default function Home() {
 
       <div className="app-home--whychoose">
         <p className="title">Why choose LoyalChain?</p>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 60,
+            width: "100%",
+          }}
+        >
+          <WhyChoose
+            size={2}
+            uriImg={SVGIntro2}
+            title="Integration other"
+            content="Lorem ipsum dolor sit amet, consectetur
+            adipisicing elit, sed do eiusmod tempor
+            incididunt Laoreet non curabitur gravida
+            sagittis aliquam bibendum."
+          />{" "}
+          <WhyChoose
+            size={1}
+            uriImg={SVGIntro2}
+            title="Integration other"
+            content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <WhyChoose
+            size={1}
+            uriImg={SVGIntro2}
+            title="Integration other"
+            content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+          />{" "}
+          <WhyChoose
+            size={1}
+            uriImg={SVGIntro2}
+            title="Integration other"
+            content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+          />{" "}
+          <WhyChoose
+            size={1}
+            uriImg={SVGIntro2}
+            title="Integration other"
+            content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+          />{" "}
+        </div>
+      </div>
+
+      <div className="app-home--package" />
+
+      <div className="app-home--contact"></div>
+
+      <div className="app-home--logo_tail" style={{ width: "100%" }}>
+        <img
+          src={Logo}
+          alt="loyalChain"
+          style={{ width: "70%", marginRight: 10 }}
+        />
       </div>
     </div>
   );

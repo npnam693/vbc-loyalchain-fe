@@ -17,7 +17,7 @@ $padding-v-intro: 40px;
                 color: var(--color-text-white)
             }   
             .desc {
-                font-size: 1.6rem;
+                font-size: 1.8rem;
                 font-weight: 400;
                 color: var(--color-text-white);
                 margin-bottom: 24px;
@@ -27,14 +27,14 @@ $padding-v-intro: 40px;
                 border-color: var(--color-secondary);
                 color: #DDDDDD;
                 font-weight: 500;
-                font-size: 1.4rem;
+                font-size: 1.6rem;
                 margin-right: 20px;
             }
             .btn-2 {
                 background-color: var(--color-secondary);
                 color: #DDDDDD;
                 font-weight: 500;
-                font-size: 1.4rem;
+                font-size: 1.6rem;
             }
         }
 
@@ -45,7 +45,7 @@ $padding-v-intro: 40px;
                 position: absolute;                
                 height: 500px;
                 bottom: 50px;
-                right: -10vw;
+                right: -9vw;
             }
             .lottie-gift {
                 height: 200px;
@@ -72,7 +72,7 @@ $padding-v-intro: 40px;
                 text-align: right;
             }   
             .desc {
-                font-size: 1.6rem;
+                font-size: 1.8rem;
                 font-weight: 400;
                 color: var(--color-text-white);
                 margin-bottom: 24px;
@@ -84,14 +84,14 @@ $padding-v-intro: 40px;
                 border-color: var(--color-secondary);
                 color: #DDDDDD;
                 font-weight: 500;
-                font-size: 1.4rem;
+                font-size: 1.6rem;
                 margin-right: 20px;
             }
             .btn-2 {
                 background-color: var(--color-secondary);
                 color: #DDDDDD;
                 font-weight: 500;
-                font-size: 1.4rem;
+                font-size: 1.6rem;
             }
             .btn-group {
                 display: flex;
@@ -114,7 +114,18 @@ $padding-v-intro: 40px;
             margin-bottom: 1rem;
             color: var(--color-text-white);
             text-align: center;
+            margin-bottom: 80px;
         }   
+    }
+    &--logo_tail{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 0 100px 0;
+        img: {
+            width: 70%;
+        }
     }
 }
 

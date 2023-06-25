@@ -148,14 +148,13 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <>
-      <div className="gradient">
-        <Particles
-          id="tsparticles"
-          init={particlesInit}
-          loaded={particlesLoaded}
-          options={toptions}
-        />
-      </div>
+      <div className="gradient"></div>
+      <Particles
+        id="tsparticles"
+        init={particlesInit}
+        loaded={particlesLoaded}
+        options={toptions}
+      />
       <Header />
       {children}
       <Footer />
