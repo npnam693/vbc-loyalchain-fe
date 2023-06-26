@@ -8,6 +8,7 @@ import Logo from "../../assets/svg/logo_loyal-chain.svg";
 import Gift_Lottie from "../../assets/lottie/gift.json";
 import WhyChoose from "../../components/home/whychoose";
 import Package from "../../components/home/package";
+import Contact from "../../components/home/contact";
 import "./Home.scss";
 
 export default function Home() {
@@ -165,7 +166,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="app-home--contact"></div>
+      <Contact />
 
       <div className="app-home--logo_tail">
         <img src={Logo} alt="loyalChain" />

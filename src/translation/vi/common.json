@@ -6,6 +6,20 @@
     "blog": "Blog",
     "about": "Thông tin"
   },
+  "contact":{
+    "title": {
+      "address": "Address",
+      "timework": "Woking time",
+      "email": "Email",
+      "phone":"Phone"
+    },
+    "content": {
+      "address": "28/3 Lữ Gia, Phường 15, Quận 11, Thành phố Hồ Chí Minh",
+      "timework": "Thứ 2 đến Thứ 6 từ 9:00 đến 18:00",
+      "email": "contact@vietnamblockchain.asia",
+      "phone":"028 6271 7798"
+    }
+  },
   "login": {
     "register": "Đăng ký",
     "login": "Đăng nhập",
@@ -1029,7 +1043,6 @@
   "introduction": "Giới thiệu",
   "VBC": "Tầng 5, tòa nhà Flemington, Số 182 Lê Đại Hành, P.15, Q.11, Tp. Hồ Chí Minh, Việt Nam",
   "replace": "Thay thế",
-  "contact": "Liên hệ",
   "reset": "Khôi phục",
   "upgrade": "Dùng thử miễn phí",
   "invalidMail": "Địa chỉ email không hợp lệ",

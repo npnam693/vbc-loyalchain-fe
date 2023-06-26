@@ -1,0 +1,77 @@
+.app-contact{
+    border-radius: 30px;
+    width: 90%;
+    // height: 300px;
+    padding: 70px 140px 40px 140px;
+    background-color: white;
+    margin: auto;
+
+    display: flex;
+    flex-direction: row ;
+    position: relative;
+    .info {
+        flex: 0.5;
+        margin-top: -30px;
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color)
+        }
+
+        .info-content {
+            font-size: 1.6rem;
+            p {
+                font-size: 1.6rem;
+                font-weight: 500;
+            }
+        }
+    }
+
+    .form {
+        flex: 0.5;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        .form-info {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            Input {
+                border-radius: 2px;
+                width: 46%;
+                font-size: 1.4rem;
+            }
+        }
+        
+        .text-email {
+            border-radius: 2px;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+        }
+
+        .form-desc {
+            font-size: 1.4rem;
+            border-radius: 2px;
+            min-height: 90px;
+        }
+
+        .btn-submit {
+            background-color: var(--color-secondary);
+            color: white;
+            font-weight: 500;
+            font-size: 1.6rem;
+            border-radius: 5px;
+            margin-top: 12px;
+            padding: 0 24px 0 24px
+        }
+
+    }
+
+    .img-pattern{
+        position: absolute;
+        left: -40px;
+        bottom: -30px;
+    }
+}

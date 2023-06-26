@@ -6,6 +6,20 @@
     "blog": "Blogs",
     "about": "About"
   },
+  "contact":{
+    "title": {
+      "address": "Address",
+      "timework": "Woking time",
+      "email": "Email",
+      "phone":"Phone"
+    },
+    "content": {
+      "address": "28/3 Lu Gia, Ward 15, District 11, Ho Chi Minh City",
+      "timework": "Monday to Friday from 9:00 to 18:00",
+      "email": "contact@vietnamblockchain.asia",
+      "phone":"028 6271 7798"
+    }
+  },
   "login": {
     "register": "Sign up",
     "login": "Sign in",
