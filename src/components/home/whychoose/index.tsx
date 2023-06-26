@@ -1,5 +1,5 @@
 import React from "react";
-
+import "./WhyChoose.scss";
 interface IWhyChooseProps {
   size: number;
   uriImg: string;
@@ -17,15 +17,15 @@ interface IStyleProps {
 const StyleProps: IStyleProps = {
   width: "30%",
   height: 300,
-  padding: 30,
-  borderRadius: 30,
+  padding: 40,
+  borderRadius: 20,
   backgroundColor: "rgba(255, 255, 255,0.7)",
 };
 
 export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
   if (props.size === 1) {
     return (
-      <div style={StyleProps}>
+      <div style={StyleProps} className="app-whychoose">
         <img
           src={props.uriImg}
           alt="loyalChain"
@@ -58,12 +58,12 @@ export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
     return (
       <div
         style={{
-          ...StyleProps,
           width: "65%",
           display: "flex",
           justifyContent: "space-evenly",
           alignItems: "center",
         }}
+        className="app-whychoose"
       >
         <div style={{ flex: 0.7 }}>
           <p

@@ -48,7 +48,7 @@ $padding-v-intro: 40px;
                 right: -9vw;
             }
             .lottie-gift {
-                height: 200px;
+                height: 20rem;
                 position: absolute;
                 right: 180px;
                 top: -340px
@@ -108,6 +108,7 @@ $padding-v-intro: 40px;
     }
 
     &--whychoose{
+        padding: 100px;
         .title {
             font-size: 3rem;
             font-weight: 700;
@@ -117,14 +118,34 @@ $padding-v-intro: 40px;
             margin-bottom: 80px;
         }   
     }
+
+    &--package {
+        padding: 100px 0 100px 0;
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--color-text-white);
+            margin-bottom: 80px;
+        }
+    
+        .list-packages{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+    }
     &--logo_tail{
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 100px 0 100px 0;
-        img: {
-            width: 70%;
+        
+        img {
+            width: 36%;
         }
     }
 }

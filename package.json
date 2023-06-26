@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "^5.1.4",
     "@babel/polyfill": "^7.12.1",
     "@mdi/js": "^7.2.96",
     "@mdi/react": "^1.6.1",

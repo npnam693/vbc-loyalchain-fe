@@ -1,0 +1,37 @@
+.app-package {
+    padding: 4px 30px 0 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .header-pane {
+        width: 90%;
+        height: 8px;
+        border-bottom-left-radius: 50px;
+        border-bottom-right-radius: 50px;
+    }   
+
+    .type-text {
+        font-family: 'Pacifico', cursive;
+        font-size: 2.8rem;
+    }
+
+    .money-text {
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-bottom: 30px;
+    }
+    .content-item {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        padding: 10px;
+        align-items: center;
+        justify-content: space-between;
+        p {
+            width: 90%;
+            text-align: center;
+            font-weight: 500;
+        }
+    }
+}

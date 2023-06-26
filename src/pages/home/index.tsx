@@ -1,10 +1,13 @@
 import React from "react";
 import { Button } from "antd";
+import Lottie from "lottie-react";
 
 import SVGIntro1 from "../../assets/svg/home/intro1.svg";
 import SVGIntro2 from "../../assets/svg/home/intro2.svg";
 import Logo from "../../assets/svg/logo_loyal-chain.svg";
+import Gift_Lottie from "../../assets/lottie/gift.json";
 import WhyChoose from "../../components/home/whychoose";
+import Package from "../../components/home/package";
 import "./Home.scss";
 
 export default function Home() {
@@ -24,7 +27,6 @@ export default function Home() {
             tokens can be used to access a wide range of rewards, including
             exclusive products, services, discounts, or even cashback options.
           </p>
-
           <Button type="default" className="btn-1" size="large">
             Join now
           </Button>
@@ -34,6 +36,11 @@ export default function Home() {
         </div>
         <div className="intro-right">
           <img src={SVGIntro1} alt="loyalChain" />
+          <Lottie
+            animationData={Gift_Lottie}
+            loop={true}
+            className="lottie-gift"
+          />
         </div>
       </div>
 
@@ -122,16 +129,46 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="app-home--package" />
+      <div className="app-home--package">
+        <p className="title">Choose the package that's right for you!</p>
+        <div className="list-packages">
+          <Package
+            premium={false}
+            type="Basic"
+            money={200}
+            contents={[
+              "PREMIUM THEME",
+              "FREE BRANDED LOGO & BANNER",
+              "5 TRENDING PRODUCTS",
+            ]}
+          />
+          <Package
+            premium={true}
+            type="Basic"
+            money={200}
+            contents={[
+              "PREMIUM THEME",
+              "FREE BRANDED LOGO & BANNER",
+              "5 TRENDING PRODUCTS",
+            ]}
+          />
+          <Package
+            premium={false}
+            type="Basic"
+            money={200}
+            contents={[
+              "PREMIUM THEME",
+              "FREE BRANDED LOGO & BANNER",
+              "5 TRENDING PRODUCTS",
+            ]}
+          />
+        </div>
+      </div>
 
       <div className="app-home--contact"></div>
 
-      <div className="app-home--logo_tail" style={{ width: "100%" }}>
-        <img
-          src={Logo}
-          alt="loyalChain"
-          style={{ width: "70%", marginRight: 10 }}
-        />
+      <div className="app-home--logo_tail">
+        <img src={Logo} alt="loyalChain" />
       </div>
     </div>
   );
