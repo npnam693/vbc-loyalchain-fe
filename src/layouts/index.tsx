@@ -1,11 +1,13 @@
 import React from "react";
-import Header from "./components/header/Header";
-import { LayoutProps } from "../types/route";
-import Footer from "./components/footer/Footer";
 import { useCallback } from "react";
 import Particles from "react-particles";
 import { loadFull } from "tsparticles";
 import type { Container, Engine, ISourceOptions } from "tsparticles-engine";
+
+import Header from "./components/header/Header";
+import Footer from "./components/footer/Footer";
+import { LayoutProps } from "../types/route";
+
 const toptions: ISourceOptions = {
   name: "Polygon Mask",
   interactivity: {
@@ -156,6 +158,7 @@ const Layout = ({ children }: LayoutProps) => {
         options={toptions}
       />
       <Header />
+      <div style={{ height: "var(--header-height)" }}></div>
       {children}
       <Footer />
     </>

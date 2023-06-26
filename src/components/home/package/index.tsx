@@ -35,7 +35,7 @@ const Package = (props: IPackage): JSX.Element => {
       <p className="money-text">{props.money}$</p>
 
       {props.contents.map((content, index) => (
-        <div className="content-item">
+        <div className="content-item" key={index}>
           <CheckOutlined
             style={{
               fontSize: "16px",

@@ -3,7 +3,7 @@ $padding-v-intro: 40px;
 .app-home{
     margin: 0 var(--app-margin) 0 var(--app-margin);
     &--intro1 {
-        padding: 200 0 100px 0;
+        padding: 0px 0 100px 0;
         display: flex;
         flex-direction: row;
         align-items: flex-end;
@@ -120,7 +120,7 @@ $padding-v-intro: 40px;
     }
 
     &--package {
-        padding: 100px 0 100px 0;
+        padding: 100px 0 200px 0;
         .title {
             font-size: 3rem;
             font-weight: 700;
@@ -142,7 +142,7 @@ $padding-v-intro: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 100px 0 100px 0;
+        padding: 200px 0 100px 0;
         
         img {
             width: 36%;

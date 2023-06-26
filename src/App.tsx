@@ -10,7 +10,7 @@ import { PersistGate } from "redux-persist/lib/integration/react";
 import RouterList from "./router";
 import store, { persistor } from "./state/index";
 import i18next from "./translation/index";
-import Layout from "./layouts";
+import AppLayout from "./layouts";
 
 const queryClient = new QueryClient();
 
@@ -21,11 +21,11 @@ function App() {
         <BrowserRouter>
           <I18nextProvider i18n={i18next}>
             {/* <ErrorBoundary> */}
-              <QueryClientProvider client={queryClient}>
-                <Layout>
-                  <RouterList />
-                </Layout>
-              </QueryClientProvider>
+            <QueryClientProvider client={queryClient}>
+              <AppLayout>
+                <RouterList />
+              </AppLayout>
+            </QueryClientProvider>
             {/* </ErrorBoundary> */}
           </I18nextProvider>
         </BrowserRouter>

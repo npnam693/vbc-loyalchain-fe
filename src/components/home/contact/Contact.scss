@@ -2,7 +2,7 @@
     border-radius: 30px;
     width: 90%;
     // height: 300px;
-    padding: 70px 140px 40px 140px;
+    padding: 70px 140px 30px 140px;
     background-color: white;
     margin: auto;
 
@@ -11,7 +11,7 @@
     position: relative;
     .info {
         flex: 0.5;
-        margin-top: -30px;
+        margin-top: -40px;
         .title {
             font-size: 2.5rem;
             font-weight: 700;
@@ -20,6 +20,7 @@
 
         .info-content {
             font-size: 1.6rem;
+            margin-bottom: 6px;
             p {
                 font-size: 1.6rem;
                 font-weight: 500;

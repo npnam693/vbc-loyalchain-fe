@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
-import clsx from "clsx";
-import { useAppSelector } from "../../../state/hooks";
-import HeaderDots from "./HeaderDots";
-import HeaderUserbox from "./HeaderUserbox";
-import Logo from "../../../assets/svg/logo_loyal-chain.svg";
+import { useTranslation } from "react-i18next";
 import { Search } from "react-feather";
 import { Input, Button } from "antd";
-import { useTranslation } from "react-i18next";
+import { Link, useLocation } from "react-router-dom";
+
+import clsx from "clsx";
+
+import { useAppSelector } from "../../../state/hooks";
+import Logo from "../../../assets/svg/logo_loyal-chain.svg";
+import HeaderUserbox from "./HeaderUserbox";
+import HeaderDots from "./HeaderDots";
 import "./Header.scss";
 
 const Header = () => {
@@ -19,6 +22,9 @@ const Header = () => {
       setheaderShow(false);
     }
   };
+
+  const currentUrl = useLocation().pathname;
+  console.log("currentUrl", currentUrl);
 
   const {
     headerShadow,
@@ -72,19 +78,41 @@ const Header = () => {
 
             <div className="app-header--option">
               <div>
-                <p>{t("nav.home")}</p>
+                <Link to="/" className={clsx({ tabFocus: currentUrl === "/" })}>
+                  {t("nav.home")}
+                </Link>
               </div>
               <div>
-                <p>{t("nav.market")}</p>
+                <Link
+                  to="/marketplace"
+                  className={clsx({ tabFocus: currentUrl === "/marketplace" })}
+                >
+                  {t("nav.market")}
+                </Link>
               </div>
               <div>
-                <p>{t("nav.rewards")}</p>
+                <Link
+                  to="/rewards"
+                  className={clsx({ tabFocus: currentUrl === "/rewards" })}
+                >
+                  {t("nav.rewards")}
+                </Link>
               </div>
               <div>
-                <p>{t("nav.blog")}</p>
+                <Link
+                  to="/blog"
+                  className={clsx({ tabFocus: currentUrl === "/blog" })}
+                >
+                  {t("nav.blog")}
+                </Link>
               </div>
               <div>
-                <p>{t("nav.about")}</p>
+                <Link
+                  to="/about"
+                  className={clsx({ tabFocus: currentUrl === "/about" })}
+                >
+                  {t("nav.about")}
+                </Link>
               </div>
             </div>
           </div>
