@@ -6,6 +6,23 @@
     "blog": "Blog",
     "about": "Thông tin"
   },
+  "footer": {
+    "sitemap": "Đường dẫn",
+    "company": {
+      "title": "Về công ty",
+      "about": "Về VBC",
+      "help": "Giúp đỡ & Hỗ trợ",
+      "policy": "Điều khoản & Chính sách"
+
+    },
+    "lang": {
+      "title":"Ngôn ngữ",
+      "vi": "Tiếng việt",
+      "en": "English"
+    }    
+  },
+
+
   "contact":{
     "title": {
       "address": "Address",

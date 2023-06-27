@@ -6,6 +6,20 @@
     "blog": "Blogs",
     "about": "About"
   },
+  "footer": {
+    "sitemap": "Sitemap",
+    "company": {
+      "title": "Company",
+      "about": "About VBC",
+      "help": "Help & Support",
+      "policy": "Privacy Policy"
+    },
+    "lang": {
+      "title":"Language",
+      "vi": "Vietnamese",
+      "en": "English"
+    }    
+  },
   "contact":{
     "title": {
       "address": "Address",
