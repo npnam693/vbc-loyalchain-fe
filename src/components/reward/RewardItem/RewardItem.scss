@@ -1,0 +1,45 @@
+.app-reward_item {
+    width: 310px;
+    padding: 12px;
+    border-radius: 15px;
+    background-color: white;
+
+    .content{
+        padding: 0px 20px;
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-text-main);
+        }
+        
+        .info {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            .cost {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                
+                p {
+                    color: var(--color-secondary);
+                    font-weight: 500;
+                }
+            }
+        }
+
+        .divider {
+            border-color: rgba($color: black, $alpha: 0.2);
+            margin: 10px 0px;
+        }
+
+        .action{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+    }
+}

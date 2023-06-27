@@ -1,7 +1,6 @@
 .app-market{
     padding-top: 60px;
 
-
     .title {
         font-size: 3rem;
         font-weight: 700;
@@ -13,89 +12,74 @@
         flex-direction: row;
         margin-bottom: 20px;
     }
-
-    .filter{
-        background-color: rgba($color: #000000, $alpha: 0.8);
-        z-index: 6;
-        width: 100vw;
-        height: 100vh;
-        position: fixed;
+}
+.app-market-filter {
+    .header{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
         
-        top:0px;
-        left: 0px;
-
-        .filter-container {
-            background-color: var(--color-primary);
-            height: 100%;
-            width: 36%;
-            margin-left: auto;
-            padding: 30px 50px;
-
-            .header{
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                
-                &--tab {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    &--item {
-                        font-size: 1.6rem;
-                        font-weight: 500;
-                        color: white;
-                        min-width: 60px;
-                        border-bottom: 3px solid var(--color-primary);
-                        margin-right: 16px;
-                        cursor: pointer;
-                        &--show {
-                            border-bottom: 3px solid var(--color-secondary);
-                            padding-bottom: 2px;
-                        }
-                    }
-                }
-
-                &--option {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    
-                    &--item {
-                        font-size: 1.6rem;
-                        font-weight: 500;
-                        color: var(--color-secondary);
-                        cursor: pointer;
-                    }
-
-                    .close-icon {
-                        margin-left: 30px;
-                        color: white;
-                        font-size: 2.5rem;
-                        cursor: pointer;
-                    }
+        &--tab {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            &--item {
+                font-size: 1.6rem;
+                font-weight: 500;
+                color: white;
+                min-width: 60px;
+                border-bottom: 3px solid var(--color-primary);
+                margin-right: 16px;
+                cursor: pointer;
+                &--show {
+                    border-bottom: 3px solid var(--color-secondary);
+                    padding-bottom: 2px;
                 }
             }
+        }
 
-            .divider {
-                border-color: rgba($color: white, $alpha: 0.6);
-                margin: 10px 0px;
-            }
+        &--option {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
             
-            .content-filter {
-                margin-top: 50px;
-                .item {
-                    margin-bottom: 100px;
-                    p {
-                        color: white;
-                        font-weight: 600;
-                        margin: 6px 0;
-                    }
-    
-                    Button {
-                        margin-bottom: 20px;
-                    }
-                }
+            &--item {
+                font-size: 1.6rem;
+                font-weight: 500;
+                color: var(--color-secondary);
+                cursor: pointer;
+            }
+
+            .close-icon {
+                margin-left: 30px;
+                color: white;
+                font-size: 2.5rem;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .divider {
+        border-color: rgba($color: white, $alpha: 0.6);
+        margin: 10px 0px;
+    }
+        
+    .content-filter {
+        margin-top: 50px;
+        .item {
+            margin-bottom: 100px;
+            p {
+                color: white;
+                font-weight: 600;
+                margin: 6px 0;
+                margin-bottom: 12px;
+            }
+
+            Button {
+                margin-bottom: 20px;
             }
         }
     }
 }
+
+    

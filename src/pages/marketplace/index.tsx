@@ -1,9 +1,10 @@
 import clsx from "clsx";
 import { useState } from "react";
-import { Col, Row, Divider, Button, Slider } from "antd";
+import { Col, Row, Divider, Button, Slider, Drawer } from "antd";
 
 import "./Marketplace.scss";
 import Order from "../../components/marketplace/Order";
+import SelectToken from "../../components/app/SelectToken";
 import MarketPane from "../../components/marketplace/MarketPane";
 import TableOrder from "../../components/marketplace/TableOrder";
 import StatisticItem from "../../components/marketplace/StatisticItem";
@@ -12,8 +13,9 @@ const Marketplace = () => {
   const [isListMode, setIsListMode] = useState(true);
   const [filter, setFilter] = useState({
     open: false,
-    isFilterMode: false,
+    isFilterMode: true,
   });
+  const [selectShow, setSelectShow] = useState(false);
 
   const toggleModeView = () => {
     setIsListMode(!isListMode);
@@ -23,12 +25,21 @@ const Marketplace = () => {
     setFilter({ open: true, isFilterMode: true });
   };
 
-  console.log(filter);
+  const closeSelectToken = () => {
+    setSelectShow(false);
+  };
+
   return (
     <div className="app-market">
-      {filter.open && (
-        <div className="filter">
-          <div className="filter-container">
+      <Drawer
+        className="app-market-filter"
+        style={{ backgroundColor: "var(--color-primary)" }}
+        width={"36%"}
+        closable={false}
+        open={filter.open}
+      >
+        {filter.open && (
+          <>
             <div className="header">
               <div className="header--tab">
                 <div
@@ -72,15 +83,19 @@ const Marketplace = () => {
               <div className="content-filter">
                 <div className="item">
                   <p>Swap from</p>
-                  <Button>Select a token</Button>
+                  <Button
+                    type="primary"
+                    size="large"
+                    onClick={() => setSelectShow(true)}
+                  >
+                    Select a token
+                  </Button>
                   <p>Quantity</p>
                   <Slider
                     min={0}
                     max={10000}
                     range={{ draggableTrack: true }}
-                    defaultValue={[0, 3000]}
                     step={20}
-                    tooltip={{ open: true, placement: "bottom" }}
                     railStyle={{
                       borderColor: "white",
                       color: "white",
@@ -91,15 +106,19 @@ const Marketplace = () => {
 
                 <div className="item">
                   <p>Swap to</p>
-                  <Button>Select a token</Button>
+                  <Button
+                    type="primary"
+                    size="large"
+                    onClick={() => setSelectShow(true)}
+                  >
+                    Select a token
+                  </Button>
                   <p>Quantity</p>
                   <Slider
                     min={0}
                     max={10000}
                     range={{ draggableTrack: true }}
-                    defaultValue={[0, 3000]}
                     step={20}
-                    tooltip={{ open: true, placement: "bottom" }}
                     railStyle={{
                       borderColor: "white",
                       color: "white",
@@ -107,13 +126,19 @@ const Marketplace = () => {
                     }}
                   />
                 </div>
+
+                {selectShow && (
+                  <div>
+                    <SelectToken closeFunction={closeSelectToken} />
+                  </div>
+                )}
               </div>
             ) : (
               <div></div>
             )}
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Drawer>
 
       <p className="title">Marketplace</p>
 
