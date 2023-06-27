@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Search } from "react-feather";
 import { Input, Button } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import clsx from "clsx";
 
@@ -15,6 +15,8 @@ import "./Header.scss";
 const Header = () => {
   const { t } = useTranslation("common");
   const [headerShow, setheaderShow] = useState(false);
+  const navigate = useNavigate();
+
   window.onscroll = function () {
     if (!headerShow && window.scrollY >= 60) {
       setheaderShow(true);
@@ -73,7 +75,8 @@ const Header = () => {
             <img
               src={Logo}
               alt="loyalChain"
-              style={{ height: 42, marginRight: 10 }}
+              style={{ height: 42, marginRight: 10, cursor: "pointer" }}
+              onClick={() => navigate("/")}
             />
 
             <div className="app-header--option">

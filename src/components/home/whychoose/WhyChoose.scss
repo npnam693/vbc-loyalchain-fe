@@ -1,29 +1,30 @@
 .app-whychoose{
-    width: 30%;
-    height: 300px;
-    padding: 30px;
-    border-radius: 20px;
-    background-color: rgba(255, 255, 255,0.7);
-    position:relative;
+  width: 30%;
+  min-height: 300px;
 
-    transition:all 1s;
-    &:after,&:before{
-        content:" ";
-        width:10px;
-        height:10px;
-        position:absolute;
-        border :0px solid #fff;
-        transition:all 1s;
-    }
+  padding: 30px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255,0.7);
+  position:relative;
+  overflow: hidden;
+  transition:all 1s;
+  &:after,&:before{
+      content:" ";
+      width:10px;
+      height:10px;
+      position:absolute;
+      border :0px solid #fff;
+      transition:all 1s;
+  }
   &:after{
-    top:20px;
-    left:20px;
+    top:10px;
+    left:10px;
     border-top:5px solid rgba(255, 255, 255,0.85);
     border-left:5px solid rgba(255, 255, 255,0.85);
   }
   &:before{
-    bottom:20px;
-    right:20px;
+    bottom:10px;
+    right:10px;
     border-bottom:5px solid rgba(255, 255, 255,0.85);
     border-right:5px solid rgba(255, 255, 255,0.85);
   }
@@ -31,10 +32,15 @@
     // background:rgba(0,0,0,.5);
     // color:white;
     &:before,&:after{
-      width:calc(100% - 40px);
-      height:calc(100% - 40px);
+      width:calc(100% - 20px);
+      height:calc(100% - 20px);
       // border-color:white;
     }
+  }
+
+
+  img {
+    width: 100%;
   }
 }
 

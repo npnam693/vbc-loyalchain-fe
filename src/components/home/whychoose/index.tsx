@@ -1,4 +1,5 @@
 import React from "react";
+import imgmy from "../../../assets/svg/home/whychoose-img1.svg";
 import "./WhyChoose.scss";
 interface IWhyChooseProps {
   size: number;
@@ -25,14 +26,8 @@ const StyleProps: IStyleProps = {
 export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
   if (props.size === 1) {
     return (
-      <div style={StyleProps} className="app-whychoose">
-        <img
-          src={props.uriImg}
-          alt="loyalChain"
-          style={{
-            height: 100,
-          }}
-        />
+      <div className="app-whychoose">
+        <img src={imgmy} alt="loyalChain" />
 
         <p
           style={{
@@ -65,7 +60,7 @@ export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
         }}
         className="app-whychoose"
       >
-        <div style={{ flex: 0.7 }}>
+        <div style={{ flex: 0.6 }}>
           <p
             style={{
               fontSize: "2.4rem",
@@ -88,7 +83,8 @@ export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
           src={props.uriImg}
           alt="loyalChain"
           style={{
-            height: "100%",
+            width: "100%",
+            flex: 0.3,
           }}
         />
       </div>

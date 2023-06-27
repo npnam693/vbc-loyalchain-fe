@@ -1,8 +1,8 @@
 .app-footer{
     width: 100%;
     background-color: rgba(255,255,255,.04);
-
-    p {
+    margin-top: 40px;
+    p{
         color: #DDDDDD;
         font-size: 1.4rem;
     }
@@ -23,6 +23,7 @@
             flex-direction: row;
             justify-content: space-between;
 
+
             .app-footer--sitemap {
                 flex: 0.28;
                 display: flex;
@@ -32,6 +33,11 @@
                     font-size: 1.6rem;
                     font-weight: 600;
                     margin-bottom: 0.3rem;
+                }
+                
+                &--link {
+                    color: #DDDDDD;
+                    font-size: 1.4rem;
                 }
             }
 
@@ -57,7 +63,6 @@
                 }
             }
         }
-
     }
 
     &--logovbc {

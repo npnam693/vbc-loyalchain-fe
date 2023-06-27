@@ -1,0 +1,20 @@
+.app-market--pane{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    Button {
+        margin: 0 0.5rem;
+        background-color: #ccc;
+        color: black;
+        font-weight: 500;
+        
+    }
+    .all-filter{
+        background-color: var(--color-secondary);
+        color: var(--color-primary);
+        font-weight: 500;
+        margin-left: 0;
+    }
+}

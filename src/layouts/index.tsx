@@ -159,7 +159,9 @@ const Layout = ({ children }: LayoutProps) => {
       />
       <Header />
       <div style={{ height: "var(--header-height)" }}></div>
-      {children}
+      <div style={{ margin: "0 var(--app-margin) 0 var(--app-margin)" }}>
+        {children}
+      </div>
       <Footer />
     </>
   );
