@@ -4,6 +4,7 @@ import "./MarketPane.scss";
 
 interface IMarketPaneProps {
   isListMode: boolean;
+  openFilter: () => void;
   toggleModeView: () => void;
 }
 
@@ -11,7 +12,12 @@ const MarketPane = (props: IMarketPaneProps) => {
   return (
     <div className="app-market--pane">
       <div>
-        <Button className="all-filter" type="primary" size="large">
+        <Button
+          className="all-filter"
+          type="primary"
+          size="large"
+          onClick={() => props.openFilter()}
+        >
           All Filters
         </Button>
 
