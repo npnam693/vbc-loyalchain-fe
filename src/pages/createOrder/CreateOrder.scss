@@ -1,8 +1,158 @@
 
 .app-create {
     height: 70%;
-    width: 50%;
+    width: 55%;
     background-color: white;
     margin: 10% auto 20% auto;
     padding: 40px;
+    border-radius: 16px;
+
+    .title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: rgba($color: #000000, $alpha: 0.8);
+
+        &--desc {
+            font-size: 1.6rem;
+            color: rgba($color: #000000, $alpha: 0.6);
+            margin-bottom: 16px;
+        }
+    }
+
+    .content {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        
+        .form {
+            flex: 0.6;
+            .form-input {
+                padding: 16px;
+                border-radius: 5px;
+                background-color: #F9FAFB;
+                border: 0.5px solid #E5E7EB;
+                &--header{
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    margin-bottom: 10px;
+                    &--token {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        img {
+                            width: 2.5rem;
+                            height: 2.5rem;
+                            margin-right: 6px;   
+                        }
+                        
+                        p {
+                            font-size: 1.6rem;
+                            font-weight: 600;
+                            color: rgba($color: #000000, $alpha: 0.8);
+                            margin-right: 20px;
+                        }
+                    }
+                }
+
+                &--content {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+
+                    &--input {
+                        width: 160px;
+                        padding: 4px 0px;
+                        .ant-input-number-input{
+                            font-weight: 600;
+                            color: #333;
+                            font-size: 1.7rem;
+                            font-family: 'Inter', sans-serif;
+                        }
+                    }
+
+                    &--amount {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        font-weight: 400;
+                        font-size: 1.4rem;
+
+                        Button {
+                            font-size: 1.2rem;
+                            height: 24px;
+                            border-radius: 0px;
+                            padding: 0px 5px;
+                            color: var(--color-secondary);
+                            font-weight: 600;
+                            margin-right: 6px;
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+        .divider {
+            height: 300px;
+        }
+
+        .info {
+            flex: 0.3;
+            .info-title {
+                font-size: 1.6rem;
+                font-weight: 500;
+                color: rgba($color: #000000, $alpha: .6);
+                margin-bottom: 16px;
+            }
+            .average {
+                .pair{
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    padding-right: 20px;
+                    .average {
+                        font-size: 2rem;
+                        font-weight: 700;
+                        color: rgba($color: red, $alpha: .5);
+                    }
+                }
+            }
+
+            .locktime {
+                margin-top: 50px;
+                
+                .input-time{
+                    display: flex;
+                    flex-direction: row;
+                    align-items: flex-end;
+                    p {
+                        margin-left: 10px;
+                    }
+                }
+
+            }
+        }
+    }
+
+    .icon-container {
+        border-radius: 20px;
+        border: 2px solid black;
+
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+        margin: 20px auto 20px auto;
+        .icon {
+            color: black;
+            font-size: 2rem;
+            rotate: 90deg;
+        }
+    }
+
 }

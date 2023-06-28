@@ -76,9 +76,7 @@ export interface LanguageImageObject {
 //   password: "",
 //   bcAddress: "",
 // };
-
-
-
+ 
 
 interface IBalance {
   symbol: string;

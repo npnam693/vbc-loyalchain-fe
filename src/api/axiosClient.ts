@@ -7,6 +7,7 @@ import { toggle } from "../state/alert/alertSlice";
 import { togglePopup } from "../state/popup/popupSlice";
 
 
+
 const getToken = async () => {
   let storeData = store.getState();
   if (storeData && storeData.userState && storeData.userState.token) {
@@ -40,7 +41,7 @@ axiosClient.interceptors.request.use(async (config) => {
   let token = await getToken();
   if (token) {
     config.headers = {
-      Authorization: token,
+      Authorization: `Bearer ${token}`,
     };
   }
   config.timeout = 15000;
