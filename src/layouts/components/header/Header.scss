@@ -50,8 +50,74 @@
 .btn-connect_wallet {
     background: #15BFFD;
     margin-left: 24px;
-
     color: white;
     font-size: 1.4rem;
     font-weight: 600;
+    height: 32px;
+}
+
+.header-popover--container {
+  // width: 200px;
+  height: 32px;
+  background-color: #C2EDFC;
+  margin-left: 24px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .btn-connect_wallet {
+    margin-left: 0;
+  }
+
+  .network {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 10px;
+    margin-right: 10px;
+    cursor: default;
+    p {
+      color: #666;
+      font-size: 1.4rem;
+      line-height: 1.4rem;
+      font-weight: 600;
+      margin: 4px;
+    }
+    .network-icon{
+      font-size:1.6rem;
+    }
+  }
+
+  
+}
+
+.header-popover_user{
+  .container-item{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-right: 60px;
+    padding: 4px 60px 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #C2EDFC;
+    }
+
+  }
+
+  p {
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-left: 10px;
+    margin-bottom: 4px;
+  }
+
+  .popover-icon{
+    font-size: 1.4rem;
+  }
+
 }

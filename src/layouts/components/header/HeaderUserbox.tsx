@@ -18,73 +18,72 @@ import { useToggleNoti } from "../../../state/popup/hooks";
 import { clearInfo } from "../../../state/user/userSlice";
 
 const HeaderUserbox = () => {
+  // const { t } = useTranslation("common");
+  // const navigate = useNavigate();
+  // const toggleAlert = useToggleAlert();
+  // const toggleNoti = useToggleNoti();
+  // const userInfo = useAppSelector((state) => state.userState);
+  // const distpatch = useAppDispatch();
+  // const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const { t } = useTranslation("common");
-  const navigate = useNavigate();
-  const toggleAlert = useToggleAlert();
-  const toggleNoti = useToggleNoti();
-  const userInfo = useAppSelector((state) => state.userState);
-  const distpatch = useAppDispatch();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  // const handleSignOut = async () => {
+  //   toggleAlert(true);
+  //   await authApi.signOut();
+  //   distpatch(clearInfo());
+  //   toggleNoti(true, "success", "Đăng xuất thành công!");
+  //   navigate("/login");
+  // };
 
-  const handleSignOut = async () => {
-    toggleAlert(true);
-    await authApi.signOut();
-    distpatch(clearInfo());
-    toggleNoti(true, "success", "Đăng xuất thành công!");
-    navigate("/login");
-  };
+  // const handleAva = () => {
+  //   if (userInfo) {
+  //     if (
+  //       userInfo.avatarLanguage &&
+  //       userInfo.avatarLanguage.vi &&
+  //       userInfo.avatarLanguage.vi.length > 0
+  //     ) {
+  //       if (
+  //         userInfo.avatarLanguage.vi[0] &&
+  //         userInfo.avatarLanguage.vi[0].image
+  //       ) {
+  //         if (userInfo.avatarLanguage.vi[0].image.secure_url) {
+  //           return userInfo.avatarLanguage.vi[0].image.secure_url;
+  //         }
+  //       }
+  //     } else {
+  //       return AGD_LOGO;
+  //     }
+  //   }
+  // };
 
-  const handleAva = () => {
-    if (userInfo) {
-      if (
-        userInfo.avatarLanguage &&
-        userInfo.avatarLanguage.vi &&
-        userInfo.avatarLanguage.vi.length > 0
-      ) {
-        if (
-          userInfo.avatarLanguage.vi[0] &&
-          userInfo.avatarLanguage.vi[0].image
-        ) {
-          if (userInfo.avatarLanguage.vi[0].image.secure_url) {
-            return userInfo.avatarLanguage.vi[0].image.secure_url;
-          }
-        }
-      } else {
-        return AGD_LOGO;
-      }
-    }
-  };
+  // const handleRedirect = (url: string) => {
+  //   navigate(url);
+  //   setIsOpen(!isOpen);
+  // };
 
-  const handleRedirect = (url: string) => {
-    navigate(url);
-    setIsOpen(!isOpen);
-  };
+  // const handleOrderRedirect = () => {
+  //   if (userInfo.role === "M") {
+  //     handleRedirect("/registrationHistory/list");
+  //   } else if (userInfo.role === "Z") {
+  //     handleRedirect("/adminonly/registrationHistory/list");
+  //   }
+  // };
 
-  const handleOrderRedirect = () => {
-    if (userInfo.role === "M") {
-      handleRedirect("/registrationHistory/list");
-    } else if (userInfo.role === "Z") {
-      handleRedirect("/adminonly/registrationHistory/list");
-    }
-  };
-
-  const handleRole = (role: ROLE) => {
-    switch (role) {
-      case ROLE.User:
-        return "User";
-      case ROLE.Admin:
-        return "Admin";
-      case ROLE.Employee:
-        return "Nhân viên";
-      default:
-        return "User";
-    }
-  };
+  // const handleRole = (role: ROLE) => {
+  //   switch (role) {
+  //     case ROLE.User:
+  //       return "User";
+  //     case ROLE.Admin:
+  //       return "Admin";
+  //     case ROLE.Employee:
+  //       return "Nhân viên";
+  //     default:
+  //       return "User";
+  //   }
+  // };
 
   return (
     <>
-    <p>Halo</p>
+      <p>Halo</p>
       {/* <UncontrolledDropdown className="position-relative ml-3 bg-white rounded px-3 py-1">
         <DropdownToggle
           onClick={() => setIsOpen(!isOpen)}
@@ -133,7 +132,7 @@ const HeaderUserbox = () => {
         </DropdownMenu>
       </UncontrolledDropdown>
     */}
-    </> 
+    </>
   );
 };
 

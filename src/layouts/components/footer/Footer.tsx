@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import cookie from "react-cookies";
+import { ethers } from "ethers";
 
 import "./Footer.scss";
 import VBC_Logo from "../../../assets/svg/logo_vbc.svg";
@@ -75,10 +76,26 @@ const Footer = () => {
               <p className="app-footer--language--title">
                 {t("footer.lang.title")}
               </p>
-              <p onClick={() => handleChangeLang("en")}>
+              <p
+                onClick={() => handleChangeLang("en")}
+                style={{
+                  color:
+                    i18n.language === "en"
+                      ? "var(--color-secondary)"
+                      : "var(--color-text-white)",
+                }}
+              >
                 {t("footer.lang.en")}
               </p>
-              <p onClick={() => handleChangeLang("vi")}>
+              <p
+                onClick={() => handleChangeLang("vi")}
+                style={{
+                  color:
+                    i18n.language === "vi"
+                      ? "var(--color-secondary)"
+                      : "var(--color-text-white)",
+                }}
+              >
                 {t("footer.lang.vi")}
               </p>
             </div>

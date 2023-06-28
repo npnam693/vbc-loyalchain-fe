@@ -51,12 +51,12 @@ const Sidebar = () => {
       >
         <SidebarHeader />
         <div className="app-sidebar--content">
-          <SidebarMenuLayout roles={[ROLE.User]} />
+          {/* <SidebarMenuLayout roles={[ROLE.User]} /> */}
         </div>
         {sidebarFooter && <SidebarFooter />}
       </div>
       <div
-        onClick={toggleSidebarMobile} 
+        onClick={toggleSidebarMobile}
         className={clsx("app-sidebar-overlay", {
           "is-active": sidebarToggleMobile,
         })}

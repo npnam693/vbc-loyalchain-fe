@@ -10,7 +10,6 @@ const RouterList = () => {
       {GeneralRoutes.map((item, idx) => (
         <Route key={idx} path={item.path} element={<item.element />} />
       ))}
-      <Route path="/404" element={<NotFound />} />
 
       {/* Use if we have many role in system */}
       {/* <Route path="/user" element={<PrivateRoute roles={[ROLE.User]} />}>
@@ -18,7 +17,7 @@ const RouterList = () => {
           <Route key={idx} path={item.path} element={<item.element />} />
         ))}
       </Route> */}
-      <Route path="*" element={<Login />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

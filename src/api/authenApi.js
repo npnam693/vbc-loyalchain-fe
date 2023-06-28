@@ -46,7 +46,6 @@ class AuthorApi {
     const url = HOST_API.concat("/users/phone/verifycode");
     return axiosClient.post(url, data);
   };
-
 }
 
 const authApi = new AuthorApi();
