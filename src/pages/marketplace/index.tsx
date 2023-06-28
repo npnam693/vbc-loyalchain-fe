@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Col, Row, Divider, Button, Slider, Drawer } from "antd";
 
 import "./Marketplace.scss";
@@ -16,6 +17,8 @@ const Marketplace = () => {
     isFilterMode: true,
   });
   const [selectShow, setSelectShow] = useState(false);
+
+  const navigate = useNavigate();
 
   const toggleModeView = () => {
     setIsListMode(!isListMode);
@@ -140,7 +143,12 @@ const Marketplace = () => {
         )}
       </Drawer>
 
-      <p className="title">Marketplace</p>
+      <div className="header">
+        <p className="title">Marketplace</p>
+        <Button className="btn-create" onClick={() => navigate("create")}>
+          Create Exchange Order
+        </Button>
+      </div>
 
       <div className="statistic-list">
         <StatisticItem />

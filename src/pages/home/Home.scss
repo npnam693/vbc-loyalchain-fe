@@ -1,13 +1,14 @@
 $padding-v-intro: 40px;
 
 .app-home{
-    margin: 0 var(--app-margin) 0 var(--app-margin);
+    // margin: 0 var(--app-margin) 0 var(--app-margin);
     &--intro1 {
         padding: 0px 0 100px 0;
         display: flex;
         flex-direction: row;
         align-items: flex-end;
         height: 800px;
+        flex: 1;
         .intro-left{
             flex:0.6;
             .title {

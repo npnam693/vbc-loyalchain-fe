@@ -1,11 +1,24 @@
 .app-market{
     padding-top: 60px;
 
-    .title {
-        font-size: 3rem;
-        font-weight: 700;
-        color: var(--color-text-white);
-        margin-bottom: 20px;
+    .header{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--color-text-white);
+            margin-bottom: 20px;
+        }
+        .btn-create {
+            background-color: rgba($color: #15BFFD, $alpha: 0.2);
+            border: none;
+            color: var(--color-text-white);
+            font-size: 1.6rem;
+            font-weight: 600;
+            height: 46px;
+        }
     }
     .statistic-list{
         display: flex;
