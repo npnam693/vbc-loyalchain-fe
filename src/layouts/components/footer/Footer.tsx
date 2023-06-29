@@ -1,14 +1,15 @@
 import { useTranslation } from "react-i18next";
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import cookie from "react-cookies";
-import { ethers } from "ethers";
 
-import "./Footer.scss";
 import VBC_Logo from "../../../assets/svg/logo_vbc-mode.svg";
+import SITEMAP from "../../../constants/sitemap";
+import "./Footer.scss";
 
 const Footer = () => {
   const { t, i18n } = useTranslation("common");
+  const currentUrl = useLocation().pathname;
 
   const handleChangeLang = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -46,21 +47,20 @@ const Footer = () => {
           <div className="app-footer--content">
             <div className="app-footer--sitemap">
               <p className="app-footer--sitemap--title">Sitemap</p>
-              <Link to="/" className="app-footer--sitemap--link">
-                {t("nav.home")}
-              </Link>
-              <Link to="/marketplace" className="app-footer--sitemap--link">
-                {t("nav.market")}
-              </Link>
-              <Link to="/reward" className="app-footer--sitemap--link">
-                {t("nav.rewards")}
-              </Link>
-              <Link to="/blog" className="app-footer--sitemap--link">
-                {t("nav.blog")}
-              </Link>
-              <Link to="/about" className="app-footer--sitemap--link">
-                {t("nav.about")}
-              </Link>
+              {SITEMAP.map((item, index) => (
+                <Link
+                  to={item.path}
+                  className="app-footer--sitemap--link"
+                  style={{
+                    color:
+                      currentUrl === item.path
+                        ? "var(--color-secondary)"
+                        : "var(--color-text-white)",
+                  }}
+                >
+                  {t(item.key)}
+                </Link>
+              ))}
             </div>
 
             <div className="app-footer--company">

@@ -16,13 +16,13 @@ interface IFormData {
 
 export default function CreateOrder() {
   const [formData, setFormData] = useState<IFormData>({
-    from: "SBP",
+    from: "",
     from_amount: 0,
-    to: "WMP",
+    to: "adp",
     to_amount: 10,
     timelock: 0,
   });
-  const [selectingToken, setSelectingToken] = useState<boolean>(true);
+  const [selectingToken, setSelectingToken] = useState<boolean>(false);
 
   const hdClickMaxBalance = () => {};
   const hdClickSwap = () => {
@@ -51,14 +51,34 @@ export default function CreateOrder() {
           <div className="form-input">
             <div className="form-input--header">
               <p>From</p>
-              <div
-                className="form-input--header--token"
-                onClick={hdClickSelectToken}
-              >
-                <img src={SBP} alt="Token" />
-                <p>{formData.from}</p>
-                <DownOutlined rev="" style={{ fontSize: "1.4rem" }} />
-              </div>
+              {formData.from !== "" ? (
+                <div
+                  className="form-input--header--token"
+                  onClick={hdClickSelectToken}
+                >
+                  <img src={SBP} alt="Token" />
+                  <p>{formData.from}</p>
+                  <DownOutlined rev="" style={{ fontSize: "1.4rem" }} />
+                </div>
+              ) : (
+                <Button
+                  onClick={hdClickSelectToken}
+                  className="btn-select_token"
+                  style={{
+                    backgroundColor: "var(--color-secondary)",
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    fontSize: "1.4rem",
+                  }}
+                >
+                  <p>Select a token</p>
+                  <DownOutlined
+                    rev=""
+                    style={{ fontSize: "1.4rem", marginLeft: 10 }}
+                  />
+                </Button>
+              )}
             </div>
 
             <div className="form-input--content">
@@ -90,15 +110,35 @@ export default function CreateOrder() {
 
           <div className="form-input">
             <div className="form-input--header">
-              <p>From</p>
-              <div
-                className="form-input--header--token"
-                onClick={hdClickSelectToken}
-              >
-                <img src={SBP} alt="Token" />
-                <p>{formData.to}</p>
-                <DownOutlined rev="" style={{ fontSize: "1.4rem" }} />
-              </div>
+              <p>To</p>
+              {formData.to !== "" ? (
+                <div
+                  className="form-input--header--token"
+                  onClick={hdClickSelectToken}
+                >
+                  <img src={SBP} alt="Token" />
+                  <p>{formData.to}</p>
+                  <DownOutlined rev="" style={{ fontSize: "1.4rem" }} />
+                </div>
+              ) : (
+                <Button
+                  onClick={hdClickSelectToken}
+                  className="btn-select_token"
+                  style={{
+                    backgroundColor: "var(--color-secondary)",
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    fontSize: "1.4rem",
+                  }}
+                >
+                  <p>Select a token</p>
+                  <DownOutlined
+                    rev=""
+                    style={{ fontSize: "1.4rem", marginLeft: 10 }}
+                  />
+                </Button>
+              )}
             </div>
 
             <div className="form-input--content">

@@ -91,6 +91,7 @@ const SelectToken = (props: ISelectTokenProps) => {
               symbol={item.symbol}
               balance={item.balance}
               uriImg={item.uriImg}
+              key={index}
             />
           ))}
         </div>

@@ -9,14 +9,12 @@ import { SafetyCertificateTwoTone } from "@ant-design/icons";
 
 import { useAppSelector, useAppDispatch } from "../../../state/hooks";
 import { saveInfo } from "../../../state/user/userSlice";
-
 import Logo from "../../../assets/svg/logo_loyal-chain.svg";
-// import HeaderUserbox from "./HeaderUserbox";
-// import HeaderDots from "./HeaderDots";
-import "./Header.scss";
 import { initialUserState } from "../../../state/user/userSlice";
 import { shortenAddress } from "../../../utils/string";
 import PopoverUser from "./PopoverUser";
+import "./Header.scss";
+import SITEMAP from "../../../constants/sitemap";
 
 const Header = () => {
   const currentUrl = useLocation().pathname;
@@ -61,6 +59,9 @@ const Header = () => {
       myUserState.isAuthenticated = true;
       dispatch(saveInfo(myUserState));
       console.log(myUserState);
+
+      const testNet = await window.ethereum.getNetwork(myUserState.network);
+      console.log(testNet);
     } else {
       alert("MetaMask is not installed");
     }
@@ -96,43 +97,16 @@ const Header = () => {
             />
 
             <div className="app-header--option">
-              <div>
-                <Link to="/" className={clsx({ tabFocus: currentUrl === "/" })}>
-                  {t("nav.home")}
-                </Link>
-              </div>
-              <div>
-                <Link
-                  to="/marketplace"
-                  className={clsx({ tabFocus: currentUrl === "/marketplace" })}
-                >
-                  {t("nav.market")}
-                </Link>
-              </div>
-              <div>
-                <Link
-                  to="/rewards"
-                  className={clsx({ tabFocus: currentUrl === "/rewards" })}
-                >
-                  {t("nav.rewards")}
-                </Link>
-              </div>
-              <div>
-                <Link
-                  to="/blog"
-                  className={clsx({ tabFocus: currentUrl === "/blog" })}
-                >
-                  {t("nav.blog")}
-                </Link>
-              </div>
-              <div>
-                <Link
-                  to="/about"
-                  className={clsx({ tabFocus: currentUrl === "/about" })}
-                >
-                  {t("nav.about")}
-                </Link>
-              </div>
+              {SITEMAP.map((item, idx) => (
+                <div>
+                  <Link
+                    to={item.path}
+                    className={clsx({ tabFocus: currentUrl === item.path })}
+                  >
+                    {t(item.key)}
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
 

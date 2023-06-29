@@ -42,6 +42,11 @@ const MarketPane = (props: IMarketPaneProps) => {
           onClick={() => {
             if (props.isListMode) props.toggleModeView();
           }}
+          style={{
+            backgroundColor: !props.isListMode
+              ? "var(--color-secondary)"
+              : "#ccc",
+          }}
         >
           <AppstoreOutlined rev={""} />
         </Button>
@@ -51,6 +56,11 @@ const MarketPane = (props: IMarketPaneProps) => {
           size="middle"
           onClick={() => {
             if (!props.isListMode) props.toggleModeView();
+          }}
+          style={{
+            backgroundColor: props.isListMode
+              ? "var(--color-secondary)"
+              : "#ccc",
           }}
         >
           <BarsOutlined rev={""} />
