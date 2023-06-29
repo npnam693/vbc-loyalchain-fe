@@ -15,7 +15,7 @@ import { shortenAddress } from "../../../utils/string";
 import PopoverUser from "./PopoverUser";
 import "./Header.scss";
 import SITEMAP from "../../../constants/sitemap";
-
+import data from "./data.json";
 const Header = () => {
   const currentUrl = useLocation().pathname;
   const { t } = useTranslation("common");
@@ -59,12 +59,53 @@ const Header = () => {
       myUserState.isAuthenticated = true;
       dispatch(saveInfo(myUserState));
       console.log(myUserState);
-
+      setWeb3Api(myWeb3);
       const testNet = await window.ethereum.getNetwork(myUserState.network);
       console.log(testNet);
     } else {
       alert("MetaMask is not installed");
     }
+  };
+
+  const Deploycontract = async () => {
+    let contract = new web3Api.eth.Contract(
+      JSON.parse(JSON.stringify(data)).abi
+    );
+    const deploy = contract.deploy({
+      data: JSON.parse(JSON.stringify(data)).bytecode,
+      arguments: [
+        "huhu",
+        "khocr",
+        ["0x6225D07A59be4F47400E8885d8EFC78FF7D9e171"],
+      ],
+    });
+
+    const deployTransaction = deploy.send({
+      from: userState.address,
+      gas: 2100000,
+    });
+
+    // const recipt = await web3Api.eth.getTransactionReceipt(
+    //   "0x457d89c09be00fe61dba08515a17661088f5f1236561b6ee58f13aefcbf79b7d"
+    // );
+
+    // console.log(recipt);
+
+    // const deploy = contract.deploy({
+    //   data: myData.bytecode,
+    // });
+
+    // const deployTransaction = deploy.send({
+    //   from: userState.address,
+    //   gas: 0,
+    // });
+
+    // deployTransaction.on("confirmation", (confirmationNumber, receipt) => {
+    //   if (confirmationNumber === 1) {
+    //     console.log("Contract deployed successfully!");
+    //     console.log("Contract address:", receipt.contractAddress);
+    //   }
+    // });
   };
 
   return (
@@ -163,6 +204,15 @@ const Header = () => {
                 Connect Wallet
               </Button>
             )}
+
+            <Button
+              type="primary"
+              className="btn-connect_wallet"
+              onClick={Deploycontract}
+              size="large"
+            >
+              Deploycontract
+            </Button>
           </div>
 
           {/* <HeaderDots /> */}
