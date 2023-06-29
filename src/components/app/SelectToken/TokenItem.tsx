@@ -4,25 +4,23 @@ interface ITokenItemProps {
   uriImg: any;
   network: string;
   balance: number;
+  onClickItem: () => void;
 }
 
 export const TokenItem = (props: ITokenItemProps) => {
   return (
     <div
-      style={{
-        width: "100%",
-        margin: "16px 0",
-        backgroundColor: "#ccc",
-        borderRadius: 5,
-        padding: "5px 20px",
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
+      style={{}}
+      className="token-item-container"
+      onClick={props.onClickItem}
     >
       <div
-        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          flex: 0.8,
+        }}
       >
         <img
           src={props.uriImg}
@@ -51,6 +49,7 @@ export const TokenItem = (props: ITokenItemProps) => {
           </p>
         </div>
       </div>
+
       <p
         style={{
           fontSize: "1.6rem",

@@ -5,7 +5,7 @@ import cookie from "react-cookies";
 import { ethers } from "ethers";
 
 import "./Footer.scss";
-import VBC_Logo from "../../../assets/svg/logo_vbc.svg";
+import VBC_Logo from "../../../assets/svg/logo_vbc-mode.svg";
 
 const Footer = () => {
   const { t, i18n } = useTranslation("common");

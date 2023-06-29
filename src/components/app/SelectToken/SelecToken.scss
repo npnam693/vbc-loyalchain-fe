@@ -13,8 +13,9 @@
     
         position: fixed;
         padding: 30px;
-        top: calc((100vh - 600px) / 2 - 100px);
-        right: 5%;
+        top: calc((100vh - 600px) / 2 - 20px);
+        right: 37vw;
+        left: 37vw;
 
         .header {
             display: flex;
@@ -45,5 +46,23 @@
         color: black;
         font-size: 2.5rem;
         cursor: pointer;
+    }
+}
+
+.token-item-container {
+    width: 100%;
+    margin: 16px 0;
+    background-color: rgba($color: #000000, $alpha: 0.1);
+    border-radius: 10px;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #C2EDFC;
     }
 }

@@ -10,11 +10,25 @@ import MarketPane from "../../components/marketplace/MarketPane";
 import TableOrder from "../../components/marketplace/TableOrder";
 import StatisticItem from "../../components/marketplace/StatisticItem";
 import { CloseCircleOutlined } from "@ant-design/icons";
+
+const filterRawData = {
+  swap_from: "",
+  swap_to: "",
+  amount_from: "",
+  amount_to: "",
+};
+
 const Marketplace = () => {
   const [isListMode, setIsListMode] = useState(true);
   const [filter, setFilter] = useState({
     open: false,
     isFilterMode: true,
+    filterData: {
+      swap_from: "",
+      swap_to: "",
+      amount_from: "",
+      amount_to: "",
+    },
   });
   const [selectShow, setSelectShow] = useState(false);
 
@@ -25,7 +39,15 @@ const Marketplace = () => {
   };
 
   const openFilter = () => {
-    setFilter({ open: true, isFilterMode: true });
+    setFilter({
+      open: true,
+      isFilterMode: true,
+      filterData: filter.filterData,
+    });
+  };
+
+  const hdClickClearFilter = () => {
+    setFilter({ ...filter, filterData: filterRawData });
   };
 
   const closeSelectToken = () => {
@@ -65,10 +87,19 @@ const Marketplace = () => {
               </div>
 
               <div className="header--option">
-                <div className="header--option--item">Clear All</div>
+                <div
+                  className="header--option--item"
+                  onClick={hdClickClearFilter}
+                >
+                  Clear All
+                </div>
                 <div
                   onClick={() =>
-                    setFilter({ open: !filter.open, isFilterMode: true })
+                    setFilter({
+                      open: !filter.open,
+                      isFilterMode: true,
+                      filterData: filter.filterData,
+                    })
                   }
                 >
                   <CloseCircleOutlined
@@ -132,7 +163,11 @@ const Marketplace = () => {
 
                 {selectShow && (
                   <div>
-                    <SelectToken closeFunction={closeSelectToken} />
+                    <SelectToken
+                      closeFunction={closeSelectToken}
+                      top_css="calc((100vh - 600px) / 2 - 20px)"
+                      right_css="5%"
+                    />
                   </div>
                 )}
               </div>

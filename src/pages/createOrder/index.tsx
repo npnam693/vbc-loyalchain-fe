@@ -4,19 +4,42 @@ import SBP from "../../assets/svg/tokens/starbuck.svg";
 import { DownOutlined, SwapOutlined } from "@ant-design/icons";
 import { Button, Divider, InputNumber } from "antd";
 import PairToken from "../../components/app/PairToken";
+import SelectToken from "../../components/app/SelectToken";
+
+interface IFormData {
+  from: string;
+  from_amount: number;
+  to: string;
+  to_amount: number;
+  timelock: number;
+}
 
 export default function CreateOrder() {
-  const [formData, setFormData] = useState({
-    from: "",
+  const [formData, setFormData] = useState<IFormData>({
+    from: "SBP",
     from_amount: 0,
-    to: "",
-    to_amount: 0,
+    to: "WMP",
+    to_amount: 10,
     timelock: 0,
   });
+  const [selectingToken, setSelectingToken] = useState<boolean>(true);
 
   const hdClickMaxBalance = () => {};
-  const hdClickSwap = () => {};
-  const hdClick = () => {};
+  const hdClickSwap = () => {
+    const newData: IFormData = {
+      from: formData.to,
+      from_amount: formData.to_amount,
+      to: formData.from,
+      to_amount: formData.from_amount,
+      timelock: formData.timelock,
+    };
+    setFormData(newData);
+  };
+  const hdClickCreate = () => {};
+
+  const hdClickSelectToken = () => {
+    setSelectingToken(!selectingToken);
+  };
 
   return (
     <div className="app-create">
@@ -28,9 +51,12 @@ export default function CreateOrder() {
           <div className="form-input">
             <div className="form-input--header">
               <p>From</p>
-              <div className="form-input--header--token">
+              <div
+                className="form-input--header--token"
+                onClick={hdClickSelectToken}
+              >
                 <img src={SBP} alt="Token" />
-                <p>SBP</p>
+                <p>{formData.from}</p>
                 <DownOutlined rev="" style={{ fontSize: "1.4rem" }} />
               </div>
             </div>
@@ -38,6 +64,11 @@ export default function CreateOrder() {
             <div className="form-input--content">
               <InputNumber
                 placeholder="0.0"
+                min={0}
+                value={formData.from_amount}
+                onChange={(e) =>
+                  setFormData({ ...formData, from_amount: Number(e) })
+                }
                 className="form-input--content--input"
                 style={{ color: "red" }}
               />
@@ -49,16 +80,23 @@ export default function CreateOrder() {
             </div>
           </div>
 
-          <div className="icon-container">
+          <div
+            className="icon-container"
+            onClick={hdClickSwap}
+            style={{ cursor: "pointer" }}
+          >
             <SwapOutlined rev={""} className="icon" />
           </div>
 
           <div className="form-input">
             <div className="form-input--header">
               <p>From</p>
-              <div className="form-input--header--token">
+              <div
+                className="form-input--header--token"
+                onClick={hdClickSelectToken}
+              >
                 <img src={SBP} alt="Token" />
-                <p>SBP</p>
+                <p>{formData.to}</p>
                 <DownOutlined rev="" style={{ fontSize: "1.4rem" }} />
               </div>
             </div>
@@ -66,6 +104,11 @@ export default function CreateOrder() {
             <div className="form-input--content">
               <InputNumber
                 placeholder="0.0"
+                min={0}
+                value={formData.to_amount}
+                onChange={(e) =>
+                  setFormData({ ...formData, to_amount: Number(e) })
+                }
                 className="form-input--content--input"
                 style={{ color: "red" }}
               />
@@ -92,14 +135,24 @@ export default function CreateOrder() {
           <div className="locktime">
             <p className="info-title">Time Lock</p>
             <div className="input-time">
-              <InputNumber />
+              <InputNumber min={0} placeholder="24" />
               <p>hours</p>
             </div>
           </div>
         </div>
       </div>
 
-      <Button type="primary">Create</Button>
+      <Button
+        type="primary"
+        onClick={hdClickCreate}
+        className="btn-create-order"
+      >
+        Create
+      </Button>
+
+      {selectingToken && (
+        <SelectToken closeFunction={() => setSelectingToken(!selectingToken)} />
+      )}
     </div>
   );
 }
