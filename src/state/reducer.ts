@@ -2,8 +2,9 @@ import { AnyAction, combineReducers } from "@reduxjs/toolkit";
 import userState, { logOut } from "./user/userSlice";
 import alertState from "./alert/alertSlice";
 import popupState from "./popup/popupSlice";
-
 import ThemeOptions from "./themeOptions/themeOptionsSlice";
+import Web3State from "./web3/web3Slice";
+
 
 const appReducer = combineReducers({
   //authen
@@ -12,8 +13,8 @@ const appReducer = combineReducers({
   //noti
   alertState,
   popupState,
-
-
+  
+  Web3State,
   //theme
   ThemeOptions,
 });

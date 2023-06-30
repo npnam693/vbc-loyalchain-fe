@@ -8,7 +8,6 @@ import Web3 from "web3";
 import { SafetyCertificateTwoTone } from "@ant-design/icons";
 
 import { useAppSelector, useAppDispatch } from "../../../state/hooks";
-import { saveInfo } from "../../../state/user/userSlice";
 import Logo from "../../../assets/svg/logo_loyal-chain.svg";
 import { initialUserState } from "../../../state/user/userSlice";
 import { shortenAddress } from "../../../utils/string";
@@ -16,6 +15,10 @@ import PopoverUser from "./PopoverUser";
 import "./Header.scss";
 import SITEMAP from "../../../constants/sitemap";
 import data from "./data.json";
+import { saveInfo } from "../../../state/user/userSlice";
+import { saveWeb3 } from "../../../state/web3/web3Slice";
+import axios from "axios";
+
 const Header = () => {
   const currentUrl = useLocation().pathname;
   const { t } = useTranslation("common");
@@ -23,10 +26,10 @@ const Header = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [web3Api, setWeb3Api] = useState<any>();
   const [openSearch, setOpenSearch] = useState(false);
   const [headerShow, setheaderShow] = useState(false);
   const userState = useAppSelector((state) => state.userState);
+  const web3State = useAppSelector((state) => state.Web3State);
 
   window.onscroll = function () {
     if (!headerShow && window.scrollY >= 60) {
@@ -42,33 +45,82 @@ const Header = () => {
     }
   }, [openSearch]);
 
+  const signLogin = async (web3: any) => {
+    const signature = await web3.eth.personal.sign(
+      "Login",
+      "0x6225D07A59be4F47400E8885d8EFC78FF7D9e171",
+      ""
+    );
+    return signature;
+  };
+
   const connectWallet = async () => {
     if (typeof window.ethereum !== "undefined") {
-      // Tạo một đối tượng web3 từ MetaMask provider
       const myUserState = Object.assign({}, initialUserState);
+
       const myWeb3 = new Web3(window.ethereum);
       await window.ethereum.enable();
 
       myUserState.address = (await myWeb3.eth.getAccounts())[0];
       myUserState.network = String(await myWeb3.eth.net.getId());
+      console.log("ccc");
       myUserState.balance = Number(
         await myWeb3.eth.getBalance(myUserState.address)
       );
-      // Get access token from backend.
-      myUserState.token = "hahahaha";
       myUserState.isAuthenticated = true;
-      dispatch(saveInfo(myUserState));
-      console.log(myUserState);
-      setWeb3Api(myWeb3);
-      const testNet = await window.ethereum.getNetwork(myUserState.network);
-      console.log(testNet);
+
+      const signature = await signLogin(myWeb3);
+      console.log(signature);
+      axios
+        .post(
+          "http://localhost:4333/api/auth/login",
+          {
+            address: myUserState.address,
+            signature: signature,
+            message: "Login",
+          },
+          { withCredentials: true }
+        )
+        .then((res) => {
+          myUserState.token = res.data.accessToken;
+          console.log(myUserState);
+          dispatch(saveInfo(myUserState));
+          dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
+          console.log(res.data.cookie);
+        })
+        .catch((err) => {
+          console.log("error");
+        });
+
+      // const signature = await myWeb3.eth.personal.sign(
+      //   "Login",
+      //   "0x6225D07A59be4F47400E8885d8EFC78FF7D9e171",
+      //   ""
+      // );
+
+      // window.ethereum.on("accountsChanged", (accounts: any) => {
+      //   const myWeb3 = new Web3(window.ethereum);
+      //   const newweb3 = { web3: myWeb3, isConnected: true };
+      //   dispatch(saveInfo({ ...myUserState, address: accounts[0] }));
+      //   dispatch(saveWeb3(newweb3));
+
+      //   console.log({ ...myUserState, address: accounts[0] });
+      // });
+
+      // window.ethereum.on("chainChanged", (chainId: any) => {
+      //   console.log(chainId);
+      // });
+
+      // myWeb3.eth.subscribe("accountChanged", (accounts) =>
+      //   setAccount(accounts[0])
+      // );
     } else {
       alert("MetaMask is not installed");
     }
   };
 
   const Deploycontract = async () => {
-    let contract = new web3Api.eth.Contract(
+    let contract = new web3State.web3.eth.Contract(
       JSON.parse(JSON.stringify(data)).abi
     );
     const deploy = contract.deploy({
@@ -76,7 +128,7 @@ const Header = () => {
       arguments: [
         "huhu",
         "khocr",
-        ["0x6225D07A59be4F47400E8885d8EFC78FF7D9e171"],
+        ["0x2a5b956d042f745835bcae7c75a9c806c20af371"],
       ],
     });
 
@@ -143,6 +195,7 @@ const Header = () => {
                   <Link
                     to={item.path}
                     className={clsx({ tabFocus: currentUrl === item.path })}
+                    key={idx}
                   >
                     {t(item.key)}
                   </Link>
@@ -174,7 +227,7 @@ const Header = () => {
               </div>
             )}
 
-            {userState.isAuthenticated ? (
+            {web3State.isConnected ? (
               <Popover
                 content={PopoverUser}
                 placement={"bottomRight"}

@@ -82,7 +82,7 @@ interface IBalance {
   symbol: string;
   balance: string;
 }
-interface UserState {
+export interface IUserState {
   address: string;
   token: string;
   network: string;
@@ -91,7 +91,7 @@ interface UserState {
   isAuthenticated: boolean;
 }
 
-export const initialUserState : UserState = {
+export const initialUserState : IUserState = {
   address: "",
   token: "",
   network: "",
@@ -106,7 +106,7 @@ const userSlice = createSlice({
   name: "userState",
   initialState: initialUserState,
   reducers: {
-    saveInfo: (state, action: PayloadAction<UserState>) => {
+    saveInfo: (state, action: PayloadAction<IUserState>) => {
       state = action.payload;
       return state
     },

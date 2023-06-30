@@ -1,3 +1,4 @@
+import { Button } from "antd";
 import "./NotFound.scss";
 
 const NotFound = () => {

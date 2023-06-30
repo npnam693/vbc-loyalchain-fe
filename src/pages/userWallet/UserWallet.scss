@@ -1,0 +1,27 @@
+.app-wallet {
+    margin-top: 100px;
+    height: calc(100vh - 380px);
+    .title {
+        font-size: 2.5rem;
+        color: var(--color-text-white);
+        margin-bottom: 20px;
+    }
+    
+    .form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+:where(.css-dev-only-do-not-override-1wazalj).ant-input-group .ant-input-group-addon
+{
+    color: white;
+    font-weight: 600;
+    font-size: 1.4rem;
+}
+
+:where(.css-dev-only-do-not-override-1wazalj).ant-input-number-group .ant-input-number-group-addon {
+    color: white;
+    font-weight: 600;
+    font-size: 1.4rem;
+}
