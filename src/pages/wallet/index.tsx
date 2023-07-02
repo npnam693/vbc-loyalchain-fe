@@ -8,8 +8,6 @@ import "./Wallet.scss";
 
 import {History, Reward, Token} from "./helper";
 import { CopyOutlined } from "@ant-design/icons";
-
-
 interface IForm {
   token: string;
   amount: number;
@@ -38,14 +36,14 @@ const Wallet = () => {
 
   const myWeb3 = useAppSelector((state) => state.Web3State);
 
-  const userState = useAppSelector((state) => state.userState);
+  const userState= useAppSelector((state) => state.userState);
 
 
 
 
   const contentPage = () => {
     if (page === WalletPage.TOKEN) {
-      return <Token />;
+      return <Token userState={userState} />;
     }
     else if (page === WalletPage.REWARD) {
       return <Reward />

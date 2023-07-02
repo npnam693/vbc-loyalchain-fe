@@ -4,7 +4,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-  }
+}
 
 
 .app-wallet {
@@ -44,7 +44,7 @@
         justify-content: space-between;
         flex: 1;
         &--left {
-            flex: 0.4;
+            flex: 0.45;
             .qrcode-container {
                 width: 100%;
                 display: flex;
@@ -61,7 +61,7 @@
         }
 
         &--right {
-            flex: 0.55;
+            flex: 0.5;
             background-color: #0B2134;
             width: 100%;
             height: 80vh;
@@ -82,7 +82,7 @@
                     p {
                         text-align: center;
                         width: 100%;
-                        font-size: 1.6rem;
+                        font-size: 1.5rem;
                         font-weight: 600;
                         color: var(--color-text-white);
                         height: 100%;

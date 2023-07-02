@@ -87,7 +87,7 @@ export interface IUserState {
   token: string;
   network: string;
   // balance: IBalance[];
-  balance: number;
+  balance: string;
   isAuthenticated: boolean;
 }
 
@@ -96,7 +96,7 @@ export const initialUserState : IUserState = {
   token: "",
   network: "",
   // balance: [],
-  balance: 0,
+  balance: "0",
   isAuthenticated: false,
 }
 

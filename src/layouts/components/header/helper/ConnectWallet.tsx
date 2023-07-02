@@ -3,7 +3,7 @@ import axios from "axios";
 import { Button, Popover } from "antd";
 import { Personal } from "web3";
 import PopoverUser from "./PopoverUser";
-import { shortenAddress } from "../../../../utils/string";
+import { fixStringBalance, shortenAddress } from "../../../../utils/string";
 import { saveInfo } from "../../../../state/user/userSlice";
 import { saveWeb3 } from "../../../../state/web3/web3Slice";
 import { SafetyCertificateTwoTone } from "@ant-design/icons";
@@ -37,9 +37,9 @@ const ConnectWallet = () => {
             const myUserState = Object.assign({}, initialUserState);
             myUserState.address = (await myWeb3.eth.getAccounts())[0];
             myUserState.network = String(await myWeb3.eth.net.getId());
-            myUserState.balance = Number(
+            myUserState.balance = fixStringBalance(String(
                 await myWeb3.eth.getBalance(myUserState.address)
-            );
+            ), 18)
             myUserState.isAuthenticated = true;
             const signature = await signLogin(myWeb3, myUserState.address);
             
@@ -59,11 +59,13 @@ const ConnectWallet = () => {
                     dispatch(saveInfo(myUserState));
                     dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
 
-                    window.ethereum.on('accountsChanged', function (accounts: any) {
+                    window.ethereum.on('accountsChanged', async function (accounts: any) {
+                        const newBalance = fixStringBalance(String(
+                            await myWeb3.eth.getBalance(myUserState.address)
+                        ), 18)
+
                         dispatch(saveInfo({
-                            ...myUserState, address: accounts[0], balance: Number(
-                                myWeb3.eth.getBalance(myUserState.address)
-                            )
+                            ...myUserState, address: accounts[0], balance: newBalance
                         }));
                     })
                     window.ethereum.on("networkChanged", function (networkId: any) {

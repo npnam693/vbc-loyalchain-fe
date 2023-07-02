@@ -28,4 +28,17 @@ function shortenAddress(address : string) {
   }
 }
 
-export { truncate , parsePhone, shortenAddress };
+function fixStringBalance(balance:string, decimal: number){
+  let str = balance.toString();
+  const idxDot : number = str.length - decimal;
+  console.log('CC', idxDot)
+  if(idxDot <= 0){
+    return "0." + "0".repeat(-idxDot) + str.slice(0, 3);
+  }
+  else {
+    return str.slice(0, idxDot) + "." + str.slice(idxDot, idxDot + 3);
+  }
+}
+
+export { truncate , parsePhone, shortenAddress, fixStringBalance };
+

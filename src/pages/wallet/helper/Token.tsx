@@ -2,12 +2,22 @@ import { Button } from "antd"
 import TokenItemWallet from "../../../components/wallet/TokenItem"
 import { mockDataToken } from "../../../components/app/SelectToken"
 import { SendOutlined, SwapOutlined } from "@ant-design/icons"
-const Token = () => {
+// import { fixStringBalance } from "../../../utils/string"
+import SendToken from "../../../components/app/SendToken"
+import { useState } from "react"
+
+const Token = ({userState} : any) => {
+  const [transfering, setTransfering] = useState<boolean>(false);
+
   return (
-    <div className="app-wallet--token">
-        <p className="balance">0.1984 AGD</p>
+      <div className="app-wallet--token">
+        {
+          transfering &&
+          <SendToken isSelectedToken={false} onCloseBtn={() => setTransfering(false)}/>
+        }
+        <p className="balance">{userState.balance} AGD</p>
         <div className="wallet-action">
-            <Button type="primary" size="large">
+            <Button type="primary" size="large" onClick={() => setTransfering(true)}>
               <SendOutlined rev={""} className='action-icon'/>
               Send
             </Button>
