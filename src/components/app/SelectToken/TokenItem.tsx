@@ -1,10 +1,10 @@
-interface ITokenItemProps {
+export interface ITokenItemProps {
   name: string;
   symbol: string;
   uriImg: any;
   network: string;
   balance: number;
-  onClickItem: () => void;
+  onClickItem ?: () => void;
 }
 
 export const TokenItem = (props: ITokenItemProps) => {

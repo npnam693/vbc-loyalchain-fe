@@ -6,6 +6,9 @@ import QRCode from "react-qr-code";
 import { Button, Input, InputNumber } from "antd";
 import "./Wallet.scss";
 
+import {History, Reward, Token} from "./helper";
+import { CopyOutlined } from "@ant-design/icons";
+
 
 interface IForm {
   token: string;
@@ -36,6 +39,19 @@ const Wallet = () => {
   const myWeb3 = useAppSelector((state) => state.Web3State);
 
   const userState = useAppSelector((state) => state.userState);
+
+
+
+
+  const contentPage = () => {
+    if (page === WalletPage.TOKEN) {
+      return <Token />;
+    }
+    else if (page === WalletPage.REWARD) {
+      return <Reward />
+    }
+    else return <History />
+  }
 
   const transfer = async () => {
     if (!myWeb3.isConnected) {
@@ -117,14 +133,19 @@ const Wallet = () => {
       <div className="content">
         <div className="content--left">
           <p className="title">My Wallet</p>
-          <p>Your address: <span>{userState.address}</span></p>
-          <p>Join time: <span>{userState.address}</span></p>
+          <div className="account-info">Your address: 
+            <p>{userState.address}
+            <CopyOutlined rev={""} className="copy-icon"/> 
+            </p>
+          </div>
+          <div className="account-info">
+            Join time: 
+            <p>{userState.address}</p></div>
 
           <div className="qrcode-container">
             <div className="qrcode">
               <QRCode
                 size={200}
-                // style={{  width: "40%"}}
                 value={userState.address}
               />
             </div>
@@ -152,8 +173,11 @@ const Wallet = () => {
               <p>History</p>
             </div>
           </header>
-
-
+          <main>
+          {
+              contentPage()
+          }
+          </main>
         </div>
 
       </div>

@@ -8,7 +8,7 @@ import MDP from "../../../assets/svg/tokens/MDP.svg";
 import WMP from "../../../assets/svg/tokens/WMP.svg";
 import SAP from "../../../assets/svg/tokens/SAP.svg";
 
-const mockDataToken = [
+export const mockDataToken = [
   {
     name: "StarBuck Loyalty Point",
     network: "AGD Network",

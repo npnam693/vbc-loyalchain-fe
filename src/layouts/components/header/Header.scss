@@ -103,7 +103,7 @@
     cursor: pointer;
 
     &:hover {
-      background-color: #C2EDFC;
+      background-color: var(--color-hover);
     }
   }
 

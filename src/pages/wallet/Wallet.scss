@@ -1,3 +1,12 @@
+@import url('../../styles/mixin.scss');
+
+@mixin flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+
 .app-wallet {
     min-height: 100vh;
     .title {
@@ -5,6 +14,27 @@
         font-weight: 700;
         color: var(--color-text-white);
         margin-bottom: 20px;
+    }
+    .account-info {
+        color: var(--color-text-white);
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        p {
+            font-weight: 400;
+            margin-right: 30px;
+        }
+
+        .copy-icon {
+            margin-left: 5px;
+            padding: 10px 10px;
+            cursor: pointer;
+            
+            &:hover {
+                background-color: rgba(255,255,255, 0.2);
+                border-radius: 5px;
+            }
+        }
     }
 
     .content {
@@ -34,14 +64,14 @@
             flex: 0.55;
             background-color: #0B2134;
             width: 100%;
-            height: 70vh;
+            height: 80vh;
             border-radius: 40px;
             padding: 10px 40px;
             header {
                 display: flex;
                 flex-direction: row;
                 justify-content: space-evenly;
-                margin-bottom: -3px;
+                margin-bottom: 20px;
                 .header-item {
                     padding-top: 16px;
                     padding-bottom: 10px;
@@ -60,21 +90,36 @@
 
                     &--selected {
                         border-bottom: 3px solid var(--color-secondary);
-                        
-                        // &::after{
-                        //     content: "";
-                        //     display: block;
-                        //     width: 100px;
-                        //     height: 5px;
-                        //     background-color: rgba($color:#00D7FF, $alpha: 0.2 );
-                        //     position: relative;
-                        //     bottom: -8.5px;
-                        // }
                     } 
                 }
-
             }
         }
     }
+    
+    &--token {
+        @include flex-center;
+        flex-direction: column;
 
+        .balance {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--color-text-white)
+        }
+        .wallet-action {
+            Button {
+                background-color: rgba(21,191,255, 0.2);
+                font-size: 1.8rem;
+                margin: 10px 20px;
+                border-radius: 5px;
+                width: 120px;
+            }
+        }
+        .token-items {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+            width: 100%;
+        }
+    }
 }
