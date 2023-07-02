@@ -1,0 +1,80 @@
+.app-wallet {
+    min-height: 100vh;
+    .title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--color-text-white);
+        margin-bottom: 20px;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: row;
+        align-items: cetner;
+        justify-content: space-between;
+        flex: 1;
+        &--left {
+            flex: 0.4;
+            .qrcode-container {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                margin-top: 40px;
+                .qrcode {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: white;
+                    padding: 20px;
+                }
+            }
+        }
+
+        &--right {
+            flex: 0.55;
+            background-color: #0B2134;
+            width: 100%;
+            height: 70vh;
+            border-radius: 40px;
+            padding: 10px 40px;
+            header {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-evenly;
+                margin-bottom: -3px;
+                .header-item {
+                    padding-top: 16px;
+                    padding-bottom: 10px;
+                    cursor: pointer;
+                    width: 100%;
+                    border-bottom: 3px solid rgba(255,255,255, 0.3);
+                    
+                    p {
+                        text-align: center;
+                        width: 100%;
+                        font-size: 1.6rem;
+                        font-weight: 600;
+                        color: var(--color-text-white);
+                        height: 100%;
+                    }
+
+                    &--selected {
+                        border-bottom: 3px solid var(--color-secondary);
+                        
+                        // &::after{
+                        //     content: "";
+                        //     display: block;
+                        //     width: 100px;
+                        //     height: 5px;
+                        //     background-color: rgba($color:#00D7FF, $alpha: 0.2 );
+                        //     position: relative;
+                        //     bottom: -8.5px;
+                        // }
+                    } 
+                }
+
+            }
+        }
+    }
+
+}

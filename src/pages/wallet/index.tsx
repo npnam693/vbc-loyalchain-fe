@@ -1,26 +1,41 @@
 import React, { useState } from "react";
 import { useAppSelector } from "../../state/hooks";
-import data from "../../layouts/components/header/data.json";
+import contractToken from "../../contract/Token/data.json";
+import QRCode from "react-qr-code";
+
 import { Button, Input, InputNumber } from "antd";
-import "./UserWallet.scss";
+import "./Wallet.scss";
+
 
 interface IForm {
   token: string;
   amount: number;
   to: string;
 }
+enum WalletPage {
+  TOKEN,
+  REWARD,
+  HISTORY,
+}
+
 const Wallet = () => {
+  const [page, setPage] = useState<WalletPage>(WalletPage.TOKEN);
   const [formData, setFormData] = useState<IForm>({
     token: "",
     amount: 0,
     to: "",
   });
 
+
+
+
+
+
+
+
   const myWeb3 = useAppSelector((state) => state.Web3State);
 
-  console.log("huhuhuuh", myWeb3);
-
-  const userData = useAppSelector((state) => state.userState);
+  const userState = useAppSelector((state) => state.userState);
 
   const transfer = async () => {
     if (!myWeb3.isConnected) {
@@ -28,15 +43,15 @@ const Wallet = () => {
       return;
     }
 
-    const contractABI = data.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
+    const contractABI = contractToken.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
     const contractAddress = formData.token;
     const contract = new myWeb3.web3.eth.Contract(contractABI, contractAddress);
 
-    const fromAddress = userData.address; // Địa chỉ ví nguồn (tài khoản của bạn)
+    const fromAddress = userState.address; // Địa chỉ ví nguồn (tài khoản của bạn)
     const toAddress = formData.to; // Địa chỉ ví đích
 
     const decimal = await contract.methods.decimals().call({
-      from: userData.address,
+      from: userState.address,
     });
 
     const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
@@ -47,20 +62,20 @@ const Wallet = () => {
     //   value: "0", // Nếu bạn chỉ chuyển token, value = 0
     //   data: contract.methods.transfer(toAddress, amount).encodeABI(),
     //   // gasLimit: await contract.methods.transfer(toAddress, amount).estimateGas({
-    //   //   from: userData.address,
+    //   //   from: userState.address,
     //   //   data: contract.methods.transfer(toAddress, amount).encodeABI(),
     //   // }),
     //   // // maxPriorityFeePerGas: "0x00",
     //   // maxFeePerGas: "0x00",
-    //   // nonce: await myWeb3.web3.eth.getTransactionCount(userData.address),
+    //   // nonce: await myWeb3.web3.eth.getTransactionCount(userState.address),
     //   // type: "0x02",
     //   // accessList: [],
     // };
 
     const myReceipt = await contract.methods.transfer(toAddress, amount).send({
-      from: userData.address,
+      from: userState.address,
       gas: await contract.methods.transfer(toAddress, amount).estimateGas({
-        from: userData.address,
+        from: userState.address,
         data: contract.methods.transfer(toAddress, amount).encodeABI(),
       }),
     });
@@ -98,9 +113,55 @@ const Wallet = () => {
 
   return (
     <div className="app-wallet">
-      <p className="title">My Wallet</p>
-      <div style={{ fontSize: 20, color: "white" }}>
-        Your address: <span>{userData.address}</span>{" "}
+
+      <div className="content">
+        <div className="content--left">
+          <p className="title">My Wallet</p>
+          <p>Your address: <span>{userState.address}</span></p>
+          <p>Join time: <span>{userState.address}</span></p>
+
+          <div className="qrcode-container">
+            <div className="qrcode">
+              <QRCode
+                size={200}
+                // style={{  width: "40%"}}
+                value={userState.address}
+              />
+            </div>
+          </div>
+
+        </div>
+
+
+        <div className="content--right">
+          <header>
+            <div className={`header-item${page === WalletPage.TOKEN ? ' header-item--selected' : ''}`}
+              onClick={() => page !== WalletPage.TOKEN && setPage(WalletPage.TOKEN)}
+            >
+              <p>Token</p>
+            </div>
+            <div className={`header-item${page === WalletPage.REWARD ? ' header-item--selected' : ''}`}
+              onClick={() => page !== WalletPage.REWARD && setPage(WalletPage.REWARD)}
+
+            >
+              <p>Reward</p>
+            </div>
+            <div className={`header-item${page === WalletPage.HISTORY ? ' header-item--selected' : ''}`}
+              onClick={() => page !== WalletPage.HISTORY && setPage(WalletPage.HISTORY)}
+            >
+              <p>History</p>
+            </div>
+          </header>
+
+
+        </div>
+
+      </div>
+
+
+
+      {/* <div style={{ fontSize: 20, color: "white" }}>
+        Your address: <span>{userState.address}</span>{" "}
       </div>
 
       <div className="form">
@@ -130,7 +191,7 @@ const Wallet = () => {
       </Button>
 
       <p>------------------</p>
-      <Button onClick={signAccount}>Sign Accounts</Button>
+      <Button onClick={signAccount}>Sign Accounts</Button> */}
     </div>
   );
 };

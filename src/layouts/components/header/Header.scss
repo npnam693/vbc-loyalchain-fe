@@ -98,15 +98,13 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding-right: 60px;
-    padding: 4px 60px 4px 10px;
+    padding: 4px 80px 4px 10px;
     border-radius: 4px;
     cursor: pointer;
 
     &:hover {
       background-color: #C2EDFC;
     }
-
   }
 
   p {

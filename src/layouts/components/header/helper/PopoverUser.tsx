@@ -5,8 +5,8 @@ import {
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { clearInfo } from "../../../state/user/userSlice";
-import { clearWeb3 } from "../../../state/web3/web3Slice";
+import { clearInfo } from "../../../../state/user/userSlice";
+import { clearWeb3 } from "../../../../state/web3/web3Slice";
 
 interface IItemPopover {
   icon: JSX.Element;

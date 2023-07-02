@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useCallback } from "react";
 import Particles from "react-particles";
 import { loadFull } from "tsparticles";
@@ -7,6 +7,9 @@ import type { Container, Engine, ISourceOptions } from "tsparticles-engine";
 import Header from "./components/header";
 import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
+import { useAppDispatch } from "../state/hooks";
+import Web3 from "web3";
+import { saveWeb3 } from "../state/web3/web3Slice";
 
 const toptions: ISourceOptions = {
   name: "Polygon Mask",
@@ -145,6 +148,18 @@ const Layout = ({ children }: LayoutProps) => {
     },
     []
   );
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    async function fetchData() {
+      const accounts = await window.ethereum.request({method: 'eth_accounts'});       
+      if (accounts.length > 0) {
+        const myWeb3 = new Web3(window.ethereum);
+        dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
+      }
+    }
+    fetchData()
+  }, [])    
+  
 
   return (
     <>
@@ -157,7 +172,7 @@ const Layout = ({ children }: LayoutProps) => {
       />
       <Header />
       <div style={{ height: "var(--header-height)" }}></div>
-      <div style={{ margin: "0 var(--app-margin) 0 var(--app-margin)" }}>
+      <div style={{ margin: "50px var(--app-margin) 0 var(--app-margin)" }}>
         {children}
       </div>
       <Footer />
