@@ -29,15 +29,33 @@ function shortenAddress(address : string) {
 }
 
 function fixStringBalance(balance:string, decimal: number){
-  let str = balance.toString();
-  if (str.length < 5) return str;
-  const idxDot : number = str.length - decimal;
-  console.log('CC', idxDot)
-  if(idxDot <= 0){
-    return "0." + "0".repeat(-idxDot) + str.slice(0, 3);
+  console.log(balance.length)
+  if (balance.length < 5) return balance;
+
+  for (let i = balance.length - 1; i >= 0; i--){
+    if (balance[i] === '0' && decimal > 0) {
+      decimal = decimal - 1;
+    } else {
+      balance = balance.slice(0, i+1) 
+      break;
+    };
+  }
+  const idxDot : number = balance.length - decimal;
+
+  console.log(idxDot, balance)
+
+
+  if(idxDot < 0){
+    return "0." + "0".repeat(-idxDot) + balance.slice(0, 3);
+  }
+  else if (idxDot === balance.length){
+    return balance
+  }
+  else if (idxDot === 0) {
+    return '0.' + balance;
   }
   else {
-    return str.slice(0, idxDot) + "." + str.slice(idxDot, idxDot + 3);
+    return balance.slice(0, idxDot) + "." + balance.slice(idxDot, idxDot + 3);
   }
 }
 

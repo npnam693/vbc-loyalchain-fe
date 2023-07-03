@@ -20,9 +20,6 @@ const ConnectWallet = () => {
     const tokenState = useAppSelector((state) => state.tokenState)
 
     const signLogin = async (web3: any, userAddress: string) => {
-
-        console.log(web3)
-
         const signature = await web3.eth.personal.sign(
             "Login",
             userAddress,
@@ -149,7 +146,7 @@ const ConnectWallet = () => {
                         {shortenAddress(userState.address)}
                     </Button>
                 </div>
-                <Button onClick={Deploycontract}>deploy</Button>
+                {/* <Button onClick={Deploycontract}>deploy</Button> */}
             </Popover>
         );
     } else {
