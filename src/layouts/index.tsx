@@ -10,6 +10,9 @@ import { LayoutProps } from "../types/route";
 import { useAppDispatch } from "../state/hooks";
 import Web3 from "web3";
 import { saveWeb3 } from "../state/web3/web3Slice";
+import { updateTokens } from "../state/token/tokenSlice";
+import appApi from "../api/appAPI";
+
 
 const toptions: ISourceOptions = {
   name: "Polygon Mask",
@@ -134,6 +137,9 @@ const toptions: ISourceOptions = {
   },
 };
 
+
+
+
 const Layout = ({ children }: LayoutProps) => {
   const particlesInit = useCallback(async (engine: Engine) => {
     // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
@@ -144,20 +150,27 @@ const Layout = ({ children }: LayoutProps) => {
 
   const particlesLoaded = useCallback(
     async (container: Container | undefined) => {
-      // await console.log(container);
     },
     []
   );
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    async function fetchData() {
+    useEffect(() => {
+      async function fetchTokens() {
+        const tokens = await appApi.getTokens();
+        if (tokens){
+          dispatch(updateTokens(tokens.data));
+        }
+    }
+    
+    async function fetchAccount() {
       const accounts = await window.ethereum.request({method: 'eth_accounts'});       
       if (accounts.length > 0) {
         const myWeb3 = new Web3(window.ethereum);
         dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
       }
     }
-    fetchData()
+    fetchAccount()
+    fetchTokens()
   }, [])    
   
 

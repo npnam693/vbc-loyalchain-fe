@@ -10,12 +10,14 @@ import { SafetyCertificateTwoTone } from "@ant-design/icons";
 import { initialUserState } from "../../../../state/user/userSlice";
 import { useAppSelector, useAppDispatch } from "../../../../state/hooks";
 import contractToken from '../../../../contract/Token/data.json';
+import { getBalanceAccount } from "../../../../utils/blockchain";
 
 const ConnectWallet = () => {
     const dispatch = useAppDispatch();
 
     const userState = useAppSelector((state) => state.userState);
     const web3State = useAppSelector((state) => state.Web3State);
+    const tokenState = useAppSelector((state) => state.tokenState)
 
     const signLogin = async (web3: any, userAddress: string) => {
 
@@ -32,17 +34,21 @@ const ConnectWallet = () => {
     const connectWallet = async () => {
         if (typeof window.ethereum !== "undefined") {
             const myWeb3 = new Web3(window.ethereum);
-            const account = await window.ethereum.request({ method: "eth_requestAccounts" });
-            console.log(account)
+            // const account = await window.ethereum.request({ method: "eth_requestAccounts" });
+            await window.ethereum.enable()
+        
+            console.log('da enable')
             const myUserState = Object.assign({}, initialUserState);
             myUserState.address = (await myWeb3.eth.getAccounts())[0];
-            myUserState.network = String(await myWeb3.eth.net.getId());
+            myUserState.network = Number(await myWeb3.eth.net.getId());
             myUserState.balance = fixStringBalance(String(
                 await myWeb3.eth.getBalance(myUserState.address)
             ), 18)
             myUserState.isAuthenticated = true;
+            // myUserState.wallet 
+            // await getBalanceAccount(myWeb3, myUserState, tokenState)
             const signature = await signLogin(myWeb3, myUserState.address);
-            
+            console.log('userState', myUserState)
             axios
                 .post(
                     "http://localhost:3333/api/auth/login",
@@ -89,16 +95,21 @@ const ConnectWallet = () => {
         const deploy = contract.deploy({
           data: JSON.parse(JSON.stringify(contractToken)).bytecode,
           arguments: [
-            "huhu",
-            "khocr",
+            "Walmart Loyalty Point",
+            "WLP",
             ["0x2a5b956d042f745835bcae7c75a9c806c20af371"],
           ],
         });
 
-        const deployTransaction = deploy.send({
+        const deployTransaction = await deploy.send({
           from: userState.address,
           gas: 2100000,
         });
+
+        console.log(deployTransaction);
+
+
+
 
         // const recipt = await web3Api.eth.getTransactionReceipt(
         //   "0x457d89c09be00fe61dba08515a17661088f5f1236561b6ee58f13aefcbf79b7d"

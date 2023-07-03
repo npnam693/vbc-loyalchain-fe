@@ -1,5 +1,6 @@
 import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ImageAGD } from "../../types/image";
+import { IToken } from "../token/tokenSlice";
 
 export interface LanguageImageObject {
   vi?: Array<ImageAGD>;
@@ -78,15 +79,15 @@ export interface LanguageImageObject {
 // };
  
 
-interface IBalance {
-  symbol: string;
+export interface IWallet {
+  token: IToken;
   balance: string;
 }
 export interface IUserState {
   address: string;
   token: string;
-  network: string;
-  // balance: IBalance[];
+  network: number;
+  wallet: IWallet[];
   balance: string;
   isAuthenticated: boolean;
 }
@@ -94,8 +95,8 @@ export interface IUserState {
 export const initialUserState : IUserState = {
   address: "",
   token: "",
-  network: "",
-  // balance: [],
+  network: -1,
+  wallet: [],
   balance: "0",
   isAuthenticated: false,
 }

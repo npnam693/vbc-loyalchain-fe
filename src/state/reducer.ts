@@ -4,7 +4,7 @@ import alertState from "./alert/alertSlice";
 import popupState from "./popup/popupSlice";
 import ThemeOptions from "./themeOptions/themeOptionsSlice";
 import Web3State from "./web3/web3Slice";
-
+import tokenState from "./token/tokenSlice";
 
 const appReducer = combineReducers({
   //authen
@@ -15,6 +15,7 @@ const appReducer = combineReducers({
   popupState,
   
   Web3State,
+  tokenState,
   //theme
   ThemeOptions,
 });

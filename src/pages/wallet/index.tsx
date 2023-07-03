@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppSelector } from "../../state/hooks";
 import contractToken from "../../contract/Token/data.json";
 import QRCode from "react-qr-code";
@@ -8,6 +8,7 @@ import "./Wallet.scss";
 
 import {History, Reward, Token} from "./helper";
 import { CopyOutlined } from "@ant-design/icons";
+import appApi from "../../api/appAPI";
 interface IForm {
   token: string;
   amount: number;
@@ -27,13 +28,14 @@ const Wallet = () => {
     to: "",
   });
 
+  useEffect(( ) => {
+    const getTokens = async () => {
+      console.log('huhu', await appApi.getTokens())
+    }
+    getTokens()
+  }, [])
 
-
-
-
-
-
-
+  
   const myWeb3 = useAppSelector((state) => state.Web3State);
 
   const userState= useAppSelector((state) => state.userState);
@@ -59,7 +61,7 @@ const Wallet = () => {
 
     const contractABI = contractToken.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
     const contractAddress = formData.token;
-    const contract = new myWeb3.web3.eth.Contract(contractABI, contractAddress);
+    const contract = new myWeb3.web3.eth.Contract(contractABI, "0xb003312Fc97dD7534fb96166b46A7018cd7a6573");
 
     const fromAddress = userState.address; // Địa chỉ ví nguồn (tài khoản của bạn)
     const toAddress = formData.to; // Địa chỉ ví đích
@@ -68,33 +70,33 @@ const Wallet = () => {
       from: userState.address,
     });
 
-    const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
+    // const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
 
-    // const transactionObject = {
-    //   from: fromAddress,
-    //   to: contractAddress,
-    //   value: "0", // Nếu bạn chỉ chuyển token, value = 0
-    //   data: contract.methods.transfer(toAddress, amount).encodeABI(),
-    //   // gasLimit: await contract.methods.transfer(toAddress, amount).estimateGas({
-    //   //   from: userState.address,
-    //   //   data: contract.methods.transfer(toAddress, amount).encodeABI(),
-    //   // }),
-    //   // // maxPriorityFeePerGas: "0x00",
-    //   // maxFeePerGas: "0x00",
-    //   // nonce: await myWeb3.web3.eth.getTransactionCount(userState.address),
-    //   // type: "0x02",
-    //   // accessList: [],
-    // };
+    // // const transactionObject = {
+    // //   from: fromAddress,
+    // //   to: contractAddress,
+    // //   value: "0", // Nếu bạn chỉ chuyển token, value = 0
+    // //   data: contract.methods.transfer(toAddress, amount).encodeABI(),
+    // //   // gasLimit: await contract.methods.transfer(toAddress, amount).estimateGas({
+    // //   //   from: userState.address,
+    // //   //   data: contract.methods.transfer(toAddress, amount).encodeABI(),
+    // //   // }),
+    // //   // // maxPriorityFeePerGas: "0x00",
+    // //   // maxFeePerGas: "0x00",
+    // //   // nonce: await myWeb3.web3.eth.getTransactionCount(userState.address),
+    // //   // type: "0x02",
+    // //   // accessList: [],
+    // // };
 
-    const myReceipt = await contract.methods.transfer(toAddress, amount).send({
-      from: userState.address,
-      gas: await contract.methods.transfer(toAddress, amount).estimateGas({
-        from: userState.address,
-        data: contract.methods.transfer(toAddress, amount).encodeABI(),
-      }),
-    });
+    // const myReceipt = await contract.methods.transfer(toAddress, amount).send({
+    //   from: userState.address,
+    //   gas: await contract.methods.transfer(toAddress, amount).estimateGas({
+    //     from: userState.address,
+    //     data: contract.methods.transfer(toAddress, amount).encodeABI(),
+    //   }),
+    // });
 
-    console.log("myReceipt", myReceipt);
+    // console.log("myReceipt", myReceipt);
 
     // myWeb3.web3.eth
     //   .sendTransaction(transactionObject)
@@ -208,12 +210,12 @@ const Wallet = () => {
           onChange={(e) => setFormData({ ...formData, to: e.target.value })}
         />
       </div>
-      <Button onClick={transfer} type="primary" size="large">
-        Transfer
-      </Button>
-
+      
       <p>------------------</p>
-      <Button onClick={signAccount}>Sign Accounts</Button> */}
+    <Button onClick={signAccount}>Sign Accounts</Button> */}
+    <Button onClick={transfer} type="primary" size="large">
+      Transfer
+    </Button>
     </div>
   );
 };
