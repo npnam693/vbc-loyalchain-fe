@@ -28,4 +28,36 @@ function shortenAddress(address : string) {
   }
 }
 
-export { truncate , parsePhone, shortenAddress };
+function fixStringBalance(balance:string, decimal: number){
+  console.log(balance.length)
+  if (balance.length < 5) return balance;
+
+  for (let i = balance.length - 1; i >= 0; i--){
+    if (balance[i] === '0' && decimal > 0) {
+      decimal = decimal - 1;
+    } else {
+      balance = balance.slice(0, i+1) 
+      break;
+    };
+  }
+  const idxDot : number = balance.length - decimal;
+
+  console.log(idxDot, balance)
+
+
+  if(idxDot < 0){
+    return "0." + "0".repeat(-idxDot) + balance.slice(0, 3);
+  }
+  else if (idxDot === balance.length){
+    return balance
+  }
+  else if (idxDot === 0) {
+    return '0.' + balance;
+  }
+  else {
+    return balance.slice(0, idxDot) + "." + balance.slice(idxDot, idxDot + 3);
+  }
+}
+
+export { truncate , parsePhone, shortenAddress, fixStringBalance };
+

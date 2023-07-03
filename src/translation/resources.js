@@ -2,7 +2,7 @@
 import common_vi from './vi/common.json';
 import common_en from './en/common.json';
 
-export default {
+const resources = {
   en: {
     common: common_en,
   },
@@ -10,3 +10,5 @@ export default {
     common: common_vi,
   }
 };
+
+export default resources

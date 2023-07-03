@@ -1,0 +1,125 @@
+.app-sendToken {
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba($color: #000000, $alpha: 0.5);
+    z-index: 5;
+    .container {
+        background-color: white;
+        border-radius: 30px;
+        width: 600px;
+    
+        position: fixed;
+        padding: 30px;
+        top: calc((100vh - 500px) / 2 - 50px);
+        right: 32vw;
+        left: 32vw;
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .title {
+                font-size: 2rem;
+                line-height: 2rem;
+                font-weight: 600;
+                color: black;
+                margin-bottom: 6px;
+            }
+            .desc {
+                color: #9CA3AF;
+            }
+        }
+        .divider {
+            border-color: rgba($color: #000000, $alpha: 0.2);
+            border-width: 1px;
+            margin: 5px 0px;
+        }
+        .token {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0px;
+            .token-img {
+                width: 60px;
+                margin-right: 10px;
+            }
+
+            .token-name {
+                font-size: 1.6rem;
+                font-weight: 600;
+                color: rgba($color: #000000, $alpha: 0.9);
+                max-width: 300px;
+            }
+            .token-net {
+                font-size: 1.4rem;
+                font-weight: 500;
+            }
+        }
+
+        .user-address {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+            span {
+                font-weight: 400;
+            }
+        }
+        .token-balance {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+
+            span {
+                font-weight: 400;
+                color: var(--color-secondary)
+            }
+        }
+        .sendto, .amount {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 5px;
+
+            p {
+                font-size: 1.4rem;
+                font-weight: 500;
+                min-width: 70px;
+            }
+
+            .amount-input {
+                min-width: 200px;
+                margin-right: 10px;
+            }
+            .amount-btn {
+                font-size: 1rem;
+                width: 36px;
+                height: 24px;
+                padding: 0;
+                border-radius: 2px;
+                color: var(--color-secondary);
+            }
+        }
+
+        .send-btn {
+            background-color: var(--color-secondary);
+            width: 100px;
+            margin-top: 20px;
+            margin-left: calc(100% - 100px);
+        }
+    }
+}
+
+.close {
+    position: absolute;
+    right: 30px;
+    &--icon{
+        color: black;
+        font-size: 2.5rem;
+        cursor: pointer;
+    }
+}

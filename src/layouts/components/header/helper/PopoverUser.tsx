@@ -5,7 +5,9 @@ import {
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { clearInfo } from "../../../state/user/userSlice";
+import { clearInfo } from "../../../../state/user/userSlice";
+import { clearWeb3 } from "../../../../state/web3/web3Slice";
+
 interface IItemPopover {
   icon: JSX.Element;
   title: string;
@@ -28,7 +30,10 @@ const PopoverUser = () => {
     {
       icon: <LogoutOutlined rev={""} className="popover-icon" />,
       title: "Log out",
-      onClick: () => dispatch(clearInfo()),
+      onClick: () => {
+        dispatch(clearInfo());
+        dispatch(clearWeb3());
+      },
     },
   ];
   return (

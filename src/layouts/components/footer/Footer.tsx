@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import cookie from "react-cookies";
 
-import VBC_Logo from "../../../assets/svg/logo_vbc-mode.svg";
+import VBC_Logo from "../../../assets/svg/logo_vbc-mod.svg";
 import SITEMAP from "../../../constants/sitemap";
 import "./Footer.scss";
 
@@ -57,6 +57,7 @@ const Footer = () => {
                         ? "var(--color-secondary)"
                         : "var(--color-text-white)",
                   }}
+                  key={index}
                 >
                   {t(item.key)}
                 </Link>

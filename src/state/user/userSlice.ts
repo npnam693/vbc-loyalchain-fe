@@ -1,5 +1,6 @@
 import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ImageAGD } from "../../types/image";
+import { IToken } from "../token/tokenSlice";
 
 export interface LanguageImageObject {
   vi?: Array<ImageAGD>;
@@ -78,25 +79,25 @@ export interface LanguageImageObject {
 // };
  
 
-interface IBalance {
-  symbol: string;
+export interface IWallet {
+  token: IToken;
   balance: string;
 }
-interface UserState {
+export interface IUserState {
   address: string;
   token: string;
-  network: string;
-  // balance: IBalance[];
-  balance: number;
+  network: number;
+  wallet: IWallet[];
+  balance: string;
   isAuthenticated: boolean;
 }
 
-export const initialUserState : UserState = {
+export const initialUserState : IUserState = {
   address: "",
   token: "",
-  network: "",
-  // balance: [],
-  balance: 0,
+  network: -1,
+  wallet: [],
+  balance: "0",
   isAuthenticated: false,
 }
 
@@ -106,7 +107,7 @@ const userSlice = createSlice({
   name: "userState",
   initialState: initialUserState,
   reducers: {
-    saveInfo: (state, action: PayloadAction<UserState>) => {
+    saveInfo: (state, action: PayloadAction<IUserState>) => {
       state = action.payload;
       return state
     },

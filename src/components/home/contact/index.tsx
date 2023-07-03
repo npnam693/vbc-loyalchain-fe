@@ -17,30 +17,30 @@ const Contact = () => {
     <div className="app-contact">
       <div className="info">
         <p className="title">Contact</p>
-        <p className="info-content">
+        <div className="info-content">
           <p>
             <HomeTwoTone rev={""} /> {t("contact.title.address")}:
           </p>
           {t("contact.content.address")}
-        </p>
-        <p className="info-content">
+        </div>
+        <div className="info-content">
           <p>
             <ClockCircleTwoTone rev={""} /> {t("contact.title.timework")}:
           </p>
           {t("contact.content.timework")}
-        </p>
-        <p className="info-content">
+        </div>
+        <div className="info-content">
           <p>
             <MailTwoTone rev={""} /> {t("contact.title.email")}:
           </p>
           {t("contact.content.email")}
-        </p>
-        <p className="info-content">
+        </div>
+        <div className="info-content">
           <p>
             <PhoneTwoTone rev={""} /> {t("contact.title.phone")}
           </p>
           {t("contact.content.phone")}
-        </p>
+        </div>
       </div>
       <div className="form">
         <div className="form-info">

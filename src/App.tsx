@@ -14,7 +14,9 @@ import AppLayout from "./layouts";
 
 const queryClient = new QueryClient();
 
+
 function App() {
+
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>

@@ -1,0 +1,65 @@
+.wallet-token-item {
+    padding: 16px 20px;
+    height: 90px;
+    width: 90%;
+    background-color: rgba(255,255,255,0.8);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 10px;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    .token-item-left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 100%;
+        img {
+            height: 100%;
+        }
+        .name_network-token {
+            display: flex;
+            flex-direction: column;
+            margin-left: 10px;
+            .name {
+                font-size: 1.6rem;
+                font-weight: 600;
+                color: rgba($color: #000000, $alpha: 0.8);
+            }
+    
+            .network {
+                font-size: 1.4rem;
+                font-weight: 500;
+                color: rgba($color: #000000, $alpha: 0.6);
+            }
+        }
+    }
+
+    .token-item-right {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .balance-token {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        
+        .action-token {
+            margin-left: 10px;
+            .action-icon {
+                font-size: 2rem;
+                padding: 3px 3px;
+                margin: 0 5px;
+                cursor: pointer;
+                border-radius: 5px;
+                
+                &:hover{
+                    background-color: var(--color-hover);
+                }
+            }
+        }
+
+    }
+}
