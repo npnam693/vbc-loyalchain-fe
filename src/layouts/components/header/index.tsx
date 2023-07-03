@@ -40,19 +40,6 @@ const Header = () => {
           "app-header--shadow": headerShow,
         })}
       >
-        {/* <div className="app-header--pane"> */}
-        {/* <button
-            className={clsx(
-              'navbar-toggler hamburger hamburger--elastic toggle-mobile-sidebar-btn',
-              { 'is-active': sidebarToggleMobile }
-            )}
-            onClick={toggleSidebarMobile}>
-            <span className="hamburger-box">
-              <span className="hamburger-inner" />
-            </span>
-          </button> */}
-        {/* </div> */}
-
         <div className="app-header--pane">
           <div style={{ display: "flex", flexDirection: "row" }}>
             <img

@@ -34,10 +34,7 @@ const ConnectWallet = () => {
     const connectWallet = async () => {
         if (typeof window.ethereum !== "undefined") {
             const myWeb3 = new Web3(window.ethereum);
-            // const account = await window.ethereum.request({ method: "eth_requestAccounts" });
-            await window.ethereum.enable()
-        
-            console.log('da enable')
+            const account = await window.ethereum.request({ method: "eth_requestAccounts" });
             const myUserState = Object.assign({}, initialUserState);
             myUserState.address = (await myWeb3.eth.getAccounts())[0];
             myUserState.network = Number(await myWeb3.eth.net.getId());
@@ -45,8 +42,7 @@ const ConnectWallet = () => {
                 await myWeb3.eth.getBalance(myUserState.address)
             ), 18)
             myUserState.isAuthenticated = true;
-            // myUserState.wallet 
-            // await getBalanceAccount(myWeb3, myUserState, tokenState)
+            await getBalanceAccount(myWeb3, myUserState, tokenState)
             const signature = await signLogin(myWeb3, myUserState.address);
             console.log('userState', myUserState)
             axios
@@ -95,9 +91,9 @@ const ConnectWallet = () => {
         const deploy = contract.deploy({
           data: JSON.parse(JSON.stringify(contractToken)).bytecode,
           arguments: [
-            "Walmart Loyalty Point",
-            "WLP",
-            ["0x2a5b956d042f745835bcae7c75a9c806c20af371"],
+            "Singapore Airlines Loyalty Point",
+            "SAP",
+            ["0x6225D07A59be4F47400E8885d8EFC78FF7D9e171"],
           ],
         });
 

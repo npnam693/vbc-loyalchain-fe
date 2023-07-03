@@ -30,6 +30,7 @@ function shortenAddress(address : string) {
 
 function fixStringBalance(balance:string, decimal: number){
   let str = balance.toString();
+  if (str.length < 5) return str;
   const idxDot : number = str.length - decimal;
   console.log('CC', idxDot)
   if(idxDot <= 0){

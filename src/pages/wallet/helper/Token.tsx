@@ -28,22 +28,18 @@ const Token = ({userState} : any) => {
         </div>
 
         <div className="token-items">
-            <TokenItemWallet 
-              onClickItem={() => console.log(mockDataToken[0].address)}
-              name={mockDataToken[0].name}
-              network={mockDataToken[0].network}
-              symbol={mockDataToken[0].symbol}
-              balance={mockDataToken[0].balance}
-              uriImg={mockDataToken[0].uriImg}
-            />
-                        <TokenItemWallet 
-              onClickItem={() => console.log(mockDataToken[0].address)}
-              name={mockDataToken[0].name}
-              network={mockDataToken[0].network}
-              symbol={mockDataToken[0].symbol}
-              balance={mockDataToken[0].balance}
-              uriImg={mockDataToken[0].uriImg}
-            />
+          {
+            userState.wallet.map((data : any, index:number) => (
+              <TokenItemWallet 
+                onClickItem={() => console.log(data.token.address)}
+                name={data.token.name}
+                network={data.token.network}
+                symbol={data.token.symbol}
+                balance={data.balance}
+                uriImg={data.token.image}
+              />
+            ))
+          }
         </div>
     </div>
   )

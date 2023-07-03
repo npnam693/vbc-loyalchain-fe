@@ -70,7 +70,7 @@ const Wallet = () => {
       from: userState.address,
     });
 
-    // const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
+    const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
 
     // // const transactionObject = {
     // //   from: fromAddress,

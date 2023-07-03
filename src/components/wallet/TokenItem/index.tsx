@@ -3,14 +3,13 @@ import { TokenItem } from '../../app/SelectToken/TokenItem'
 import { ITokenItemProps } from '../../app/SelectToken/TokenItem';
 import { SendOutlined, SwapOutlined, InfoCircleOutlined} from '@ant-design/icons';
 import './TokenItem.scss'
-import Token from '../../../assets/svg/tokens/SAP.svg'
 
 
 const TokenItemWallet = (props: ITokenItemProps) => {
   return (
     <div className='wallet-token-item'>
         <div className='token-item-left'>
-            <img src={Token} alt="Token" />
+            <img src={props.uriImg} alt="Token" />
             <div className='name_network-token'>
                 <p className='name'>{props.name}</p>
                 <p className='network'>{props.network}</p>
