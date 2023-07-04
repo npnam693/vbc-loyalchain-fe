@@ -7,6 +7,8 @@ import SBP from "../../../assets/svg/tokens/starbuck.svg";
 import MDP from "../../../assets/svg/tokens/MDP.svg";
 import WMP from "../../../assets/svg/tokens/WMP.svg";
 import SAP from "../../../assets/svg/tokens/SAP.svg";
+import { useAppSelector } from "../../../state/hooks";
+import { getTokenInOtherNetwork, mappingNetwork } from "../../../utils/blockchain";
 
 export const mockDataToken = [
   {
@@ -45,15 +47,21 @@ export const mockDataToken = [
 
 interface ISelectTokenProps {
   closeFunction: () => void;
+  onClickSelect?: (token : any) => void;
   top_css?: string;
   right_css?: string;
 }
 
 const SelectToken = (props: ISelectTokenProps) => {
+  const tokenState = useAppSelector((state) => state.tokenState);
+  const userState = useAppSelector((state) => state.userState);
+
+
   return (
     <div
       className="app-select_token"
       style={{ marginLeft: "auto", margin: "auto" }}
+      onClick={props.closeFunction}
     >
       <div
         className="container"
@@ -66,6 +74,7 @@ const SelectToken = (props: ISelectTokenProps) => {
               }
             : {}
         }
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="close" onClick={props.closeFunction}>
           <CloseCircleOutlined className="close--icon" rev={"size"} />
@@ -83,17 +92,35 @@ const SelectToken = (props: ISelectTokenProps) => {
         />
 
         <div>
-          {mockDataToken.map((item, index) => (
-            <TokenItem
-              onClickItem={() => console.log(item.address)}
-              name={item.name}
-              network={item.network}
-              symbol={item.symbol}
-              balance={item.balance}
-              uriImg={item.uriImg}
-              key={index}
-            />
-          ))}
+          {userState.wallet.map((item, index) => {
+            return (
+              <TokenItem
+                onClickItem={() => props.onClickSelect && props.onClickSelect(item)}
+                name={item.token.name}
+                network={mappingNetwork(item.token.network)}
+                symbol={item.token.symbol}
+                balance={item.balance}
+                uriImg={item.token.image}
+                key={index}
+              />
+            )
+          })}
+          
+          {
+            getTokenInOtherNetwork(tokenState, userState).map((item, index) => {
+                          return (
+              <TokenItem
+                onClickItem={() => alert("Switch network to Select Token")}
+                name={item.name}
+                network={mappingNetwork(item.network)}
+                symbol={item.symbol}
+                balance={"*"}
+                uriImg={item.image}
+                key={index}
+              />
+            )
+            })
+          }
         </div>
       </div>
     </div>

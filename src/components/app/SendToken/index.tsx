@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { Button, Divider, Input, InputNumber } from 'antd'
-import { CloseCircleOutlined } from '@ant-design/icons'
+
 import './SendToken.scss'
 import { useAppSelector } from '../../../state/hooks'
+import { CloseCircleOutlined } from '@ant-design/icons'
 import contractToken from '../../../contract/Token/data.json'
-import { useState } from 'react'
 import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
+
 interface ISendToken {
     token?: any;
     onCloseBtn: () => void
@@ -14,7 +16,7 @@ const SendToken = (props : ISendToken) => {
     const userState = useAppSelector((state) => state.userState);
     const web3State = useAppSelector((state) => state.Web3State); 
     const tokenState = useAppSelector((state) => state.tokenState); 
-    console.log(props)
+
     const [formData, setFormData] = useState({
         token: {},
         amount: 0,
@@ -55,7 +57,6 @@ const SendToken = (props : ISendToken) => {
     } 
     return (
     <div className='app-sendToken'>
-
         <div className='container'>
             <div className="close" onClick={props.onCloseBtn}>
                 <CloseCircleOutlined className="close--icon" rev={"size"} />

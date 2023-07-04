@@ -60,7 +60,8 @@ const Marketplace = () => {
         className="app-market-filter"
         style={{ backgroundColor: "var(--color-primary)" }}
         width={"36%"}
-        closable={false}
+        // closable={true}
+        onClose={() => setFilter({ ...filter, open: false })}
         open={filter.open}
       >
         {filter.open && (

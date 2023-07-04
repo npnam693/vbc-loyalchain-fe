@@ -2,8 +2,8 @@ export interface ITokenItemProps {
   name: string;
   symbol: string;
   uriImg: any;
-  network: string;
-  balance: number;
+  network: string | undefined;
+  balance: string;
   onClickItem ?: () => void;
 }
 

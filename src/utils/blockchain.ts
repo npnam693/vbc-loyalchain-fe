@@ -18,10 +18,10 @@ const getBalanceToken = async (myWeb3: any, userState: IUserState, token: IToken
     return {token, balance}
 }
 
-
 export const getBalanceAccount = async (myWeb3: any, userState: IUserState, tokenState: IToken[]) => {
     const tokensInMyNetwork = tokenState.filter((value) => value.network === userState.network)
     const newWallet : any = Array(tokensInMyNetwork.length)
+    
     Promise.all(tokensInMyNetwork.map((token: IToken) => getBalanceToken(myWeb3, userState, token)))
     .then(results => {
         // Xử lý kết quả từ các task
@@ -37,9 +37,21 @@ export const getBalanceAccount = async (myWeb3: any, userState: IUserState, toke
     });
 }
 
+export const getTokenInOtherNetwork = (tokenState: IToken[], userState: IUserState) => {
+    const tokenInNetwork = userState.wallet.map((value) => value.token)
+
+    const tokenInOtherNetwork = tokenState.filter((value) => {
+        if (tokenInNetwork.includes(value)) return false
+        else return true
+    })
+
+    return tokenInOtherNetwork;
+
+}
+
 export const mappingNetwork = (chainID: number) => {
-    if (chainID === 4444) return "AGD Network"
-    else if (chainID === 8888) return "MBC Testnet"
+    if (chainID === 8888) return "AGD Network"
+    else if (chainID === 4444) return "MBC Testnet"
 }
 
 export const mappingCurrency = (chainID: number) => {

@@ -1,7 +1,6 @@
 import Web3 from "web3";
 import axios from "axios";
 import { Button, Popover } from "antd";
-import { Personal } from "web3";
 import PopoverUser from "./PopoverUser";
 import { fixStringBalance, shortenAddress } from "../../../../utils/string";
 import { saveInfo } from "../../../../state/user/userSlice";
@@ -10,7 +9,11 @@ import { SafetyCertificateTwoTone } from "@ant-design/icons";
 import { initialUserState } from "../../../../state/user/userSlice";
 import { useAppSelector, useAppDispatch } from "../../../../state/hooks";
 import contractToken from '../../../../contract/Token/data.json';
-import { getBalanceAccount } from "../../../../utils/blockchain";
+import { getBalanceAccount, mappingNetwork } from "../../../../utils/blockchain";
+import { useToggleNoti } from "../../../../state/popup/hooks";
+import { toast } from 'react-toastify'
+
+
 
 const ConnectWallet = () => {
     const dispatch = useAppDispatch();
@@ -18,6 +21,8 @@ const ConnectWallet = () => {
     const userState = useAppSelector((state) => state.userState);
     const web3State = useAppSelector((state) => state.Web3State);
     const tokenState = useAppSelector((state) => state.tokenState)
+
+    const popup =  useToggleNoti(); 
 
     const signLogin = async (web3: any, userAddress: string) => {
         const signature = await web3.eth.personal.sign(
@@ -29,9 +34,12 @@ const ConnectWallet = () => {
     };
 
     const connectWallet = async () => {
+        toast("Đang kết nối ví")
         if (typeof window.ethereum !== "undefined") {
+            popup(true, "Đang kết nối ví", "success");
             const myWeb3 = new Web3(window.ethereum);
             const account = await window.ethereum.request({ method: "eth_requestAccounts" });
+            console.log('acount', account)
             const myUserState = Object.assign({}, initialUserState);
             myUserState.address = (await myWeb3.eth.getAccounts())[0];
             myUserState.network = Number(await myWeb3.eth.net.getId());
@@ -57,7 +65,7 @@ const ConnectWallet = () => {
                     console.log(myUserState);
                     dispatch(saveInfo(myUserState));
                     dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
-
+                    toast.success("Connect wallet success");
                     window.ethereum.on('accountsChanged', async function (accounts: any) {
                         const newBalance = fixStringBalance(String(
                             await myWeb3.eth.getBalance(myUserState.address)
@@ -72,6 +80,7 @@ const ConnectWallet = () => {
                             ...myUserState, network: networkId
                         }));
                     })
+                    
                 })
                 .catch((err) => {
                     console.log("error");
@@ -140,7 +149,7 @@ const ConnectWallet = () => {
                             size={10}
                             className="network-icon"
                         />
-                        <p>AGD</p>
+                        <p>{mappingNetwork(userState.network)}</p>
                     </div>
                     <Button type="primary" className="btn-connect_wallet">
                         {shortenAddress(userState.address)}

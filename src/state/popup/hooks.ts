@@ -3,7 +3,7 @@ import { toggle } from "../alert/alertSlice";
 import { useAppDispatch } from "../hooks";
 import { togglePopup } from "./popupSlice";
 
-export function useToggleNoti(): (
+export function useToggleNoti() : (
   status: boolean,
   type: string,
   content: string

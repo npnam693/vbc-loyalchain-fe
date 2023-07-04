@@ -7,24 +7,24 @@ import PairToken from "../../components/app/PairToken";
 import SelectToken from "../../components/app/SelectToken";
 
 interface IFormData {
-  from: string;
+  from: any;
   from_amount: number;
-  to: string;
+  to: any;
   to_amount: number;
   timelock: number;
 }
 
 export default function CreateOrder() {
   const [formData, setFormData] = useState<IFormData>({
-    from: "",
+    from: '',
     from_amount: 0,
-    to: "adp",
+    to: '',
     to_amount: 10,
     timelock: 0,
   });
-  const [selectingToken, setSelectingToken] = useState<boolean>(false);
+  const [selectingTokenFrom, setSelectingTokenFrom] = useState<boolean>(false);
+  const [selectingTokenTo, setSelectingTokenTo] = useState<boolean>(false);
 
-  const hdClickMaxBalance = () => {};
   const hdClickSwap = () => {
     const newData: IFormData = {
       from: formData.to,
@@ -37,9 +37,15 @@ export default function CreateOrder() {
   };
   const hdClickCreate = () => {};
 
-  const hdClickSelectToken = () => {
-    setSelectingToken(!selectingToken);
+  const hdClickSelectTokenFrom = () => {
+    setSelectingTokenFrom(!selectingTokenFrom);
   };
+
+  const hdClickSelectTokenTo = () => {
+    setSelectingTokenTo(!selectingTokenTo);
+  };
+
+
 
   return (
     <div className="app-create">
@@ -54,15 +60,15 @@ export default function CreateOrder() {
               {formData.from !== "" ? (
                 <div
                   className="form-input--header--token"
-                  onClick={hdClickSelectToken}
+                  onClick={hdClickSelectTokenFrom}
                 >
-                  <img src={SBP} alt="Token" />
-                  <p>{formData.from}</p>
+                  <img src={formData.from.token.image || SBP} alt="Token" />
+                  <p>{formData.from.token.symbol}</p>
                   <DownOutlined rev="" style={{ fontSize: "1.4rem" }} />
                 </div>
               ) : (
                 <Button
-                  onClick={hdClickSelectToken}
+                  onClick={hdClickSelectTokenFrom}
                   className="btn-select_token"
                   style={{
                     backgroundColor: "var(--color-secondary)",
@@ -94,8 +100,8 @@ export default function CreateOrder() {
               />
 
               <div className="form-input--content--amount">
-                <Button>MAX</Button>
-                <p>Available: 500</p>
+                <Button onClick={() => setFormData({...formData, from_amount:Number(formData.from.balance)})}>MAX</Button>
+                <p>Available: {formData.from.balance}</p>
               </div>
             </div>
           </div>
@@ -114,15 +120,15 @@ export default function CreateOrder() {
               {formData.to !== "" ? (
                 <div
                   className="form-input--header--token"
-                  onClick={hdClickSelectToken}
+                  onClick={hdClickSelectTokenTo}
                 >
-                  <img src={SBP} alt="Token" />
-                  <p>{formData.to}</p>
+                  <img src={formData.to.token.image || SBP} alt="Token" />
+                  <p>{formData.to.token.symbol}</p>
                   <DownOutlined rev="" style={{ fontSize: "1.4rem" }} />
                 </div>
               ) : (
                 <Button
-                  onClick={hdClickSelectToken}
+                  onClick={hdClickSelectTokenTo}
                   className="btn-select_token"
                   style={{
                     backgroundColor: "var(--color-secondary)",
@@ -154,8 +160,8 @@ export default function CreateOrder() {
               />
 
               <div className="form-input--content--amount">
-                <Button onClick={hdClickMaxBalance}>MAX</Button>
-                <p>Available: 500</p>
+                <Button onClick={() => setFormData({...formData, to_amount:Number(formData.to.balance)})}>MAX</Button>
+                <p>Available: {formData.to.balance}</p>
               </div>
             </div>
           </div>
@@ -167,8 +173,8 @@ export default function CreateOrder() {
           <div className="average">
             <p className="info-title">Average exchange rate</p>
             <div className="pair">
-              <PairToken />
-              <p className="average">1.005</p>
+              <PairToken from_img={formData.from !== '' ? formData.from.token.image : SBP} to_img={formData.to !== '' ? formData.to.token.image : SBP} />
+              <p className="average">{1.005}</p>
             </div>
           </div>
 
@@ -190,8 +196,22 @@ export default function CreateOrder() {
         Create
       </Button>
 
-      {selectingToken && (
-        <SelectToken closeFunction={() => setSelectingToken(!selectingToken)} />
+      {selectingTokenFrom && (
+        <SelectToken closeFunction={hdClickSelectTokenFrom} 
+          onClickSelect={(token: any) => {
+            setFormData({...formData, from: token})
+            hdClickSelectTokenFrom()
+          }}
+        />
+      )}
+
+      {selectingTokenTo && (
+        <SelectToken closeFunction={hdClickSelectTokenTo} 
+          onClickSelect={(token: any) => {
+            hdClickSelectTokenTo()
+            setFormData({...formData, to: token})
+          }}
+        />
       )}
     </div>
   );

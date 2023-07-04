@@ -10,7 +10,7 @@ import WhyChoose from "../../components/home/whychoose";
 import Package from "../../components/home/package";
 import Contact from "../../components/home/contact";
 import "./Home.scss";
-
+import { Spin } from "antd";
 export default function Home() {
   return (
     <div className="app-home">
