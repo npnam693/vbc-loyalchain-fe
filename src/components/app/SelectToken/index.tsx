@@ -92,7 +92,7 @@ const SelectToken = (props: ISelectTokenProps) => {
         />
 
         <div>
-          {userState.wallet.map((item, index) => {
+          {userState.wallet.map((item , index) => {
             return (
               <TokenItem
                 onClickItem={() => props.onClickSelect && props.onClickSelect(item)}

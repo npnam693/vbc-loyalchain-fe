@@ -12,8 +12,7 @@ import contractToken from '../../../../contract/Token/data.json';
 import { getBalanceAccount, mappingNetwork } from "../../../../utils/blockchain";
 import { useToggleNoti } from "../../../../state/popup/hooks";
 import { toast } from 'react-toastify'
-
-
+import { runLoading, stopLoading } from "../../../../state/loading/loadingSlice";
 
 const ConnectWallet = () => {
     const dispatch = useAppDispatch();
@@ -39,7 +38,6 @@ const ConnectWallet = () => {
             popup(true, "Đang kết nối ví", "success");
             const myWeb3 = new Web3(window.ethereum);
             const account = await window.ethereum.request({ method: "eth_requestAccounts" });
-            console.log('acount', account)
             const myUserState = Object.assign({}, initialUserState);
             myUserState.address = (await myWeb3.eth.getAccounts())[0];
             myUserState.network = Number(await myWeb3.eth.net.getId());
@@ -49,7 +47,7 @@ const ConnectWallet = () => {
             myUserState.isAuthenticated = true;
             await getBalanceAccount(myWeb3, myUserState, tokenState)
             const signature = await signLogin(myWeb3, myUserState.address);
-            console.log('userState', myUserState)
+            dispatch(runLoading({isLoading: true}))
             axios
                 .post(
                     "http://localhost:3333/api/auth/login",
@@ -66,14 +64,32 @@ const ConnectWallet = () => {
                     dispatch(saveInfo(myUserState));
                     dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
                     toast.success("Connect wallet success");
+                    dispatch(stopLoading())
                     window.ethereum.on('accountsChanged', async function (accounts: any) {
-                        const newBalance = fixStringBalance(String(
+                        const myUserState = Object.assign({}, initialUserState);
+                        myUserState.address = (await myWeb3.eth.getAccounts())[0];
+                        myUserState.network = Number(await myWeb3.eth.net.getId());
+                        myUserState.balance = fixStringBalance(String(
                             await myWeb3.eth.getBalance(myUserState.address)
                         ), 18)
+                        myUserState.isAuthenticated = true;
+                        await getBalanceAccount(myWeb3, myUserState, tokenState)
+                        // const signature = await signLogin(myWeb3, myUserState.address);
 
-                        dispatch(saveInfo({
-                            ...myUserState, address: accounts[0], balance: newBalance
-                        }));
+                        axios.post("http://localhost:3333/api/auth/login", 
+                            {
+                                address: myUserState.address,
+                                signature: signature,
+                                message: "Login",
+                            },  
+                            {
+                                withCredentials: true
+                            }
+                        ).then((res) => {
+                            
+                            myUserState.token = res.data.accessToken;
+                            dispatch(saveInfo(myUserState));
+                        })
                     })
                     window.ethereum.on("networkChanged", function (networkId: any) {
                         dispatch(saveInfo({

@@ -140,7 +140,7 @@ const Wallet = () => {
           </div>
           <div className="account-info">
             Join time: 
-            <p>{userState.address}</p></div>
+            <p>Wed Jul 05 2023 12:19:57 GMT+0700 (Indochina Time)</p></div>
 
           <div className="qrcode-container">
             <div className="qrcode">
@@ -182,8 +182,6 @@ const Wallet = () => {
 
       </div>
 
-
-
       {/* <div style={{ fontSize: 20, color: "white" }}>
         Your address: <span>{userState.address}</span>{" "}
       </div>
@@ -213,9 +211,9 @@ const Wallet = () => {
       
       <p>------------------</p>
     <Button onClick={signAccount}>Sign Accounts</Button> */}
-    <Button onClick={transfer} type="primary" size="large">
+    {/* <Button onClick={transfer} type="primary" size="large">
       Transfer
-    </Button>
+    </Button> */}
     </div>
   );
 };

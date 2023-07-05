@@ -1,39 +1,128 @@
 import { SwapOutlined } from "@ant-design/icons";
-import { Divider } from "antd";
-
+import { Divider, Popconfirm } from "antd";
+import ExchangeContract from "../../../contract/Exchange/data.json";
 import "./Order.scss";
 import Starbuck from "../../../assets/svg/tokens/starbuck.svg";
+import { useAppSelector } from "../../../state/hooks";
+import appApi from "../../../api/appAPI";
+import { useAppDispatch } from "../../../state/hooks";
+import { runLoading, stopLoading } from "../../../state/loading/loadingSlice";
+import { initialUserState, saveInfo } from "../../../state/user/userSlice";
+import { getBalanceAccount } from "../../../utils/blockchain";
 
-const Order = () => {
+const Order = (props : any) => {
+  const web3State = useAppSelector((state) => state.Web3State)
+  const userState = useAppSelector((state) => state.userState)
+  const tokenState = useAppSelector((state) => state.tokenState)
+  const dispatch = useAppDispatch()
+
+  const hdClickBuyItem = async () => {
+    console.log(props.data)
+    dispatch(runLoading({isLoading: true}))
+    
+    try {
+      const contract = new web3State.web3.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
+      
+      const dataMethod = contract.methods.accept(props.data.txIdFrom)
+
+      const dataABI = dataMethod.encodeABI()
+
+      console.log(dataABI)
+    
+      const estimateGas = await dataMethod.estimateGas({
+        from: userState.address,
+        data: dataMethod.encodeABI()
+      })
+      
+      const sendTX = await web3State.web3.eth.sendTransaction({
+        from: userState.address,
+        gasPrice: "20000000000",
+        gas: estimateGas ,
+        to: "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2",
+        value: "0",
+        data: dataABI,
+      })
+      
+      console.log(sendTX)
+    
+      appApi.acceptOder(props.data._id, props.data.txIdFrom )
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err))
+      
+
+      let myUserState = Object.assign({}, initialUserState);
+      myUserState.address = userState.address
+      myUserState.balance = userState.balance
+      myUserState.isAuthenticated = userState.isAuthenticated
+      myUserState.network = userState.network
+      myUserState.token = userState.token
+      myUserState.wallet = []
+      console.log('trc khi', userState)
+
+      const wallet = await getBalanceAccount(web3State.web3, myUserState, tokenState)
+      
+
+      console.log('sau khi', myUserState)
+
+      dispatch(saveInfo(myUserState))
+
+      
+      dispatch(stopLoading())
+    } catch (error) {
+      alert("Error");
+      dispatch(stopLoading())
+    }
+  }
+
+
   return (
-    <div className="app-order">
+    <div className="app-order" style={{marginBottom: 20}}>
       <div className="app-order--info">
+
+
+
         <div className="app-order--info--token">
-          <img src={Starbuck} alt="StarBuck" />
+          <img src={props.data.toValue.token.image} alt="StarBuck" />
           <div>
-            <p className="quantity">30.000</p>
-            <p className="symbol">SBP</p>
+            <p className="quantity">{props.data.toValue.amount}</p>
+            <p className="symbol">{props.data.toValue.token.symbol}</p>
           </div>
         </div>
-
+      
         <div className="icon-container">
           <SwapOutlined rev={""} className="icon" />
         </div>
 
+
         <div className="app-order--info--token">
-          <img src={Starbuck} alt="StarBuck" />
-          <div>
-            <p className="quantity">30.000</p>
-            <p className="symbol">SBP</p>
+            <img src={props.data.fromValue.token.image} alt="StarBuck" />
+            <div>
+              <p className="quantity">{props.data.fromValue.amount}</p>
+              <p className="symbol">{props.data.fromValue.token.symbol}</p>
+            </div>
           </div>
-        </div>
+      
       </div>
+
+
+
 
       <Divider style={{ marginTop: 10, marginBottom: 10 }} />
       <div className="app-order--action">
         <div className="app-order--action--time_left">3h 50m 2s left</div>
 
-        <div className="app-order--action--btn">Buy</div>
+
+        <Popconfirm
+          title="Accept the Order"
+          description="Are you sure to accept the Order??"
+          onConfirm={hdClickBuyItem}
+          onCancel={() => console.log("cancel")}
+          okText="Yes"
+          cancelText="No"
+          placement="bottom"
+        >
+          <div className="app-order--action--btn" >Buy</div>
+        </Popconfirm>
       </div>
     </div>
   );

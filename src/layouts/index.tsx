@@ -162,14 +162,14 @@ const Layout = ({ children }: LayoutProps) => {
         }
     }
     
-    async function fetchAccount() {
-      const accounts = await window.ethereum.request({method: 'eth_accounts'});       
-      if (accounts.length > 0) {
-        const myWeb3 = new Web3(window.ethereum);
-        dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
-      }
-    }
-    fetchAccount()
+    // async function fetchAccount() {
+    //   const accounts = await window.ethereum.request({method: 'eth_accounts'});       
+    //   if (accounts.length > 0) {
+    //     const myWeb3 = new Web3(window.ethereum);
+    //     dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
+    //   }
+    // }
+    // fetchAccount()
     fetchTokens()
   }, [])    
   

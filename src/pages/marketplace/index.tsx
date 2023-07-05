@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Col, Row, Divider, Button, Slider, Drawer } from "antd";
 
@@ -10,6 +10,7 @@ import MarketPane from "../../components/marketplace/MarketPane";
 import TableOrder from "../../components/marketplace/TableOrder";
 import StatisticItem from "../../components/marketplace/StatisticItem";
 import { CloseCircleOutlined } from "@ant-design/icons";
+import appApi from "../../api/appAPI";
 
 const filterRawData = {
   swap_from: "",
@@ -20,6 +21,8 @@ const filterRawData = {
 
 const Marketplace = () => {
   const [isListMode, setIsListMode] = useState(true);
+  const [selectShow, setSelectShow] = useState(false);
+  const [data, setData] = useState([])
   const [filter, setFilter] = useState({
     open: false,
     isFilterMode: true,
@@ -30,9 +33,19 @@ const Marketplace = () => {
       amount_to: "",
     },
   });
-  const [selectShow, setSelectShow] = useState(false);
-
+  
   const navigate = useNavigate();
+
+
+
+  useEffect(() => {
+    const fetchDataOrder = async () => {
+      const tdata = await appApi.getAllOrders()
+      if(tdata) setData(tdata.data)
+      console.log(tdata)
+    }
+    fetchDataOrder()
+  }, [])
 
   const toggleModeView = () => {
     setIsListMode(!isListMode);
@@ -199,25 +212,31 @@ const Marketplace = () => {
       />
 
       {isListMode ? (
-        <TableOrder />
+        <TableOrder data={data} />
       ) : (
-        <Row gutter={[16, 16]}>
-          <Col span={6}>
-            <Order />
-          </Col>
-          <Col span={6}>
-            <Order />
-          </Col>
-          <Col span={6}>
-            <Order />
-          </Col>
-          <Col span={6}>
-            <Order />
-          </Col>
-          <Col span={6}>
-            <Order />
-          </Col>
-        </Row>
+        <div style={{display: 'flex', flexDirection: 'row', flexWrap:'wrap', justifyContent:"space-between"}}>
+          {
+            data.map((item, index) => 
+              <Order data = {item}/>
+            )
+          }
+          
+        </div>
+          
+          
+        //    <Col span={6}>
+        //     <Order />
+        //   </Col>
+        //   <Col span={6}>
+        //     <Order />
+        //   </Col>
+        //   <Col span={6}>
+        //     <Order />
+        //   </Col>
+        //   <Col span={6}>
+        //     <Order />
+        //   </Col> 
+        // </Row>
       )}
 
       {/* <Order />

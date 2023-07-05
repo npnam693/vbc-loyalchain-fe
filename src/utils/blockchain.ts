@@ -18,7 +18,7 @@ const getBalanceToken = async (myWeb3: any, userState: IUserState, token: IToken
     return {token, balance}
 }
 
-export const getBalanceAccount = async (myWeb3: any, userState: IUserState, tokenState: IToken[]) => {
+export const getBalanceAccount  = async (myWeb3: any, userState: IUserState, tokenState: IToken[])   => {
     const tokensInMyNetwork = tokenState.filter((value) => value.network === userState.network)
     const newWallet : any = Array(tokensInMyNetwork.length)
     
@@ -33,8 +33,8 @@ export const getBalanceAccount = async (myWeb3: any, userState: IUserState, toke
     })
     .catch(error => {
         console.log(error)
-        return []
     });
+
 }
 
 export const getTokenInOtherNetwork = (tokenState: IToken[], userState: IUserState) => {

@@ -5,6 +5,7 @@ import popupState from "./popup/popupSlice";
 import ThemeOptions from "./themeOptions/themeOptionsSlice";
 import Web3State from "./web3/web3Slice";
 import tokenState from "./token/tokenSlice";
+import loadingState from "./loading/loadingSlice";
 
 const appReducer = combineReducers({
   //authen
@@ -18,6 +19,7 @@ const appReducer = combineReducers({
   tokenState,
   //theme
   ThemeOptions,
+  loadingState,
 });
 
 // const rootReducer = (state: any, action:AnyAction) => {
