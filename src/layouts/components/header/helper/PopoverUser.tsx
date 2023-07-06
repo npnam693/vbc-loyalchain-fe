@@ -6,8 +6,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearInfo } from "../../../../state/user/userSlice";
-import { clearWeb3 } from "../../../../state/web3/web3Slice";
-
+import { clearWeb3 } from "../../../../state/app/appSlice";
 interface IItemPopover {
   icon: JSX.Element;
   title: string;
@@ -42,6 +41,7 @@ const PopoverUser = () => {
         <div
           className="container-item"
           onClick={() => item.onClick && item.onClick()}
+          key={index}
         >
           {item.icon}
           <p>{item.title}</p>

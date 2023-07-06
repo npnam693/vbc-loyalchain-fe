@@ -53,7 +53,7 @@ interface ISelectTokenProps {
 }
 
 const SelectToken = (props: ISelectTokenProps) => {
-  const tokenState = useAppSelector((state) => state.tokenState);
+  const tokenState = useAppSelector((state) => state.appState.web3);
   const userState = useAppSelector((state) => state.userState);
 
 

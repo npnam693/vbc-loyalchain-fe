@@ -136,31 +136,33 @@ export default function Home() {
           <Package
             premium={false}
             type="Basic"
-            money={200}
+            money={500}
             contents={[
-              "PREMIUM THEME",
-              "FREE BRANDED LOGO & BANNER",
-              "5 TRENDING PRODUCTS",
+              "DIGITAL LOYALTY POINTS",
+              "IMPLEMENTATION POINTS TRANSFER SYSTEM",
+              "INTEGRATION WITH lOYALCHAIN SYSTEM",
             ]}
           />
           <Package
             premium={true}
             type="Basic"
-            money={200}
+            money={2000}
             contents={[
-              "PREMIUM THEME",
-              "FREE BRANDED LOGO & BANNER",
-              "5 TRENDING PRODUCTS",
+              "DIGITAL LOYALTY POINTS",
+              "IMPLEMENTATION POINTS TRANSFER SYSTEM",
+              "INTEGRATION WITH lOYALCHAIN SYSTEM",
+              "NFT REWARDS",
+              "LADING PAGE"
             ]}
           />
           <Package
             premium={false}
             type="Basic"
-            money={200}
+            money={1000}
             contents={[
-              "PREMIUM THEME",
-              "FREE BRANDED LOGO & BANNER",
-              "5 TRENDING PRODUCTS",
+              "DIGITAL LOYALTY POINTS",
+              "IMPLEMENTATION POINTS TRANSFER SYSTEM",
+              "INTEGRATION WITH lOYALCHAIN SYSTEM",
             ]}
           />
         </div>

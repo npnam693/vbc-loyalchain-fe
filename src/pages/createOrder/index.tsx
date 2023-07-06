@@ -14,7 +14,7 @@ import { stopLoading, runLoading } from "../../state/loading/loadingSlice";
 import { toast } from 'react-toastify'
 import { getBalanceAccount } from "../../utils/blockchain";
 import { initialUserState, saveInfo } from "../../state/user/userSlice";
-import { use } from "i18next";
+import { fixStringBalance } from "../../utils/string";
 
 interface IFormData {
   from: any;
@@ -34,11 +34,11 @@ export default function CreateOrder() {
   });
   const [selectingTokenFrom, setSelectingTokenFrom] = useState<boolean>(false);
   const [selectingTokenTo, setSelectingTokenTo] = useState<boolean>(false);
-  const web3State = useAppSelector((state) => state.Web3State)
+  const web3State = useAppSelector((state) => state.appState.web3)
+  const tokenState = useAppSelector((state) => state.appState.tokens)
   const userState = useAppSelector((state) => state.userState)
-  const tokenState = useAppSelector((state) => state.tokenState)
-  const dispatch =useAppDispatch()
 
+  const dispatch =useAppDispatch()
 
   const hdClickSwap = () => {
     const newData: IFormData = {
@@ -50,9 +50,13 @@ export default function CreateOrder() {
     };
     setFormData(newData);
   };
+  
   const hdClickCreate = async () => {
     console.log(formData)
-    dispatch(runLoading({isLoading: true}))
+    dispatch(runLoading())
+    
+    
+    
     const orderId = uuidv4();
     const contract = new web3State.web3.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
     const data = contract.methods.createTx(
@@ -63,9 +67,6 @@ export default function CreateOrder() {
       BigInt(10 ** Number(18) * Number(formData.to_amount)),
       BigInt(24),
     )
-
-    console.log(data.encodeABI())
-    console.log();
 
     const sendTX = await web3State.web3.eth.sendTransaction({
       from: userState.address,
@@ -79,8 +80,6 @@ export default function CreateOrder() {
 
       data: data.encodeABI(),
     })
-
-    
     appApi.createOrder( {
       fromValue: formData.from_amount,
       fromTokenId: formData.from.token._id,
@@ -95,21 +94,7 @@ export default function CreateOrder() {
     console.log(sendTX)
     
 
-    let myUserState = Object.assign({}, initialUserState);
-    myUserState.address = userState.address
-    myUserState.balance = userState.balance
-    myUserState.isAuthenticated = userState.isAuthenticated
-    myUserState.network = userState.network
-    myUserState.token = userState.token
-    myUserState.wallet = []
-    console.log('trc khi', userState)
-
-    await getBalanceAccount(web3State.web3, myUserState, tokenState)
-    
-
-    console.log('sau khi', myUserState)
-
-    dispatch(saveInfo(myUserState))
+    dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState) }))
 
 
     toast.success("The order was created successfully");

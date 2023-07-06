@@ -59,7 +59,6 @@ const Package = (props: IPackage): JSX.Element => {
 
           display: "flex",
           alignItems: "center",
-
           color: props.premium ? "white" : "#294199",
           fontWeight: 600,
           paddingBottom: 10,

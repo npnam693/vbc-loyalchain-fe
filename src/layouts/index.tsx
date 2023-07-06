@@ -9,9 +9,66 @@ import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
 import { useAppDispatch } from "../state/hooks";
 import Web3 from "web3";
-import { saveWeb3 } from "../state/web3/web3Slice";
-import { updateTokens } from "../state/token/tokenSlice";
+import { saveWeb3 } from "../state/app/appSlice";
+import { saveTokens } from "../state/app/appSlice";
+
 import appApi from "../api/appAPI";
+
+
+
+
+
+const Layout = ({ children }: LayoutProps) => {
+  const particlesInit = useCallback(async (engine: Engine) => {
+    // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
+    // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
+    // starting from v2 you can add only the features you need reducing the bundle size
+    await loadFull(engine);
+  }, []);
+
+  const particlesLoaded = useCallback(
+    async (container: Container | undefined) => {
+    },
+    []
+  );
+  const dispatch = useAppDispatch();
+    useEffect(() => {
+      async function fetchTokens() {
+        const tokens = await appApi.getTokens();
+        if (tokens){
+          dispatch(saveTokens(tokens.data));
+        }
+    }
+    // async function fetchAccount() {
+    //   const accounts = await window.ethereum.request({method: 'eth_accounts'});       
+    //   if (accounts.length > 0) {
+    //     const myWeb3 = new Web3(window.ethereum);
+    //     dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
+    //   }
+    // }
+    // fetchAccount()
+    fetchTokens()
+  }, [])    
+  
+
+  return (
+    <>
+      <div className="gradient"></div>
+      <Particles
+        id="tsparticles"
+        init={particlesInit}
+        loaded={particlesLoaded}
+        options={toptions}
+      />
+      <Header />
+      <div style={{ height: "var(--header-height)" }}></div>
+      <div style={{ margin: "50px var(--app-margin) 0 var(--app-margin)" }}>
+        {children}
+      </div>
+      <Footer />
+    </>
+  );
+};
 
 
 const toptions: ISourceOptions = {
@@ -136,61 +193,4 @@ const toptions: ISourceOptions = {
     url: "https://particles.js.org/images/smalldeer.svg",
   },
 };
-
-
-
-
-const Layout = ({ children }: LayoutProps) => {
-  const particlesInit = useCallback(async (engine: Engine) => {
-    // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
-    // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
-    // starting from v2 you can add only the features you need reducing the bundle size
-    await loadFull(engine);
-  }, []);
-
-  const particlesLoaded = useCallback(
-    async (container: Container | undefined) => {
-    },
-    []
-  );
-  const dispatch = useAppDispatch();
-    useEffect(() => {
-      async function fetchTokens() {
-        const tokens = await appApi.getTokens();
-        if (tokens){
-          dispatch(updateTokens(tokens.data));
-        }
-    }
-    
-    // async function fetchAccount() {
-    //   const accounts = await window.ethereum.request({method: 'eth_accounts'});       
-    //   if (accounts.length > 0) {
-    //     const myWeb3 = new Web3(window.ethereum);
-    //     dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
-    //   }
-    // }
-    // fetchAccount()
-    fetchTokens()
-  }, [])    
-  
-
-  return (
-    <>
-      <div className="gradient"></div>
-      <Particles
-        id="tsparticles"
-        init={particlesInit}
-        loaded={particlesLoaded}
-        options={toptions}
-      />
-      <Header />
-      <div style={{ height: "var(--header-height)" }}></div>
-      <div style={{ margin: "50px var(--app-margin) 0 var(--app-margin)" }}>
-        {children}
-      </div>
-      <Footer />
-    </>
-  );
-};
-
 export default Layout;

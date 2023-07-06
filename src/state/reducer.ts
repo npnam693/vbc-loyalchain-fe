@@ -1,22 +1,16 @@
 import { AnyAction, combineReducers } from "@reduxjs/toolkit";
-import userState, { logOut } from "./user/userSlice";
-import alertState from "./alert/alertSlice";
-import popupState from "./popup/popupSlice";
-import ThemeOptions from "./themeOptions/themeOptionsSlice";
-import Web3State from "./web3/web3Slice";
-import tokenState from "./token/tokenSlice";
-import loadingState from "./loading/loadingSlice";
 
+import userState from "./user/userSlice";
+import ThemeOptions from "./themeOptions/themeOptionsSlice";
+import loadingState from "./loading/loadingSlice";
+import appState from './app/appSlice'
 const appReducer = combineReducers({
   //authen
   userState,
-
-  //noti
-  alertState,
-  popupState,
   
-  Web3State,
-  tokenState,
+  // app
+  appState,
+
   //theme
   ThemeOptions,
   loadingState,

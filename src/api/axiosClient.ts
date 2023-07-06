@@ -1,10 +1,7 @@
 import axios from "axios";
-import moment from "moment";
 import queryString from "query-string";
 import { toast } from "react-toastify";
 import store from "../state";
-import { toggle } from "../state/alert/alertSlice";
-import { togglePopup } from "../state/popup/popupSlice";
 
 
 
@@ -56,7 +53,6 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    store.dispatch(toggle({ status: false }));
     // Handle errors
     if (error.response) {
       if (error.response.data.message) {

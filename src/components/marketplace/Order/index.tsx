@@ -2,24 +2,23 @@ import { SwapOutlined } from "@ant-design/icons";
 import { Divider, Popconfirm } from "antd";
 import ExchangeContract from "../../../contract/Exchange/data.json";
 import "./Order.scss";
-import Starbuck from "../../../assets/svg/tokens/starbuck.svg";
 import { useAppSelector } from "../../../state/hooks";
 import appApi from "../../../api/appAPI";
 import { useAppDispatch } from "../../../state/hooks";
 import { runLoading, stopLoading } from "../../../state/loading/loadingSlice";
-import { initialUserState, saveInfo } from "../../../state/user/userSlice";
 import { getBalanceAccount } from "../../../utils/blockchain";
-
+import { toast } from "react-toastify";
 const Order = (props : any) => {
-  const web3State = useAppSelector((state) => state.Web3State)
+  const web3State = useAppSelector((state) => state.appState.web3)
+  const tokenState = useAppSelector((state) => state.appState.tokens)
   const userState = useAppSelector((state) => state.userState)
-  const tokenState = useAppSelector((state) => state.tokenState)
+
   const dispatch = useAppDispatch()
+
 
   const hdClickBuyItem = async () => {
     console.log(props.data)
-    dispatch(runLoading({isLoading: true}))
-    
+    dispatch(runLoading())
     try {
       const contract = new web3State.web3.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
       
@@ -50,22 +49,17 @@ const Order = (props : any) => {
         .catch((err) => console.log(err))
       
 
-      let myUserState = Object.assign({}, initialUserState);
-      myUserState.address = userState.address
-      myUserState.balance = userState.balance
-      myUserState.isAuthenticated = userState.isAuthenticated
-      myUserState.network = userState.network
-      myUserState.token = userState.token
-      myUserState.wallet = []
+      let myUserState = Object.assign({}, userState);
+
+
       console.log('trc khi', userState)
 
       const wallet = await getBalanceAccount(web3State.web3, myUserState, tokenState)
-      
 
+      console.log(wallet)
       console.log('sau khi', myUserState)
-
-      dispatch(saveInfo(myUserState))
-
+      toast.success("Accept Order Success")
+      // dispatch(saveInfo({...myUserState, wallet: wallet}))
       
       dispatch(stopLoading())
     } catch (error) {
