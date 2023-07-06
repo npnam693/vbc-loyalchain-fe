@@ -22,21 +22,52 @@ const ConnectWallet = () => {
     };
 
     const hdAccountChange = async () => {
-        toast("Account changed, please wait a moment...")
-        dispatch(runLoading())
-        const myWeb3 = new Web3(window.ethereum);
-        const address = (await myWeb3.eth.getAccounts())[0];
-        const signature = await signatureLogin(myWeb3, address);
-        axios
-        .post("http://localhost:3333/api/auth/login", {
-            address: address,
-            signature: signature,
-            message: "Login",
-        }, { withCredentials: true }
-        ).then(async (res) => {
+        console.log(hdAccountChange, userState, appState)
+        // if(!appState.isConnectedWallet) return?
+        // else {
+            toast("Account changed, please wait a moment...")
+            dispatch(runLoading())
+            const myWeb3 = new Web3(window.ethereum);
+            const address = (await myWeb3.eth.getAccounts())[0];
+            const signature = await signatureLogin(myWeb3, address);
+            axios
+            .post("http://localhost:3333/api/auth/login", {
+                address: address,
+                signature: signature,
+                message: "Login",
+            }, { withCredentials: true }
+            ).then(async (res) => {
+                const myUserState : IUserState = {
+                    address:  address,
+                    token: res.data.accessToken,
+                    network: Number(await myWeb3.eth.net.getId()),
+                    wallet: [],
+                    balance:fixStringBalance(String(
+                        await myWeb3.eth.getBalance(address)
+                    ), 18),
+                    isAuthenticated: true,
+                }
+                myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
+                dispatch(saveInfo(myUserState));
+                dispatch(saveWeb3(myWeb3));
+                dispatch(stopLoading())
+                toast.success("Connect wallet successfully!");
+            })
+        // }
+    }
+
+    const hdNetworkChange = async () => {
+        console.log(hdAccountChange, userState, appState)
+        // if(!appState.isConnectedWallet) return
+        // else {
+            toast("Network changed, please wait a moment...")
+            dispatch(runLoading())
+            const myWeb3 = new Web3(window.ethereum);
+            const address = (await myWeb3.eth.getAccounts())[0];
+            
             const myUserState : IUserState = {
                 address:  address,
-                token: res.data.accessToken,
+                token: userState.token,
                 network: Number(await myWeb3.eth.net.getId()),
                 wallet: [],
                 balance:fixStringBalance(String(
@@ -49,30 +80,7 @@ const ConnectWallet = () => {
             dispatch(saveWeb3(myWeb3));
             dispatch(stopLoading())
             toast.success("Connect wallet successfully!");
-        })
-    }
-
-    const hdNetworkChange = async () => {
-        toast("Network changed, please wait a moment...")
-        dispatch(runLoading())
-        const myWeb3 = new Web3(window.ethereum);
-        const address = (await myWeb3.eth.getAccounts())[0];
-        
-        const myUserState : IUserState = {
-            address:  address,
-            token: userState.token,
-            network: Number(await myWeb3.eth.net.getId()),
-            wallet: [],
-            balance:fixStringBalance(String(
-                await myWeb3.eth.getBalance(address)
-            ), 18),
-            isAuthenticated: true,
-        }
-        myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
-        dispatch(saveInfo(myUserState));
-        dispatch(saveWeb3(myWeb3));
-        dispatch(stopLoading())
-        toast.success("Connect wallet successfully!");
+        // }
     }
 
     const connectWallet = async () => {
@@ -110,12 +118,8 @@ const ConnectWallet = () => {
                     toast.success("Connect wallet success");
                 
                     if (!appState.isListening) {
-                        window.ethereum.on('accountsChanged', async function (accounts: any) {
-                            hdAccountChange()
-                        })
-                        window.ethereum.on("chainChanged", function (networkId: any) {
-                            hdNetworkChange()
-                        })
+                        window.ethereum.on('accountsChanged', hdAccountChange)
+                        window.ethereum.on("chainChanged", hdNetworkChange)
                     }
                 })
                 .catch((err) => {
@@ -176,7 +180,7 @@ const ConnectWallet = () => {
     if (appState.isConnectedWallet) {
         return (
             <Popover
-                content={PopoverUser}
+                content={<PopoverUser hdNetworkChange={hdNetworkChange} hdAccountChange={hdNetworkChange}/>}
                 placement={"bottomRight"}
             >
                 <div className="header-popover--container">

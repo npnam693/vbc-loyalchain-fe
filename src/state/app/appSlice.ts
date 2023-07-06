@@ -30,7 +30,7 @@ export const appSlice = createSlice({
         return {...state, isConnectedWallet: true, web3: action.payload, isListening: true}
       },
       clearWeb3: (state, action: PayloadAction<undefined>) => {
-        return {...state, isConnectedWallet: false, web3: null, isListening: false};
+        return {...state, isConnectedWallet: false, web3: null, isListening: true};
       },
       saveTokens: (state, action: PayloadAction<IToken[]>) => {
         return {...state, tokens: action.payload}

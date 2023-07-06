@@ -13,8 +13,7 @@ import { useAppDispatch } from "../../state/hooks";
 import { stopLoading, runLoading } from "../../state/loading/loadingSlice";
 import { toast } from 'react-toastify'
 import { getBalanceAccount } from "../../utils/blockchain";
-import { initialUserState, saveInfo } from "../../state/user/userSlice";
-import { fixStringBalance } from "../../utils/string";
+import { saveInfo } from "../../state/user/userSlice";
 
 interface IFormData {
   from: any;

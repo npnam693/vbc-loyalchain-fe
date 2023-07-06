@@ -13,7 +13,12 @@ interface IItemPopover {
   onClick?: () => void;
 }
 
-const PopoverUser = () => {
+interface IPopoverUser {
+  hdNetworkChange: () => void;
+  hdAccountChange: () => void;
+}
+
+const PopoverUser = (props:IPopoverUser ) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const listItemPopover: IItemPopover[] = [
@@ -32,7 +37,8 @@ const PopoverUser = () => {
       onClick: () => {
         dispatch(clearInfo());
         dispatch(clearWeb3());
-        window.ethereum.removeListener("accountsChanged", () => {});
+        window.ethereum.removeListener('accountsChanged', props.hdAccountChange);
+        window.ethereum.removeListener('chainChanged', props.hdNetworkChange);
       },
     },
   ];

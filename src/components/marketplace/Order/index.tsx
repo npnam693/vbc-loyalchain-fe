@@ -8,6 +8,7 @@ import { useAppDispatch } from "../../../state/hooks";
 import { runLoading, stopLoading } from "../../../state/loading/loadingSlice";
 import { getBalanceAccount } from "../../../utils/blockchain";
 import { toast } from "react-toastify";
+import { saveInfo } from "../../../state/user/userSlice";
 const Order = (props : any) => {
   const web3State = useAppSelector((state) => state.appState.web3)
   const tokenState = useAppSelector((state) => state.appState.tokens)
@@ -60,7 +61,7 @@ const Order = (props : any) => {
       console.log('sau khi', myUserState)
       toast.success("Accept Order Success")
       // dispatch(saveInfo({...myUserState, wallet: wallet}))
-      
+      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
       dispatch(stopLoading())
     } catch (error) {
       alert("Error");
