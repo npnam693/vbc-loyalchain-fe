@@ -10,6 +10,7 @@ import store, { persistor } from "./state/index";
 import i18next from "./translation/index";
 import AppLayout from "./layouts";
 import 'react-toastify/dist/ReactToastify.css';
+import LoadingPage from "./components/app/LoadingPage";
  
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ function App() {
         <BrowserRouter>
           <I18nextProvider i18n={i18next}>
             <QueryClientProvider client={queryClient}>
+              <LoadingPage />
               <AppLayout>
                 <RouterList />
               </AppLayout>

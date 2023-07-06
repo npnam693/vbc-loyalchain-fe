@@ -53,7 +53,7 @@ interface ISelectTokenProps {
 }
 
 const SelectToken = (props: ISelectTokenProps) => {
-  const tokenState = useAppSelector((state) => state.tokenState);
+  const tokenState = useAppSelector((state) => state.appState.tokens);
   const userState = useAppSelector((state) => state.userState);
 
 
@@ -92,7 +92,7 @@ const SelectToken = (props: ISelectTokenProps) => {
         />
 
         <div>
-          {userState.wallet.map((item, index) => {
+          {userState.wallet.map((item , index) => {
             return (
               <TokenItem
                 onClickItem={() => props.onClickSelect && props.onClickSelect(item)}

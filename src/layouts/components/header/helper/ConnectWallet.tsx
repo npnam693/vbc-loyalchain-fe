@@ -1,88 +1,129 @@
 import Web3 from "web3";
 import axios from "axios";
-import { Button, Popover } from "antd";
-import PopoverUser from "./PopoverUser";
-import { fixStringBalance, shortenAddress } from "../../../../utils/string";
-import { saveInfo } from "../../../../state/user/userSlice";
-import { saveWeb3 } from "../../../../state/web3/web3Slice";
-import { SafetyCertificateTwoTone } from "@ant-design/icons";
-import { initialUserState } from "../../../../state/user/userSlice";
-import { useAppSelector, useAppDispatch } from "../../../../state/hooks";
-import contractToken from '../../../../contract/Token/data.json';
-import { getBalanceAccount, mappingNetwork } from "../../../../utils/blockchain";
-import { useToggleNoti } from "../../../../state/popup/hooks";
 import { toast } from 'react-toastify'
+import { Button, Popover } from "antd";
+import { SafetyCertificateTwoTone } from "@ant-design/icons";
 
-
+import PopoverUser from "./PopoverUser";
+import { saveWeb3 } from "../../../../state/app/appSlice";
+import { IUserState, saveInfo } from "../../../../state/user/userSlice";
+import { useAppSelector, useAppDispatch } from "../../../../state/hooks";
+import { fixStringBalance, shortenAddress } from "../../../../utils/string";
+import { getBalanceAccount, mappingNetwork } from "../../../../utils/blockchain";
+import { runLoading, stopLoading } from "../../../../state/loading/loadingSlice";
 
 const ConnectWallet = () => {
     const dispatch = useAppDispatch();
-
     const userState = useAppSelector((state) => state.userState);
-    const web3State = useAppSelector((state) => state.Web3State);
-    const tokenState = useAppSelector((state) => state.tokenState)
-
-    const popup =  useToggleNoti(); 
-
-    const signLogin = async (web3: any, userAddress: string) => {
-        const signature = await web3.eth.personal.sign(
-            "Login",
-            userAddress,
-            ""
-        );
-        return signature;
+    const appState = useAppSelector((state) => state.appState);
+    
+    const signatureLogin = async (web3: any, userAddress: string) : Promise<string> => {
+        return await web3.eth.personal.sign("Login", userAddress, "");
     };
 
-    const connectWallet = async () => {
-        toast("Đang kết nối ví")
-        if (typeof window.ethereum !== "undefined") {
-            popup(true, "Đang kết nối ví", "success");
+    const hdAccountChange = async () => {
+        console.log(hdAccountChange, userState, appState)
+        // if(!appState.isConnectedWallet) return?
+        // else {
+            toast("Account changed, please wait a moment...")
+            dispatch(runLoading())
             const myWeb3 = new Web3(window.ethereum);
-            const account = await window.ethereum.request({ method: "eth_requestAccounts" });
-            console.log('acount', account)
-            const myUserState = Object.assign({}, initialUserState);
-            myUserState.address = (await myWeb3.eth.getAccounts())[0];
-            myUserState.network = Number(await myWeb3.eth.net.getId());
-            myUserState.balance = fixStringBalance(String(
-                await myWeb3.eth.getBalance(myUserState.address)
-            ), 18)
-            myUserState.isAuthenticated = true;
-            await getBalanceAccount(myWeb3, myUserState, tokenState)
-            const signature = await signLogin(myWeb3, myUserState.address);
-            console.log('userState', myUserState)
+            const address = (await myWeb3.eth.getAccounts())[0];
+            const signature = await signatureLogin(myWeb3, address);
             axios
-                .post(
-                    "http://localhost:3333/api/auth/login",
-                    {
-                        address: myUserState.address,
+            .post("http://localhost:3333/api/auth/login", {
+                address: address,
+                signature: signature,
+                message: "Login",
+            }, { withCredentials: true }
+            ).then(async (res) => {
+                const myUserState : IUserState = {
+                    address:  address,
+                    token: res.data.accessToken,
+                    network: Number(await myWeb3.eth.net.getId()),
+                    wallet: [],
+                    balance:fixStringBalance(String(
+                        await myWeb3.eth.getBalance(address)
+                    ), 18),
+                    isAuthenticated: true,
+                }
+                myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
+                dispatch(saveInfo(myUserState));
+                dispatch(saveWeb3(myWeb3));
+                dispatch(stopLoading())
+                toast.success("Connect wallet successfully!");
+            })
+        // }
+    }
+
+    const hdNetworkChange = async () => {
+        console.log(hdAccountChange, userState, appState)
+        // if(!appState.isConnectedWallet) return
+        // else {
+            toast("Network changed, please wait a moment...")
+            dispatch(runLoading())
+            const myWeb3 = new Web3(window.ethereum);
+            const address = (await myWeb3.eth.getAccounts())[0];
+            
+            const myUserState : IUserState = {
+                address:  address,
+                token: userState.token,
+                network: Number(await myWeb3.eth.net.getId()),
+                wallet: [],
+                balance:fixStringBalance(String(
+                    await myWeb3.eth.getBalance(address)
+                ), 18),
+                isAuthenticated: true,
+            }
+            myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
+            dispatch(saveInfo(myUserState));
+            dispatch(saveWeb3(myWeb3));
+            dispatch(stopLoading())
+            toast.success("Connect wallet successfully!");
+        // }
+    }
+
+    const connectWallet = async () => {
+        toast("Connecting to wallet...")
+        if (typeof window.ethereum !== "undefined") {
+            dispatch(runLoading())
+            const myWeb3 = new Web3(window.ethereum);
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+            const address = (await myWeb3.eth.getAccounts())[0];
+
+            const signature = await signatureLogin(myWeb3, address);
+            console.log(signature)
+            axios
+                .post("http://localhost:3333/api/auth/login", {
+                        address: address,
                         signature: signature,
                         message: "Login",
-                    },  
-                    { withCredentials: true }
-                )
-                .then((res) => {
-                    myUserState.token = res.data.accessToken;
+                    }, { withCredentials: true }
+                ).then(async (res) => {
+                    const myUserState : IUserState = {
+                        address:  address,
+                        token: res.data.accessToken,
+                        network: Number(await myWeb3.eth.net.getId()),
+                        wallet: [],
+                        balance:fixStringBalance(String(
+                            await myWeb3.eth.getBalance(address)
+                        ), 18),
+                        isAuthenticated: true,
+                    }
+                    myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
                     console.log(myUserState);
                     dispatch(saveInfo(myUserState));
-                    dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
+                    dispatch(saveWeb3(myWeb3));
+                    dispatch(stopLoading())
                     toast.success("Connect wallet success");
-                    window.ethereum.on('accountsChanged', async function (accounts: any) {
-                        const newBalance = fixStringBalance(String(
-                            await myWeb3.eth.getBalance(myUserState.address)
-                        ), 18)
-
-                        dispatch(saveInfo({
-                            ...myUserState, address: accounts[0], balance: newBalance
-                        }));
-                    })
-                    window.ethereum.on("networkChanged", function (networkId: any) {
-                        dispatch(saveInfo({
-                            ...myUserState, network: networkId
-                        }));
-                    })
-                    
+                
+                    if (!appState.isListening) {
+                        window.ethereum.on('accountsChanged', hdAccountChange)
+                        window.ethereum.on("chainChanged", hdNetworkChange)
+                    }
                 })
                 .catch((err) => {
+                    dispatch(stopLoading())
                     console.log("error");
                 });
         } else {
@@ -90,56 +131,56 @@ const ConnectWallet = () => {
         }
     };
 
-      const Deploycontract = async () => {
-        let contract = new web3State.web3.eth.Contract(
-          JSON.parse(JSON.stringify(contractToken)).abi
-        );
-        const deploy = contract.deploy({
-          data: JSON.parse(JSON.stringify(contractToken)).bytecode,
-          arguments: [
-            "Singapore Airlines Loyalty Point",
-            "SAP",
-            ["0x6225D07A59be4F47400E8885d8EFC78FF7D9e171"],
-          ],
-        });
+    // const Deploycontract = async () => {
+    //     let contract = new web3State.web3.eth.Contract(
+    //       JSON.parse(JSON.stringify(contractToken)).abi
+    //     );
+    //     const deploy = contract.deploy({
+    //       data: JSON.parse(JSON.stringify(contractToken)).bytecode,
+    //       arguments: [
+    //         "Singapore Airlines Loyalty Point",
+    //         "SAP",
+    //         ["0x6225D07A59be4F47400E8885d8EFC78FF7D9e171"],
+    //       ],
+    //     });
 
-        const deployTransaction = await deploy.send({
-          from: userState.address,
-          gas: 2100000,
-        });
+    //     const deployTransaction = await deploy.send({
+    //       from: userState.address,
+    //       gas: 2100000,
+    //     });
 
-        console.log(deployTransaction);
-
-
+    //     console.log(deployTransaction);
 
 
-        // const recipt = await web3Api.eth.getTransactionReceipt(
-        //   "0x457d89c09be00fe61dba08515a17661088f5f1236561b6ee58f13aefcbf79b7d"
-        // );
 
-        // console.log(recipt);
 
-        // const deploy = contract.deploy({
-        //   data: myData.bytecode,
-        // });
+    //     // const recipt = await web3Api.eth.getTransactionReceipt(
+    //     //   "0x457d89c09be00fe61dba08515a17661088f5f1236561b6ee58f13aefcbf79b7d"
+    //     // );
 
-        // const deployTransaction = deploy.send({
-        //   from: userState.address,
-        //   gas: 0,
-        // });
+    //     // console.log(recipt);
 
-        // deployTransaction.on("confirmation", (confirmationNumber, receipt) => {
-        //   if (confirmationNumber === 1) {
-        //     console.log("Contract deployed successfully!");
-        //     console.log("Contract address:", receipt.contractAddress);
-        //   }
-        // });
-      };
+    //     // const deploy = contract.deploy({
+    //     //   data: myData.bytecode,
+    //     // });
 
-    if (web3State.isConnected) {
+    //     // const deployTransaction = deploy.send({
+    //     //   from: userState.address,
+    //     //   gas: 0,
+    //     // });
+
+    //     // deployTransaction.on("confirmation", (confirmationNumber, receipt) => {
+    //     //   if (confirmationNumber === 1) {
+    //     //     console.log("Contract deployed successfully!");
+    //     //     console.log("Contract address:", receipt.contractAddress);
+    //     //   }
+    //     // });
+    // };
+
+    if (appState.isConnectedWallet) {
         return (
             <Popover
-                content={PopoverUser}
+                content={<PopoverUser hdNetworkChange={hdNetworkChange} hdAccountChange={hdNetworkChange}/>}
                 placement={"bottomRight"}
             >
                 <div className="header-popover--container">
@@ -164,7 +205,7 @@ const ConnectWallet = () => {
                 <Button
                     type="primary"
                     className="btn-connect_wallet"
-                    onClick={connectWallet}
+                    onClick={() => connectWallet()}
                     size="middle"
                 >
                     Connect Wallet

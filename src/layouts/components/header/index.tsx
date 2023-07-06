@@ -9,7 +9,6 @@ import Logo from "../../../assets/svg/logo_loyal-chain.svg";
 import ConnectWallet from "./helper/ConnectWallet";
 import SITEMAP from "../../../constants/sitemap";
 import "./Header.scss";
-
 const Header = () => {
   const currentUrl = useLocation().pathname;
   const { t } = useTranslation("common");

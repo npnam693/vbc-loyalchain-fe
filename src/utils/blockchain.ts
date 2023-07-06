@@ -1,10 +1,8 @@
-import { useAppDispatch } from "../state/hooks"
-import { saveInfo } from "../state/user/userSlice"
-import { saveWeb3 } from "../state/web3/web3Slice"
+import { IAsset } from '../state/user/userSlice'
 import tokenData from '../contract/Token/data.json'
 import { IUserState } from "../state/user/userSlice"
-import { IToken } from "../state/token/tokenSlice"
 import { fixStringBalance } from "./string"
+import { IToken } from "../state/app/appSlice"
 
 const getBalanceToken = async (myWeb3: any, userState: IUserState, token: IToken) => {
     const tokenABI = tokenData.abi; // Thêm ABI của token vào đây
@@ -18,35 +16,19 @@ const getBalanceToken = async (myWeb3: any, userState: IUserState, token: IToken
     return {token, balance}
 }
 
-export const getBalanceAccount = async (myWeb3: any, userState: IUserState, tokenState: IToken[]) => {
+
+export const getBalanceAccount = async (myWeb3: any, userState: IUserState, tokenState: IToken[]) : Promise<IAsset[]> => {
     const tokensInMyNetwork = tokenState.filter((value) => value.network === userState.network)
-    const newWallet : any = Array(tokensInMyNetwork.length)
-    
-    Promise.all(tokensInMyNetwork.map((token: IToken) => getBalanceToken(myWeb3, userState, token)))
-    .then(results => {
-        // Xử lý kết quả từ các task
-        console.log(results)
-        results.map((value, index) => {
-            newWallet[index] = value
-        })
-        userState.wallet = newWallet
-    })
-    .catch(error => {
-        console.log(error)
-        return []
-    });
+    return Promise.all(tokensInMyNetwork.map((token: IToken) => getBalanceToken(myWeb3, userState, token)))
 }
 
 export const getTokenInOtherNetwork = (tokenState: IToken[], userState: IUserState) => {
     const tokenInNetwork = userState.wallet.map((value) => value.token)
-
     const tokenInOtherNetwork = tokenState.filter((value) => {
         if (tokenInNetwork.includes(value)) return false
         else return true
     })
-
     return tokenInOtherNetwork;
-
 }
 
 export const mappingNetwork = (chainID: number) => {

@@ -11,7 +11,7 @@ const persistConfig = {
   key: "root",
   storage: storage,
   stateReconciler: autoMergeLevel2,
-  blacklist: ['Web3State'],
+  blacklist: ['appState', 'loadingState'],
 };
 
 const pReducer = persistReducer<RootState>(persistConfig, rootReducer);

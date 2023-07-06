@@ -6,16 +6,18 @@ import { useAppSelector } from '../../../state/hooks'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import contractToken from '../../../contract/Token/data.json'
 import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
-
+import { useAppDispatch } from '../../../state/hooks'
+import { runLoading, stopLoading } from '../../../state/loading/loadingSlice'
+import { saveInfo } from '../../../state/user/userSlice'
 interface ISendToken {
     token?: any;
     onCloseBtn: () => void
 }
-
 const SendToken = (props : ISendToken) => {
+    const dispatch = useAppDispatch()
     const userState = useAppSelector((state) => state.userState);
-    const web3State = useAppSelector((state) => state.Web3State); 
-    const tokenState = useAppSelector((state) => state.tokenState); 
+    const tokenState = useAppSelector((state) => state.appState.tokens); 
+    const appState = useAppSelector((state) => state.appState); 
 
     const [formData, setFormData] = useState({
         token: {},
@@ -24,36 +26,44 @@ const SendToken = (props : ISendToken) => {
     })
     
     const onSubmitSendToken = async () => {
-        if (!web3State.isConnected) {
+        if (!appState.isConnectedWallet) {
             alert("M can phai dang nhap trc");
             return;
         }
+        dispatch(runLoading())
 
-        const contractABI = contractToken.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
-        const contractAddress = props.token.token.deployedAddress;
-        const contract = new web3State.web3.eth.Contract(contractABI, contractAddress);
+        try {
+            const contractABI = contractToken.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
+            const contractAddress = props.token.token.deployedAddress;
+            const contract = new appState.web3.eth.Contract(contractABI, contractAddress);
+    
+            const fromAddress = userState.address; // Địa chỉ ví nguồn (tài khoản của bạn)
+            const toAddress = formData.to; // Địa chỉ ví đích
+    
+            const decimal = await contract.methods.decimals().call({
+                from: fromAddress,
+            });
+    
+            const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
+            
+            const myReceipt = await contract.methods.transfer(toAddress, amount).send({
+                from: userState.address,
+                gas: await contract.methods.transfer(toAddress, amount).estimateGas({
+                  from: userState.address,
+                  data: contract.methods.transfer(toAddress, amount).encodeABI(),
+                }),
+            });
 
-        const fromAddress = userState.address; // Địa chỉ ví nguồn (tài khoản của bạn)
-        const toAddress = formData.to; // Địa chỉ ví đích
+            dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, tokenState)}))
+            alert("Giao dich thanh cong")
+            console.log(myReceipt)
+            dispatch(stopLoading())
+        } catch (error) {
+            alert("Giao dich that bai")
+            console.log(error)
+            dispatch(stopLoading())
+        }
 
-        const decimal = await contract.methods.decimals().call({
-            from: fromAddress,
-        });
-
-        const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
-        
-        const myReceipt = await contract.methods.transfer(toAddress, amount).send({
-            from: userState.address,
-            gas: await contract.methods.transfer(toAddress, amount).estimateGas({
-              from: userState.address,
-              data: contract.methods.transfer(toAddress, amount).encodeABI(),
-            }),
-        });
-
-        await getBalanceAccount(web3State, userState, tokenState)
-
-        alert("Giao dich thanh cong")
-        console.log(myReceipt)
     } 
     return (
     <div className='app-sendToken'>
