@@ -8,17 +8,16 @@ import contractToken from '../../../contract/Token/data.json'
 import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
 import { useAppDispatch } from '../../../state/hooks'
 import { runLoading, stopLoading } from '../../../state/loading/loadingSlice'
-
+import { saveInfo } from '../../../state/user/userSlice'
 interface ISendToken {
     token?: any;
     onCloseBtn: () => void
 }
-
 const SendToken = (props : ISendToken) => {
     const dispatch = useAppDispatch()
     const userState = useAppSelector((state) => state.userState);
     const tokenState = useAppSelector((state) => state.appState.tokens); 
-    const web3State = useAppSelector((state) => state.appState.web3); 
+    const appState = useAppSelector((state) => state.appState); 
 
     const [formData, setFormData] = useState({
         token: {},
@@ -27,7 +26,7 @@ const SendToken = (props : ISendToken) => {
     })
     
     const onSubmitSendToken = async () => {
-        if (!web3State.isConnected) {
+        if (!appState.isConnectedWallet) {
             alert("M can phai dang nhap trc");
             return;
         }
@@ -36,7 +35,7 @@ const SendToken = (props : ISendToken) => {
         try {
             const contractABI = contractToken.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
             const contractAddress = props.token.token.deployedAddress;
-            const contract = new web3State.web3.eth.Contract(contractABI, contractAddress);
+            const contract = new appState.web3.eth.Contract(contractABI, contractAddress);
     
             const fromAddress = userState.address; // Địa chỉ ví nguồn (tài khoản của bạn)
             const toAddress = formData.to; // Địa chỉ ví đích
@@ -54,8 +53,8 @@ const SendToken = (props : ISendToken) => {
                   data: contract.methods.transfer(toAddress, amount).encodeABI(),
                 }),
             });
-            await getBalanceAccount(web3State, userState, tokenState)
-    
+
+            dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, tokenState)}))
             alert("Giao dich thanh cong")
             console.log(myReceipt)
             dispatch(stopLoading())

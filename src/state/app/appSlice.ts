@@ -7,16 +7,18 @@ export interface IToken {
     network: number,
     image: string,
 }
-
 interface IApp {
     web3: any;
     isConnectedWallet: boolean,
+    isListening: boolean,
     tokens: IToken[],
+    
 }
 
 const initialAppState : IApp= {
     web3: null,
     isConnectedWallet: false,
+    isListening: false,
     tokens: []
 }
 
@@ -25,10 +27,10 @@ export const appSlice = createSlice({
     initialState: initialAppState,
     reducers: {
       saveWeb3: (state, action: PayloadAction<any>) => {
-        return {...state, isConnectedWallet: true, web3: action.payload}
+        return {...state, isConnectedWallet: true, web3: action.payload, isListening: true}
       },
       clearWeb3: (state, action: PayloadAction<undefined>) => {
-        return {...state, isConnectedWallet: false, web3: null};
+        return {...state, isConnectedWallet: false, web3: null, isListening: false};
       },
       saveTokens: (state, action: PayloadAction<IToken[]>) => {
         return {...state, tokens: action.payload}

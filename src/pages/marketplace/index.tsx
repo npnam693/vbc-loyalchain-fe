@@ -20,7 +20,7 @@ const filterRawData = {
 };
 
 const Marketplace = () => {
-  const [isListMode, setIsListMode] = useState(true);
+  const [isListMode, setIsListMode] = useState(false);
   const [selectShow, setSelectShow] = useState(false);
   const [data, setData] = useState([])
   const [filter, setFilter] = useState({

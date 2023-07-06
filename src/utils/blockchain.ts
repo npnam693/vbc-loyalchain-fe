@@ -19,7 +19,6 @@ const getBalanceToken = async (myWeb3: any, userState: IUserState, token: IToken
 
 export const getBalanceAccount = async (myWeb3: any, userState: IUserState, tokenState: IToken[]) : Promise<IAsset[]> => {
     const tokensInMyNetwork = tokenState.filter((value) => value.network === userState.network)
-    const newWallet : IAsset[] = Array(tokensInMyNetwork.length)
     return Promise.all(tokensInMyNetwork.map((token: IToken) => getBalanceToken(myWeb3, userState, token)))
 }
 

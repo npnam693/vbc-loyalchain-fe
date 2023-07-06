@@ -20,7 +20,7 @@ const Order = (props : any) => {
     console.log(props.data)
     dispatch(runLoading())
     try {
-      const contract = new web3State.web3.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
+      const contract = new web3State.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
       
       const dataMethod = contract.methods.accept(props.data.txIdFrom)
 
@@ -33,7 +33,7 @@ const Order = (props : any) => {
         data: dataMethod.encodeABI()
       })
       
-      const sendTX = await web3State.web3.eth.sendTransaction({
+      const sendTX = await web3State.eth.sendTransaction({
         from: userState.address,
         gasPrice: "20000000000",
         gas: estimateGas ,
@@ -54,7 +54,7 @@ const Order = (props : any) => {
 
       console.log('trc khi', userState)
 
-      const wallet = await getBalanceAccount(web3State.web3, myUserState, tokenState)
+      const wallet = await getBalanceAccount(web3State, myUserState, tokenState)
 
       console.log(wallet)
       console.log('sau khi', myUserState)

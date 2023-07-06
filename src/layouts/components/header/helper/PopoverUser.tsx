@@ -32,6 +32,7 @@ const PopoverUser = () => {
       onClick: () => {
         dispatch(clearInfo());
         dispatch(clearWeb3());
+        window.ethereum.removeListener("accountsChanged", () => {});
       },
     },
   ];

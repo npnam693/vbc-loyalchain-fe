@@ -24,6 +24,9 @@ interface IFormData {
   timelock: number;
 }
 
+
+
+
 export default function CreateOrder() {
   const [formData, setFormData] = useState<IFormData>({
     from: '',
@@ -32,13 +35,14 @@ export default function CreateOrder() {
     to_amount: 10,
     timelock: 0,
   });
+
   const [selectingTokenFrom, setSelectingTokenFrom] = useState<boolean>(false);
   const [selectingTokenTo, setSelectingTokenTo] = useState<boolean>(false);
   const web3State = useAppSelector((state) => state.appState.web3)
   const tokenState = useAppSelector((state) => state.appState.tokens)
   const userState = useAppSelector((state) => state.userState)
 
-  const dispatch =useAppDispatch()
+  const dispatch = useAppDispatch()
 
   const hdClickSwap = () => {
     const newData: IFormData = {
@@ -53,13 +57,14 @@ export default function CreateOrder() {
   
   const hdClickCreate = async () => {
     console.log(formData)
+    
     dispatch(runLoading())
     
-    
-    
     const orderId = uuidv4();
-    const contract = new web3State.web3.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
-    const data = contract.methods.createTx(
+    
+    const contract = new web3State.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
+    
+    const dataMethod = contract.methods.createTx(
       orderId, 
       formData.from.token.deployedAddress,
       formData.to.token.deployedAddress,
@@ -67,18 +72,17 @@ export default function CreateOrder() {
       BigInt(10 ** Number(18) * Number(formData.to_amount)),
       BigInt(24),
     )
-
-    const sendTX = await web3State.web3.eth.sendTransaction({
+    const sendTX = await web3State.eth.sendTransaction({
       from: userState.address,
       gasPrice: "20000000000",
-      gas: await data.estimateGas({
+      gas: await dataMethod.estimateGas({
         from: userState.address,
-        data: data.encodeABI()
+        data: dataMethod.encodeABI()
       }) ,
       to: "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2",
       value: "0",
 
-      data: data.encodeABI(),
+      data: dataMethod.encodeABI(),
     })
     appApi.createOrder( {
       fromValue: formData.from_amount,
@@ -90,13 +94,8 @@ export default function CreateOrder() {
       hashlock: 'cccc',
       txIdFrom: orderId
     })
-    
-    console.log(sendTX)
-    
-
     dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState) }))
-
-
+    console.log(sendTX)
     toast.success("The order was created successfully");
     dispatch(stopLoading())
   };
@@ -108,8 +107,6 @@ export default function CreateOrder() {
   const hdClickSelectTokenTo = () => {
     setSelectingTokenTo(!selectingTokenTo);
   };
-
-
 
   return (
     <div className="app-create">
