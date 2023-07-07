@@ -24,20 +24,32 @@ const Order = (props : any) => {
     try {
       const contract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
       
-      const dataMethod = contract.methods.accept(
+      console.log('ontract', contract)
+      const dataMethod = contract.methods.acceptTx(
         props.data.txIdFrom,
         userState.signature  
       )
+      // console.log('ccc', dataMethod)
+      // console.log(Number(await web3State.eth.net.getId()))
 
-      const dataABI = dataMethod.encodeABI()
-
-      console.log(dataABI)
-    
+      // const infoMethod = await contract.methods.txInfo(props.data.txIDFrom).call({
+      //   from: userState.address,
+      // })
+      
+      // console.log("info", infoMethod)
+      
       const estimateGas = await dataMethod.estimateGas({
         from: userState.address,
         data: dataMethod.encodeABI()
       })
       
+      console.log('gas', estimateGas)
+
+      
+      const dataABI = dataMethod.encodeABI()
+
+      console.log(dataABI)
+    
       const sendTX = await web3State.eth.sendTransaction({
         from: userState.address,
         gasPrice: "0",
