@@ -23,7 +23,10 @@ const Order = (props : any) => {
     try {
       const contract = new web3State.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
       
-      const dataMethod = contract.methods.accept(props.data.txIdFrom)
+      const dataMethod = contract.methods.accept(
+        props.data.txIdFrom,
+        userState.signature  
+      )
 
       const dataABI = dataMethod.encodeABI()
 
@@ -51,7 +54,6 @@ const Order = (props : any) => {
       
 
       let myUserState = Object.assign({}, userState);
-
 
       console.log('trc khi', userState)
 

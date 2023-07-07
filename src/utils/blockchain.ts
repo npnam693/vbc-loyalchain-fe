@@ -11,7 +11,7 @@ const getBalanceToken = async (myWeb3: any, userState: IUserState, token: IToken
         {from: userState.address}
     )
     const decimals = await tokenContract.methods.decimals().call({from: userState.address})
-    
+
     balance = fixStringBalance(balance.toString(), Number(decimals))
     return {token, balance}
 }
@@ -31,6 +31,14 @@ export const getTokenInOtherNetwork = (tokenState: IToken[], userState: IUserSta
     return tokenInOtherNetwork;
 }
 
+
+
+
+
+
+
+
+// ------------------ Mapping -------------------
 export const mappingNetwork = (chainID: number) => {
     if (chainID === 8888) return "AGD Network"
     else if (chainID === 4444) return "MBC Testnet"

@@ -12,6 +12,7 @@ export interface IUserState {
   wallet: IAsset[];
   balance: string;
   isAuthenticated: boolean;
+  signature: string,
 }
 
 export const initialUserState : IUserState = {
@@ -21,6 +22,7 @@ export const initialUserState : IUserState = {
   wallet: [],
   balance: "0",
   isAuthenticated: false,
+  signature: "",
 }
 
 const userSlice = createSlice({

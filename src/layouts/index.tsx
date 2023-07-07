@@ -15,9 +15,6 @@ import { saveTokens } from "../state/app/appSlice";
 import appApi from "../api/appAPI";
 
 
-
-
-
 const Layout = ({ children }: LayoutProps) => {
   const particlesInit = useCallback(async (engine: Engine) => {
     // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
@@ -31,6 +28,9 @@ const Layout = ({ children }: LayoutProps) => {
     },
     []
   );
+
+
+  
   const dispatch = useAppDispatch();
     useEffect(() => {
       async function fetchTokens() {
@@ -39,14 +39,10 @@ const Layout = ({ children }: LayoutProps) => {
           dispatch(saveTokens(tokens.data));
         }
     }
-    // async function fetchAccount() {
-    //   const accounts = await window.ethereum.request({method: 'eth_accounts'});       
-    //   if (accounts.length > 0) {
-    //     const myWeb3 = new Web3(window.ethereum);
-    //     dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
-    //   }
-    // }
-    // fetchAccount()
+
+
+
+
     fetchTokens()
   }, [])    
   
