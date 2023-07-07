@@ -36,7 +36,7 @@ const ConnectWallet = () => {
             .post("http://localhost:3333/api/auth/login", {
                 address: address,
                 signature: signature,
-                message: "Login",
+                message: "Verify Account",
             }, { withCredentials: true }
             ).then(async (res) => {
                 const myUserState : IUserState = {
@@ -98,7 +98,7 @@ const ConnectWallet = () => {
                 .post("http://localhost:3333/api/auth/login", {
                         address: address,
                         signature: signature,
-                        message: "Login",
+                        message: "Verify Account",
                     }, { withCredentials: true }
                 ).then(async (res) => {
                     const myUserState : IUserState = {

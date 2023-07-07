@@ -9,6 +9,7 @@ import { runLoading, stopLoading } from "../../../state/loading/loadingSlice";
 import { getBalanceAccount } from "../../../utils/blockchain";
 import { toast } from "react-toastify";
 import { saveInfo } from "../../../state/user/userSlice";
+import { MBC_EXCHANGE_ADDRESS } from "../../../constants/contracts";
 const Order = (props : any) => {
   const web3State = useAppSelector((state) => state.appState.web3)
   const tokenState = useAppSelector((state) => state.appState.tokens)
@@ -21,7 +22,7 @@ const Order = (props : any) => {
     console.log(props.data)
     dispatch(runLoading())
     try {
-      const contract = new web3State.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
+      const contract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
       
       const dataMethod = contract.methods.accept(
         props.data.txIdFrom,
@@ -39,9 +40,9 @@ const Order = (props : any) => {
       
       const sendTX = await web3State.eth.sendTransaction({
         from: userState.address,
-        gasPrice: "20000000000",
+        gasPrice: "0",
         gas: estimateGas ,
-        to: "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2",
+        to: MBC_EXCHANGE_ADDRESS,
         value: "0",
         data: dataABI,
       })

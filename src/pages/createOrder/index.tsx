@@ -14,7 +14,7 @@ import { stopLoading, runLoading } from "../../state/loading/loadingSlice";
 import { toast } from 'react-toastify'
 import { getBalanceAccount } from "../../utils/blockchain";
 import { saveInfo } from "../../state/user/userSlice";
-
+import {MBC_EXCHANGE_ADDRESS} from '../../constants/contracts'
 interface IFormData {
   from: any;
   from_amount: number;
@@ -61,7 +61,7 @@ export default function CreateOrder() {
     
     const orderId = uuidv4();
     
-    const contract = new web3State.eth.Contract(ExchangeContract.abi, "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2");
+    const contract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
     
     const dataMethod = contract.methods.createTx(
       orderId, 
@@ -74,12 +74,12 @@ export default function CreateOrder() {
     )
     const sendTX = await web3State.eth.sendTransaction({
       from: userState.address,
-      gasPrice: "20000000000",
+      gasPrice: "0",
       gas: await dataMethod.estimateGas({
         from: userState.address,
         data: dataMethod.encodeABI()
       }) ,
-      to: "0xF6e3c3172D6Ef1751855cE091f2F60Cbf5D2EDC2",
+      to: MBC_EXCHANGE_ADDRESS,
       value: "0",
 
       data: dataMethod.encodeABI(),

@@ -52,6 +52,7 @@ const SendToken = (props : ISendToken) => {
                   from: userState.address,
                   data: contract.methods.transfer(toAddress, amount).encodeABI(),
                 }),
+                gasPrice: "0"
             });
 
             dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, tokenState)}))
