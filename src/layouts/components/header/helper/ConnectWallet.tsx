@@ -28,6 +28,7 @@ const ConnectWallet = () => {
         // if(!appState.isConnectedWallet) return?
         // else {
             toast("Account changed, please wait a moment...")
+
             dispatch(runLoading())
             const myWeb3 = new Web3(window.ethereum);
             const address = (await myWeb3.eth.getAccounts())[0];
@@ -85,9 +86,11 @@ const ConnectWallet = () => {
     }
 
     const connectWallet = async () => {
-        toast("Connecting to wallet...")
+        // toast("Connecting to wallet...")
+        const id = toast.loading("Connecting to wallet...")
+
         if (typeof window.ethereum !== "undefined") {
-            dispatch(runLoading())
+            // dispatch(runLoading())
             const myWeb3 = new Web3(window.ethereum);
             await window.ethereum.request({ method: "eth_requestAccounts" });
             const address = (await myWeb3.eth.getAccounts())[0];
@@ -117,8 +120,9 @@ const ConnectWallet = () => {
                     dispatch(saveInfo(myUserState));
                     dispatch(saveWeb3(myWeb3));
                     dispatch(stopLoading())
-                    toast.success("Connect wallet success");
-                
+                    // toast.success("Connect wallet success");
+                    toast.update(id, { render: "All is good", type: "success", isLoading: false, autoClose: 1000});
+
                     if (!appState.isListening) {
                         window.ethereum.on("accountsChanged", hdAccountChange)
                         window.ethereum.on("chainChanged", hdNetworkChange)

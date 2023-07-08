@@ -15,6 +15,8 @@ import { toast } from 'react-toastify'
 import { getBalanceAccount } from "../../utils/blockchain";
 import { saveInfo } from "../../state/user/userSlice";
 import {MBC_EXCHANGE_ADDRESS} from '../../constants/contracts'
+import TokenContract from '../../contract/Token/data.json'
+
 interface IFormData {
   from: any;
   from_amount: number;
@@ -22,9 +24,6 @@ interface IFormData {
   to_amount: number;
   timelock: number;
 }
-
-
-
 
 export default function CreateOrder() {
   const [formData, setFormData] = useState<IFormData>({
@@ -56,48 +55,64 @@ export default function CreateOrder() {
   
   const hdClickCreate = async () => {
     console.log(formData)
-    
-    dispatch(runLoading())
-    
+    // dispatch(runLoading())
     const orderId = uuidv4();
-    
-    const contract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
-    
-    const dataMethod = contract.methods.createTx(
-      orderId, 
-      formData.from.token.deployedAddress,
-      formData.to.token.deployedAddress,
-      BigInt(10 ** Number(18) * Number(formData.from_amount)),
-      BigInt(10 ** Number(18) * Number(formData.to_amount)),
-      BigInt(24),
-      userState.signature,
-    )
-    const sendTX = await web3State.eth.sendTransaction({
-      from: userState.address,
-      gasPrice: "0",
-      gas: await dataMethod.estimateGas({
-        from: userState.address,
-        data: dataMethod.encodeABI()
-      }) ,
-      to: MBC_EXCHANGE_ADDRESS,
-      value: "0",
 
-      data: dataMethod.encodeABI(),
-    })
-    appApi.createOrder( {
-      fromValue: formData.from_amount,
-      fromTokenId: formData.from.token._id,
-      toValue: formData.to_amount,
-      toTokenId: formData.to.token._id,
-      transactionType: 'exchange',
-      timelock: 24,
-      hashlock: 'cccc',
-      txIdFrom: orderId
-    })
+    try {
+      const exchangeContract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
+      const tokenContract = new web3State.eth.Contract(TokenContract.abi, formData.from.token.deployedAddress)
+      const id = toast.loading("Approving token...")
+
+      const approveRecipt = await tokenContract.methods.approve(
+        MBC_EXCHANGE_ADDRESS,
+        BigInt(10 ** Number(18) * Number(formData.from_amount)),
+      ).send({from: userState.address})
+      console.log(approveRecipt)
+      toast.update(id, { render: "All is good", type: "success", isLoading: false});
+
+      toast.update(id, { render: "Sending token...", type: "default", isLoading: true});
+
+      const createExchangeMethod = exchangeContract.methods.createTx(
+        orderId, 
+        formData.from.token.deployedAddress,
+        formData.to.token.deployedAddress,
+        BigInt(10 ** Number(18) * Number(formData.from_amount)),
+        BigInt(10 ** Number(18) * Number(formData.to_amount)),
+        BigInt(24),
+      )
+
+      const sendTX = await web3State.eth.sendTransaction({
+        from: userState.address,
+        gasPrice: "0",
+        gas: await createExchangeMethod.estimateGas({
+          from: userState.address,
+          data: createExchangeMethod.encodeABI()
+        }) ,
+        to: MBC_EXCHANGE_ADDRESS,
+        value: "0",
+        data: createExchangeMethod.encodeABI(),
+      })
+      
+      appApi.createOrder( {
+        fromValue: formData.from_amount,
+        fromTokenId: formData.from.token._id,
+        toValue: formData.to_amount,
+        toTokenId: formData.to.token._id,
+        transactionType: 'exchange',
+        timelock: 24,
+        hashlock: 'cccc',
+        txIdFrom: orderId
+      })
     dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState) }))
     console.log(sendTX)
-    toast.success("The order was created successfully");
+    toast.update(id, { render: "The order was created successfully.", type: "success", isLoading: false, autoClose: 1000});
+
     dispatch(stopLoading())
+
+    } catch (error) {
+      alert(error)
+      dispatch(stopLoading())
+    }
   };
 
   const hdClickSelectTokenFrom = () => {

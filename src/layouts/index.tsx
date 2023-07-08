@@ -8,13 +8,10 @@ import Header from "./components/header";
 import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
 import { useAppDispatch } from "../state/hooks";
-import Web3 from "web3";
-import { saveWeb3 } from "../state/app/appSlice";
 import { saveTokens } from "../state/app/appSlice";
+import { FloatButton } from 'antd';
 
 import appApi from "../api/appAPI";
-
-
 const Layout = ({ children }: LayoutProps) => {
   const particlesInit = useCallback(async (engine: Engine) => {
     // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
@@ -38,7 +35,7 @@ const Layout = ({ children }: LayoutProps) => {
         if (tokens){
           dispatch(saveTokens(tokens.data));
         }
-    }
+      }
 
 
 
@@ -61,6 +58,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div style={{ margin: "50px var(--app-margin) 0 var(--app-margin)" }}>
         {children}
       </div>
+      <FloatButton tooltip={<div>Documents</div>} />
       <Footer />
     </>
   );

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Col, Row, Divider, Button, Slider, Drawer } from "antd";
+import { Divider, Button, Slider, Drawer } from "antd";
 
 import "./Marketplace.scss";
 import Order from "../../components/marketplace/Order";
@@ -20,24 +20,17 @@ const filterRawData = {
 };
 
 const Marketplace = () => {
+  const navigate = useNavigate();
+
   const [isListMode, setIsListMode] = useState(false);
   const [selectShow, setSelectShow] = useState(false);
   const [data, setData] = useState([])
   const [filter, setFilter] = useState({
     open: false,
     isFilterMode: true,
-    filterData: {
-      swap_from: "",
-      swap_to: "",
-      amount_from: "",
-      amount_to: "",
-    },
+    filterData: filterRawData,
   });
   
-  const navigate = useNavigate();
-
-
-
   useEffect(() => {
     const fetchDataOrder = async () => {
       const tdata = await appApi.getAllOrders()
@@ -47,9 +40,7 @@ const Marketplace = () => {
     fetchDataOrder()
   }, [])
 
-  const toggleModeView = () => {
-    setIsListMode(!isListMode);
-  };
+  const toggleModeView = () => { setIsListMode(!isListMode) };
 
   const openFilter = () => {
     setFilter({
@@ -63,9 +54,7 @@ const Marketplace = () => {
     setFilter({ ...filter, filterData: filterRawData });
   };
 
-  const closeSelectToken = () => {
-    setSelectShow(false);
-  };
+  const closeSelectToken = () => { setSelectShow(false) };
 
   return (
     <div className="app-market">
@@ -220,30 +209,8 @@ const Marketplace = () => {
               <Order data = {item}/>
             )
           }
-          
         </div>
-          
-          
-        //    <Col span={6}>
-        //     <Order />
-        //   </Col>
-        //   <Col span={6}>
-        //     <Order />
-        //   </Col>
-        //   <Col span={6}>
-        //     <Order />
-        //   </Col>
-        //   <Col span={6}>
-        //     <Order />
-        //   </Col> 
-        // </Row>
       )}
-
-      {/* <Order />
-      <Order />
-      <Order />
-      <Order />
-      <Order /> */}
     </div>
   );
 };
