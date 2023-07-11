@@ -1,6 +1,5 @@
 import { Button } from "antd"
 import TokenItemWallet from "../../../components/wallet/TokenItem"
-import { mockDataToken } from "../../../components/app/SelectToken"
 import { SendOutlined, SwapOutlined } from "@ant-design/icons"
 // import { fixStringBalance } from "../../../utils/string"
 import SendToken from "../../../components/app/SendToken"

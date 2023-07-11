@@ -291,6 +291,7 @@ export default function CreateOrder() {
             setFormData({...formData, from: token})
             hdClickSelectTokenFrom()
           }}
+          isCheckNetwork={true}
         />
       )}
 
@@ -300,6 +301,7 @@ export default function CreateOrder() {
             hdClickSelectTokenTo()
             setFormData({...formData, to: token})
           }}
+          isCheckNetwork={true}
         />
       )}
     </div>

@@ -23,21 +23,13 @@ export const getBalanceAccount = async (myWeb3: any, userState: IUserState, toke
 }
 
 export const getTokenInOtherNetwork = (tokenState: IToken[], userState: IUserState) => {
-    const tokenInNetwork = userState.wallet.map((value) => value.token)
+    const tokenInNetwork = tokenState.filter((value) => value.network === userState.network)
     const tokenInOtherNetwork = tokenState.filter((value) => {
         if (tokenInNetwork.includes(value)) return false
         else return true
     })
     return tokenInOtherNetwork;
 }
-
-
-
-
-
-
-
-
 // ------------------ Mapping -------------------
 export const mappingNetwork = (chainID: number) => {
     if (chainID === 8888) return "AGD Network"

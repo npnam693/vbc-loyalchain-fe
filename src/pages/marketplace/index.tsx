@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Divider, Button, Slider, Drawer } from "antd";
+import { Divider, Button, Slider, Drawer, Modal } from "antd";
 
 import "./Marketplace.scss";
 import Order from "../../components/marketplace/Order";
@@ -9,28 +9,41 @@ import SelectToken from "../../components/app/SelectToken";
 import MarketPane from "../../components/marketplace/MarketPane";
 import TableOrder from "../../components/marketplace/TableOrder";
 import StatisticItem from "../../components/marketplace/StatisticItem";
-import { CloseCircleOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import appApi from "../../api/appAPI";
+import { useAppSelector } from "../../state/hooks";
+
+enum NETWORK {
+  MBC = "MBC",
+  AGD = "AGD",
+  CROSS = "CROSS",
+}
 
 const filterRawData = {
-  swap_from: "",
-  swap_to: "",
-  amount_from: "",
-  amount_to: "",
+  network: "",
+  from: "",
+  to: "",
+  amountFrom: "",
+  amountTo: "",
 };
 
 const Marketplace = () => {
-  const navigate = useNavigate();
-
   const [isListMode, setIsListMode] = useState(false);
-  const [selectShow, setSelectShow] = useState(false);
+  const [selectState, setSelectState] = useState({
+    selectFrom: false,
+    selectTo: false
+  });
   const [data, setData] = useState([])
   const [filter, setFilter] = useState({
     open: false,
     isFilterMode: true,
     filterData: filterRawData,
   });
-  
+
+  const appState = useAppSelector((state) => state.appState)
+  const navigate = useNavigate()
+
+  console.log(filter)
   useEffect(() => {
     const fetchDataOrder = async () => {
       const tdata = await appApi.getAllOrders()
@@ -41,7 +54,8 @@ const Marketplace = () => {
   }, [])
 
   const toggleModeView = () => { setIsListMode(!isListMode) };
-
+  
+  
   const openFilter = () => {
     setFilter({
       open: true,
@@ -49,20 +63,40 @@ const Marketplace = () => {
       filterData: filter.filterData,
     });
   };
-
   const hdClickClearFilter = () => {
     setFilter({ ...filter, filterData: filterRawData });
   };
 
-  const closeSelectToken = () => { setSelectShow(false) };
+  const closeSelectToken = () => {setSelectState({selectFrom: false, selectTo: false}) };
+
+
+  const showPropsConfirm = () => {
+    Modal.confirm({
+      title: 'You need to connect a wallet to create order!',
+      okText: 'Connect Wallet',
+      cancelText: 'Cancel ',
+      onOk() {
+        console.log('OK');
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    })
+  };
+
+  const setFilterNetwork = (network: string) => {
+    setFilter({ ...filter, filterData: { ...filter.filterData, network } });
+  }
+
+
 
   return (
     <div className="app-market">
       <Drawer
         className="app-market-filter"
-        style={{ backgroundColor: "var(--color-primary)" }}
-        width={"36%"}
-        // closable={true}
+        style={{ backgroundColor: "#eee" }}
+        width={500}
+        closable={false}
         onClose={() => setFilter({ ...filter, open: false })}
         open={filter.open}
       >
@@ -119,11 +153,11 @@ const Marketplace = () => {
             {filter.isFilterMode ? (
               <div className="content-filter">
                 <div className="item">
-                  <p>Swap from</p>
+                  <p>Swap from</p>  
                   <Button
                     type="primary"
                     size="large"
-                    onClick={() => setSelectShow(true)}
+                    onClick={() => setSelectState({selectFrom: true, selectTo: false})}
                   >
                     Select a token
                   </Button>
@@ -146,7 +180,7 @@ const Marketplace = () => {
                   <Button
                     type="primary"
                     size="large"
-                    onClick={() => setSelectShow(true)}
+                    onClick={() => setSelectState({selectFrom: false, selectTo: true})}
                   >
                     Select a token
                   </Button>
@@ -164,12 +198,12 @@ const Marketplace = () => {
                   />
                 </div>
 
-                {selectShow && (
+                {(selectState.selectFrom || selectState.selectTo) && (
                   <div>
                     <SelectToken
                       closeFunction={closeSelectToken}
                       top_css="calc((100vh - 600px) / 2 - 20px)"
-                      right_css="5%"
+                      right_css="16px"
                     />
                   </div>
                 )}
@@ -181,25 +215,29 @@ const Marketplace = () => {
         )}
       </Drawer>
 
+      <p className="title">Marketplace</p>
       <div className="header">
-        <p className="title">Marketplace</p>
-        <Button className="btn-create" onClick={() => navigate("create")}>
-          Create Exchange Order
+        <div className="statistic-list">
+          <StatisticItem title="Amount Order" note="total" value={102101}/>
+        </div>
+
+        <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('create') : showPropsConfirm}>
+          <UploadOutlined rev={""} style={{fontSize:'2.2rem'}}/>
+          Create Order
         </Button>
       </div>
-
-      <div className="statistic-list">
-        <StatisticItem />
-        <StatisticItem />
-        <StatisticItem />
-      </div>
-
+      
       <MarketPane
         isListMode={isListMode}
         toggleModeView={toggleModeView}
         openFilter={openFilter}
+        funcSwapTo={() => setSelectState({selectFrom: false, selectTo: true})}
+        funcSwapFrom={() => setSelectState({selectFrom: true, selectTo: false})}
+        funcClearFilter={hdClickClearFilter}
+        funcNetwork={setFilterNetwork}
+        dataFilter={filter.filterData}
       />
-
+      
       {isListMode ? (
         <TableOrder data={data} />
       ) : (
@@ -208,11 +246,40 @@ const Marketplace = () => {
             data.map((item, index) => 
               <Order data = {item}/>
             )
-          }
+          } 
         </div>
       )}
+
+      {((selectState.selectFrom || selectState.selectTo) && !filter.open) && (
+        <div>
+          <SelectToken
+            closeFunction={closeSelectToken}
+            top_css="calc((100vh - 600px) / 2 - 20px)"
+            onClickSelect={(token) => {
+              if (selectState.selectFrom) {
+                if (appState.isConnectedWallet) {
+                  setFilter({ ...filter, filterData: {...filter.filterData, from: token.token}});
+                } else {
+                  setFilter({ ...filter, filterData: {...filter.filterData, from: token}});
+                }
+              }             
+              else {
+                if (appState.isConnectedWallet) {
+                  setFilter({ ...filter, filterData: {...filter.filterData, to: token.token}});
+                } else {
+                  setFilter({ ...filter, filterData: {...filter.filterData, to: token}});
+                }
+              }
+              setSelectState({selectFrom: false, selectTo: false});
+            }}
+            isCheckNetwork={false}
+          />
+        </div>
+      )}
+
+
     </div>
-  );
+  )
 };
 
 export default Marketplace;

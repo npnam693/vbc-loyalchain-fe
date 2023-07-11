@@ -57,7 +57,7 @@ const Order = (props : any) => {
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
 
       dispatch(saveModal({
-        open: true,
+        open: false,
         titleModal: "Notification",
         status: "success",
         title: "Successfully Accept Order",
@@ -78,11 +78,9 @@ const Order = (props : any) => {
   const buyOrder = async() => {
 
   }
-
   const approveOrder = async() => {
 
   }
-
 
   return (
     <div className="app-order" style={{marginBottom: 20}}>
