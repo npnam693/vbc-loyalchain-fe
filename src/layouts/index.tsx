@@ -37,9 +37,6 @@ const Layout = ({ children }: LayoutProps) => {
         }
       }
 
-
-
-
     fetchTokens()
   }, [])    
   

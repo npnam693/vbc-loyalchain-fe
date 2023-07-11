@@ -17,7 +17,7 @@ class AppAPI {
     }
     getAllOrders = async () => {
         if (LOYALCHAIN_API === undefined) return;
-        const url = LOYALCHAIN_API.concat("/transactions");
+        const url = LOYALCHAIN_API.concat("/transactions/?page=2");
         return axiosClient.get(url);
     }
 

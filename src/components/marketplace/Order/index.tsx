@@ -1,16 +1,17 @@
-import { SwapOutlined } from "@ant-design/icons";
-import { Divider, Popconfirm } from "antd";
+import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
+import { Divider, Modal, Steps } from "antd";
 import ExchangeContract from "../../../contract/Exchange/data.json";
 import TokenContract from "../../../contract/Token/data.json";
 import "./Order.scss";
 import { useAppSelector } from "../../../state/hooks";
 import appApi from "../../../api/appAPI";
 import { useAppDispatch } from "../../../state/hooks";
-import { runLoading, stopLoading } from "../../../state/loading/loadingSlice";
 import { getBalanceAccount } from "../../../utils/blockchain";
 import { toast } from "react-toastify";
 import { saveInfo } from "../../../state/user/userSlice";
 import { MBC_EXCHANGE_ADDRESS } from "../../../constants/contracts";
+import { saveModal } from "../../../state/modal/modalSlice";
+import { useState } from "react";
 const Order = (props : any) => {
   const dispatch = useAppDispatch()
 
@@ -18,22 +19,21 @@ const Order = (props : any) => {
   const tokenState = useAppSelector((state) => state.appState.tokens)
   const userState = useAppSelector((state) => state.userState)
 
-  const hdClickBuyItem = async () => {
-    console.log(props.data)
-    // dispatch(runLoading())
+  const [openModal, setOpenModal] = useState<boolean>(false);
+
+  const approveAndBuyOrder = async () => {
     try {
       const exchangeContract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
       const tokenContract = new web3State.eth.Contract(TokenContract.abi, props.data.toValue.token.deployedAddress)
-      const id = toast.loading("Approving token...")
-      toast.update(id, { render: "Approve Token Success", type: "success", isLoading: false});
 
+      const toaster = toast.loading("Approving token...")
       const approveRecipt = await tokenContract.methods.approve(
         MBC_EXCHANGE_ADDRESS,
         BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
       ).send({from: userState.address})
       console.log(approveRecipt)
 
-      toast.update(id, { render: "Buying token...", type: "default", isLoading: true});
+      toast.update(toaster, { render: "Buying token...", type: "default", isLoading: true});
       const acceptExchangeMethod = exchangeContract.methods.acceptTx(
         props.data.txIdFrom,
       )
@@ -49,21 +49,38 @@ const Order = (props : any) => {
         data: acceptExchangeMethod.encodeABI(),
       })
       console.log(exchangeRecepit)
-    
-      
-      appApi.acceptOder(props.data._id, props.data.txIdFrom )
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err))
-      
-        dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
-        // toast.success("Accept Order Success")
-        toast.update(id, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
+      const orderData = await appApi.acceptOder(props.data._id, props.data.txIdFrom )
 
-        dispatch(stopLoading())
+
+      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
+
+      toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
+
+      dispatch(saveModal({
+        open: true,
+        titleModal: "Notification",
+        status: "success",
+        title: "Successfully Accept Order",
+        subtitle: `Order ID: ${orderData ? orderData.data._id : ""}`,
+        content:                     
+        <>
+          <p>Swap: {props.data.toValue.amount}{props.data.toValue.token.symbol} for {props.data.fromValue.amount}{props.data.fromValue.token.symbol}</p>
+          <p>Transaction hash: {exchangeRecepit.blockHash}</p>
+          <p>Time created: {orderData ? orderData.data.createdAt : ''}</p>
+        </>
+      }))
+
     } catch (error) {
       alert(error);
-      dispatch(stopLoading())
     }
+  }
+
+  const buyOrder = async() => {
+
+  }
+
+  const approveOrder = async() => {
+
   }
 
 
@@ -82,7 +99,6 @@ const Order = (props : any) => {
         <div className="icon-container">
           <SwapOutlined rev={""} className="icon" />
         </div>
-
         <div className="app-order--info--token">
           <img src={props.data.fromValue.token.image} alt="StarBuck" />
           <div>
@@ -97,18 +113,70 @@ const Order = (props : any) => {
       
       <div className="app-order--action">
         <div className="app-order--action--time_left">3h 50m 2s left</div>
-        <Popconfirm
-          title="Accept the Order"
-          description="Are you sure to accept the Order??"
-          onConfirm={hdClickBuyItem}
-          onCancel={() => console.log("cancel")}
-          okText="Yes"
-          cancelText="No"
-          placement="bottom"
-        >
-          <div className="app-order--action--btn" >Buy</div>
-        </Popconfirm>
+          <div className="app-order--action--btn" onClick={() => setOpenModal(true)}>Buy</div>
       </div>
+
+      <Modal
+            title= {`Accept Order: `}
+            open={openModal}
+            onOk={approveAndBuyOrder}
+            okText="Approve & Buy"
+            width={900}
+            style={{
+              top: 200,
+            }}
+            closable={true}
+            afterClose={() => {setOpenModal(false)}}
+            cancelText="Approve"
+            onCancel={() => {}}
+        >
+          <p>Order ID: {props.data._id}</p>
+          <p>Owner: {props.data.from.address}</p>
+          <p>Create At: {props.data.createdAt}</p>
+
+          <Steps
+              size="default"
+              style={{width: 600, margin: 'auto', marginTop: 20, marginBottom: 20}}
+              items={[
+                {
+                  title: 'Approve Token',
+                  status: 'finish',
+                },
+                {
+                  title: 'Send Token',
+                  status: 'process',
+                  icon: <LoadingOutlined  rev={""}/>,
+                },
+                {
+                  title: 'Done',
+                  status: 'wait',
+                },
+              ]}
+            />
+
+            <div className="app-order--info">
+                    <div className="app-order--info--token">
+                      <img src={props.data.toValue.token.image} alt="StarBuck" />
+                      <div>
+                        <p className="quantity">{props.data.toValue.amount}</p>
+                        <p className="symbol">{props.data.toValue.token.symbol}</p>
+                      </div>
+                    </div>
+                  
+                    <div className="icon-container">
+                      <SwapOutlined rev={""} className="icon" />
+                    </div>
+                    <div className="app-order--info--token">
+                      <img src={props.data.fromValue.token.image} alt="StarBuck" />
+                      <div>
+                        <p className="quantity">{props.data.fromValue.amount}</p>
+                        <p className="symbol">{props.data.fromValue.token.symbol}</p>
+                      </div>
+                    </div>
+                  </div>
+        </Modal>
+
+        
     </div>
   );
 };

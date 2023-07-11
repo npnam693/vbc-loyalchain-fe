@@ -13,6 +13,7 @@ export interface IUserState {
   balance: string;
   isAuthenticated: boolean;
   signature: string,
+  createdAt: Date,
 }
 
 export const initialUserState : IUserState = {
@@ -23,6 +24,7 @@ export const initialUserState : IUserState = {
   balance: "0",
   isAuthenticated: false,
   signature: "",
+  createdAt: new Date(),
 }
 
 const userSlice = createSlice({

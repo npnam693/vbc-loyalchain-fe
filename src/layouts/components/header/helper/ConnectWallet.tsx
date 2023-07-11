@@ -49,7 +49,8 @@ const ConnectWallet = () => {
                         await myWeb3.eth.getBalance(address)
                     ), 18),
                     isAuthenticated: true,
-                    signature: signature
+                    signature: signature,
+                    createdAt: res.data.user.createdAt
                 }
                 myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
                 dispatch(saveInfo(myUserState));
@@ -76,7 +77,8 @@ const ConnectWallet = () => {
                 await myWeb3.eth.getBalance(address)
             ), 18),
             isAuthenticated: true,
-            signature: userState.signature
+            signature: userState.signature,
+            createdAt: userState.createdAt
         }
         myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
         dispatch(saveInfo(myUserState));
@@ -113,7 +115,8 @@ const ConnectWallet = () => {
                             await myWeb3.eth.getBalance(address)
                         ), 18),
                         isAuthenticated: true,
-                        signature: signature
+                        signature: signature,
+                        createdAt: res.data.user.createdAt
                     }
                     myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
                     console.log(myUserState);
@@ -156,10 +159,6 @@ const ConnectWallet = () => {
     //     });
 
     //     console.log(deployTransaction);
-
-
-
-
     //     // const recipt = await web3Api.eth.getTransactionReceipt(
     //     //   "0x457d89c09be00fe61dba08515a17661088f5f1236561b6ee58f13aefcbf79b7d"
     //     // );

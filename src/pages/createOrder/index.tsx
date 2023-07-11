@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./CreateOrder.scss";
 import SBP from "../../assets/svg/tokens/starbuck.svg";
 import { DownOutlined, SwapOutlined } from "@ant-design/icons";
-import { Button, Divider, InputNumber } from "antd";
+import { Button, Divider, InputNumber, Modal, Result } from "antd";
 import PairToken from "../../components/app/PairToken";
 import SelectToken from "../../components/app/SelectToken";
 import { useAppSelector } from "../../state/hooks";
@@ -16,6 +16,9 @@ import { getBalanceAccount } from "../../utils/blockchain";
 import { saveInfo } from "../../state/user/userSlice";
 import {MBC_EXCHANGE_ADDRESS} from '../../constants/contracts'
 import TokenContract from '../../contract/Token/data.json'
+import { useNavigate } from "react-router-dom";
+import { saveModal } from "../../state/modal/modalSlice";
+
 
 interface IFormData {
   from: any;
@@ -41,6 +44,7 @@ export default function CreateOrder() {
   const userState = useAppSelector((state) => state.userState)
 
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const hdClickSwap = () => {
     const newData: IFormData = {
@@ -55,22 +59,18 @@ export default function CreateOrder() {
   
   const hdClickCreate = async () => {
     console.log(formData)
-    // dispatch(runLoading())
     const orderId = uuidv4();
-
     try {
       const exchangeContract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
       const tokenContract = new web3State.eth.Contract(TokenContract.abi, formData.from.token.deployedAddress)
-      const id = toast.loading("Approving token...")
 
+      const id = toast.loading("Approving token...")
+      
       const approveRecipt = await tokenContract.methods.approve(
         MBC_EXCHANGE_ADDRESS,
         BigInt(10 ** Number(18) * Number(formData.from_amount)),
       ).send({from: userState.address})
-      console.log(approveRecipt)
-      toast.update(id, { render: "All is good", type: "success", isLoading: false});
-
-      toast.update(id, { render: "Sending token...", type: "default", isLoading: true});
+      toast.update(id, { render: "Successfully approve token", type: "success", isLoading: false, autoClose: 500});
 
       const createExchangeMethod = exchangeContract.methods.createTx(
         orderId, 
@@ -80,8 +80,9 @@ export default function CreateOrder() {
         BigInt(10 ** Number(18) * Number(formData.to_amount)),
         BigInt(24),
       )
+      toast.update(id, { render: "Sending token...", type: "default", isLoading: true});
 
-      const sendTX = await web3State.eth.sendTransaction({
+      const reciptExchange = await web3State.eth.sendTransaction({
         from: userState.address,
         gasPrice: "0",
         gas: await createExchangeMethod.estimateGas({
@@ -93,25 +94,37 @@ export default function CreateOrder() {
         data: createExchangeMethod.encodeABI(),
       })
       
-      appApi.createOrder( {
+      const orderData = await appApi.createOrder( {
         fromValue: formData.from_amount,
         fromTokenId: formData.from.token._id,
         toValue: formData.to_amount,
         toTokenId: formData.to.token._id,
         transactionType: 'exchange',
         timelock: 24,
-        hashlock: 'cccc',
+        hashlock: 'LoyalChain',
         txIdFrom: orderId
       })
-    dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState) }))
-    console.log(sendTX)
-    toast.update(id, { render: "The order was created successfully.", type: "success", isLoading: false, autoClose: 1000});
-
-    dispatch(stopLoading())
+    
+      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState) }))
+      
+      toast.update(id, { render: "The order was created successfully.", type: "success", isLoading: false, autoClose: 1000});
+      
+      dispatch(saveModal({
+        open: true,
+        titleModal: "Notification",
+        status: "success",
+        title: "Successfully Upload Order to Marketplace",
+        subtitle: `Order ID: ${orderData ? orderData.data._id : ""}`,
+        content:                     
+        <>
+          <p>Swap: {formData.from_amount}{formData.from.token.symbol} for {formData.to_amount}{formData.to.token.symbol}</p>
+          <p>Transaction hash: {reciptExchange.blockHash}</p>
+          <p>Time created: {orderData ? orderData.data.createdAt : ''}</p>
+        </>
+      }))
 
     } catch (error) {
       alert(error)
-      dispatch(stopLoading())
     }
   };
 
