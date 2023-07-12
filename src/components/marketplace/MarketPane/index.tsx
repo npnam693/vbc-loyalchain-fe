@@ -17,7 +17,7 @@ const MarketPane = (props: IMarketPaneProps) => {
   const content = (
     <div className="pane-popover">
       <div className="pane-popover--item"
-        onClick={() => props.funcNetwork && props.funcNetwork("BSC")}
+        onClick={() => props.funcNetwork && props.funcNetwork("MBC")}
       >MBC Network</div>
       <div className="pane-popover--item"
         onClick={() => props.funcNetwork && props.funcNetwork("AGD")}

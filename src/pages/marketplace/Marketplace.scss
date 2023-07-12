@@ -80,21 +80,47 @@
     }
         
     .content-filter {
-        margin-top: 50px;
+        margin-top: 20px;
         .item {
-            margin-bottom: 100px;
-            p {
-                color: black;
+            margin-bottom: 50px;
+            &--title {
+                font-size: 1.6rem;
                 font-weight: 600;
-                margin: 6px 0;
-                margin-bottom: 12px;
+                color: var(--color-primary);
+                margin-bottom: 16px;
             }
 
-            Button {
-                margin-bottom: 20px;
+            &--token {
+                margin-bottom: 16px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                p {
+                    color: black;
+                    font-weight: 400;
+                    margin: 6px 0;
+                    font-size: 1.4rem;
+                    min-width: 100px;
+                }
+
+                Button {
+                    // background-color: var(--color-secox  ndary);
+                }
+            }
+
+            &--amount {
+                margin-top: -16px;
+                margin-left: 100px;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
             }
         }
     }
 }
 
     
+
+:where(.css-dev-only-do-not-override-1wazalj).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+    z-index: 0;
+}
