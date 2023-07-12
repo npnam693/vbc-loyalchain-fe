@@ -99,7 +99,6 @@ export default function CreateOrder() {
         fromTokenId: formData.from.token._id,
         toValue: formData.to_amount,
         toTokenId: formData.to.token._id,
-        transactionType: 'exchange',
         timelock: 24,
         hashlock: 'LoyalChain',
         txIdFrom: orderId

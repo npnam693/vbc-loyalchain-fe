@@ -36,7 +36,19 @@ const filterRawData : IFilterData = {
   amountFrom: [0, 10000],
   amountTo: [0, 10000],
 };
-
+export const showConfirmConnectWallet = () => {
+  Modal.confirm({
+    title: 'You need to connect a wallet to create order!',
+    okText: 'Connect Wallet',
+    cancelText: 'Cancel ',
+    onOk() {
+      console.log('OK');
+    },
+    onCancel() {
+      console.log('Cancel');
+    },
+  })
+};
 const Marketplace = () => {
   const [isListMode, setIsListMode] = useState(false);
   const [selectState, setSelectState] = useState({
@@ -83,19 +95,7 @@ const Marketplace = () => {
   const closeSelectToken = () => {setSelectState({selectFrom: false, selectTo: false}) };
 
 
-  const showPropsConfirm = () => {
-    Modal.confirm({
-      title: 'You need to connect a wallet to create order!',
-      okText: 'Connect Wallet',
-      cancelText: 'Cancel ',
-      onOk() {
-        console.log('OK');
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    })
-  };
+
 
   const setFilterNetwork = (network: string) => {
     setFilter({ ...filter, filterData: { ...filter.filterData, network } });
@@ -361,7 +361,7 @@ const Marketplace = () => {
           <StatisticItem title="Amount Order" note="total" value={102101}/>
         </div>
 
-        <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('create') : showPropsConfirm}>
+        <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('create') : showConfirmConnectWallet}>
           <UploadOutlined rev={""} style={{fontSize:'2.2rem'}}/>
           Create Order
         </Button>

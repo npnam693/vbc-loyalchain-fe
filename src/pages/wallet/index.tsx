@@ -29,7 +29,6 @@ const Wallet = () => {
     else return <History />
   }
 
-
   const getJoinedTime = () : String  => {
     const joinTime = new Date(userState.createdAt)
     const nowTime = new Date()

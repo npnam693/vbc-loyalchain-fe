@@ -7,9 +7,9 @@ import type { Container, Engine, ISourceOptions } from "tsparticles-engine";
 import Header from "./components/header";
 import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
-import { useAppDispatch } from "../state/hooks";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { saveTokens } from "../state/app/appSlice";
-import { FloatButton } from 'antd';
+import { FloatButton, Popover } from 'antd';
 
 import appApi from "../api/appAPI";
 const Layout = ({ children }: LayoutProps) => {
@@ -26,6 +26,8 @@ const Layout = ({ children }: LayoutProps) => {
     []
   );
 
+  const taskState = useAppSelector((state) => state.taskState);
+
 
   
   const dispatch = useAppDispatch();
@@ -40,7 +42,22 @@ const Layout = ({ children }: LayoutProps) => {
     fetchTokens()
   }, [])    
   
-
+  const contentTaskPopover = () => {
+    return (
+      <div style={{maxHeight: 300, minWidth: 500, overflow: 'scroll'}}>
+        {
+          taskState.taskList.map((task, index) => {
+            return (
+              <div key={index} style={{display: 'flex', flexDirection: 'row', height: 40, backgroundColor: '#ddd', margin: "5px 0"}}>
+                <p>ID: #0{task.id}</p>
+                <p>{task.type}</p>
+              </div>
+            )
+          })
+        }
+      </div>
+    )
+  }
   return (
     <>
       <div className="gradient"></div>
@@ -55,7 +72,12 @@ const Layout = ({ children }: LayoutProps) => {
       <div style={{ margin: "30px var(--app-margin) 0 var(--app-margin)" }}>
         {children}
       </div>
-      <FloatButton tooltip={<div>Documents</div>} />
+
+
+      <Popover placement="leftBottom" title={'Your task'} content={contentTaskPopover} trigger="hover">
+        <FloatButton shape="square" />
+      </Popover>
+
       <Footer />
     </>
   );

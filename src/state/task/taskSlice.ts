@@ -6,13 +6,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
         - Transfer Token: TRANSFER
 
     STATUS:
-        - 1?: Approve
+        - 0: Pending
+        - 1?: Approve Token
         - 2: Send Token
         - 3: Done
 */
 export interface ICreateTask {
     id: number;
-    title: string;
+    type: string;
 
     status: number;
 
@@ -27,7 +28,7 @@ export interface ICreateTask {
 
 export interface IAcceptTask {
     id: number;
-    title: string;
+    type: string;
 
     status: number;
 
@@ -43,12 +44,12 @@ export interface IAcceptTask {
 
 export interface ITransferTask {
     id: number;
-    title: string;
+    type: string;
     status: number;
     token: any;
     amount: number;
 
-    orderID: string;
+    orderID?: string;
     transactionHash?: string;
 }
 
@@ -56,17 +57,21 @@ export interface ITransferTask {
 export interface ITaskState {
     taskList: (ICreateTask | IAcceptTask | ITransferTask)[];
     tasksInProgress: number;
+    openModalTask: number;
+
 }
 
 
 export const initialTaskState : ITaskState = {
     taskList: [],
     tasksInProgress: 0,
+    openModalTask: -1
 }
 
 interface IActionTask {
     id: number;
-    task: ICreateTask | IAcceptTask | ITransferTask
+    task: ICreateTask | IAcceptTask | ITransferTask;
+
 }
 
 const taskSlice = createSlice({
@@ -77,10 +82,24 @@ const taskSlice = createSlice({
             state.taskList.push(action.payload);
             return state;
         },
+        
+        deleteTask: (state, action: PayloadAction<number>) => {
+            state.taskList.splice(action.payload, 1);
+            return state;
+        },
+
         updateTask: (state, action: PayloadAction<IActionTask>) => {
             const { id, task } = action.payload;
             state.taskList[id] = task;
             return state;
+        },
+
+        openTaskModel: (state, action: PayloadAction<number>) => {
+
+        },
+        
+        closeTaskModel: (state, action: PayloadAction<undefined>) => {
+
         }
     }
 })
