@@ -5,6 +5,7 @@ import ThemeOptions from "./themeOptions/themeOptionsSlice";
 import loadingState from "./loading/loadingSlice";
 import appState from './app/appSlice'
 import modalState from './modal/modalSlice'
+import taskState from './task/taskSlice'
 
 const appReducer = combineReducers({
   //authen
@@ -13,6 +14,8 @@ const appReducer = combineReducers({
   // app
   appState,
   modalState,
+  taskState,
+
   //theme
   ThemeOptions,
   loadingState,

@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "antd";
+import React, { useState } from "react";
+import { Button, FloatButton } from "antd";
 import Lottie from "lottie-react";
 
 import SVGIntro1 from "../../assets/svg/home/intro1.svg";
@@ -10,8 +10,9 @@ import WhyChoose from "../../components/home/whychoose";
 import Package from "../../components/home/package";
 import Contact from "../../components/home/contact";
 import "./Home.scss";
-import { Spin } from "antd";
+import { VerticalAlignTopOutlined } from "@ant-design/icons";
 export default function Home() {
+
   return (
     <div className="app-home">
       <div className="app-home--intro1">
@@ -173,6 +174,8 @@ export default function Home() {
       <div className="app-home--logo_tail">
         <img src={Logo} alt="loyalChain" />
       </div>
+
+
     </div>
   );
 }
