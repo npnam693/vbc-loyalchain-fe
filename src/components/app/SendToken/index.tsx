@@ -9,7 +9,7 @@ import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
 import { useAppDispatch } from '../../../state/hooks'
 import { saveInfo } from '../../../state/user/userSlice'
 import { showConfirmConnectWallet } from '../../../pages/marketplace'
-import { ITransferTask, createTask, updateTask } from '../../../state/task/taskSlice'
+import { ITransferTask, createTask, doneOneTask, updateTask } from '../../../state/task/taskSlice'
 import appApi from '../../../api/appAPI'
 import { toast } from 'react-toastify'
 
@@ -35,26 +35,26 @@ const SendToken = (props : ISendToken) => {
         to: "",
     })
     
-    const [indexTask, setIndexTask] = useState(-1)
+    const [idTask, setIdTask] = useState(-1)
     
+
     const submitSendToken = async () => {
+        const transferTask : ITransferTask = {
+            id: taskState.taskList.length,
+            type: "TRANSFER",
+            status: 2,
+            token: props.token.token,
+            amount: formData.amount,
+            recipient: formData.to,
+        }
         if (!appState.isConnectedWallet) {
             showConfirmConnectWallet()
             return
         }
         try {
             toast("Transfering Token...")
-            const transferTask : ITransferTask = {
-                id: taskState.taskList.length,
-                type: "TRANSFER",
-                status: 2,
-                token: props.token.token,
-                amount: formData.amount,
-            }
-            setIndexTask(transferTask.id)
-
             dispatch(createTask(transferTask))
-
+            setIdTask(transferTask.id)
             const contractABI = contractToken.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
             const contractAddress = props.token.token.deployedAddress;
             const contract = new appState.web3.eth.Contract(contractABI, contractAddress);
@@ -89,9 +89,18 @@ const SendToken = (props : ISendToken) => {
                 }, 
                 id: transferTask.id
             }))
+            dispatch(doneOneTask())
             toast.success("Transfer Token successfully!")
         } catch (error) {
             console.log(error)
+            dispatch(updateTask({
+                task: {
+                    ...transferTask, 
+                    status: -1,
+                }, 
+                id: transferTask.id
+            }))
+            dispatch(doneOneTask())
             toast.error("Transfer Token Failed!")
         }
     }
@@ -137,7 +146,7 @@ const SendToken = (props : ISendToken) => {
             </div>
 
             <Button type='primary' className='send-btn' size='large' 
-                onClick={() => setOpenModal(true)}
+                onClick={() => {setOpenModal(true)}}
             >
                 Send
                 
@@ -146,11 +155,11 @@ const SendToken = (props : ISendToken) => {
                 title="Transfer Token"
                 open={openModal}
                 
-                onOk={indexTask === -1 ? submitSendToken : () => {setOpenModal(false)}}
-                okText= {indexTask === -1 ? "Confirm" : 'OK'}
+                onOk={idTask === -1 ? submitSendToken : () => {setOpenModal(false);  setIdTask(-1)}}
+                okText= {idTask === -1 ? "Confirm" : 'OK'}
 
                 cancelText="Cancel"
-                onCancel={() => {setOpenModal(false)}}
+                onCancel={() => {setOpenModal(false); setIdTask(-1)}}
 
                 width={700}
                 style={{top: 200}}
@@ -161,11 +170,11 @@ const SendToken = (props : ISendToken) => {
                     size="default"
                     style={{width: 400, margin: 'auto', marginTop: 20, marginBottom: 20}}
                     items={[
-                        indexTask !== -1 ? {
+                        idTask !== -1 ? {
                             title: 'Send Token',
-                            status: taskState.taskList[indexTask].status === -1 ? 'error' : 
-                                    (taskState.taskList[indexTask].status === 3 ? 'finish' : 'process'),
-                            icon: taskState.taskList[indexTask].status === 2 && <LoadingOutlined  rev={""}/>,
+                            status: taskState.taskList[taskState.taskList.length - 1 - idTask].status === -1 ? 'error' : 
+                                    (taskState.taskList[taskState.taskList.length - 1 - idTask].status === 3 ? 'finish' : 'process'),
+                            icon: taskState.taskList[taskState.taskList.length - 1 - idTask].status === 2 && <LoadingOutlined  rev={""}/>,
                         }
                         :
                         {
@@ -173,14 +182,14 @@ const SendToken = (props : ISendToken) => {
                             status: 'wait'
                         }
                         ,
-                        indexTask === -1 ? {
+                        idTask === -1 ? {
                             title: 'Done',
                             status: 'wait',
                         }
                         :
                         {
                             title: 'Done',
-                            status: taskState.taskList[indexTask].status === 3 ? 'finish' : 'wait'
+                            status: taskState.taskList[taskState.taskList.length - 1 - idTask].status === 3 ? 'finish' : 'wait'
                         }
                         ,
                     ]}
@@ -197,9 +206,9 @@ const SendToken = (props : ISendToken) => {
                 </div>
                 <div style={{fontWeight: 500}}>
                     <p>Status: {
-                        indexTask === -1  ? 
+                        idTask === -1  ? 
                             <span style={{fontWeight: 400, color: "#333"}}>Pending</span> 
-                        : (taskState.taskList[indexTask].status === 3 ? 
+                        : (taskState.taskList[taskState.taskList.length - 1 - idTask].status === 3 ? 
                             <span style={{fontWeight: 400, color: "#52c41a"}}>Success</span> 
                         : 
                             <span style={{fontWeight: 400, color: '#1677ff'}}>In Progress</span>)}
@@ -214,14 +223,14 @@ const SendToken = (props : ISendToken) => {
                     </p>
                     <p>Transaction Hash:  
                         <span style={{fontWeight: 400}}> {
-                            indexTask === -1 ? '...' :
-                            (taskState.taskList[indexTask].status === 3 ? taskState.taskList[indexTask].transactionHash : '...')
+                            idTask === -1 ? '...' :
+                            (taskState.taskList[taskState.taskList.length - 1 - idTask].status === 3 ? taskState.taskList[taskState.taskList.length - 1 - idTask].transactionHash : '...')
                         }</span>
                     </p>
                     <p>Transaction ID:  
                         <span style={{fontWeight: 400}}> {
-                            indexTask === -1 ? '...' :
-                            (taskState.taskList[indexTask].status === 3 ? taskState.taskList[indexTask].orderID : '...')
+                            idTask === -1 ? '...' :
+                            (taskState.taskList[taskState.taskList.length - 1 - idTask].status === 3 ? taskState.taskList[taskState.taskList.length - 1 - idTask].orderID : '...')
                         }</span>
                     </p>
                 </div>

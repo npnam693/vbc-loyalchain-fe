@@ -6,6 +6,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
         - Transfer Token: TRANSFER
 
     STATUS:
+        - -1: Fail
         - 0: Pending
         - 1?: Approve Token
         - 2: Send Token
@@ -24,8 +25,12 @@ export interface ICreateTask {
 
     transactionHash?: string;
     orderID?: string;
-}   
 
+    token?: any;
+    amount?: number;
+    recipient?: string;
+}   
+ 
 export interface IAcceptTask {
     id: number;
     type: string;
@@ -40,6 +45,10 @@ export interface IAcceptTask {
     owner: string;
     orderID: string;
     transactionHash?: string;
+
+    token?: any;
+    amount?: number;
+    recipient?: string;
 }
 
 export interface ITransferTask {
@@ -51,6 +60,13 @@ export interface ITransferTask {
 
     orderID?: string;
     transactionHash?: string;
+
+    tokenFrom?: any;
+    tokenTo?: any;
+    amountFrom?: number;
+    amountTo?: number;
+
+    recipient?: string;
 }
 
 
@@ -71,7 +87,6 @@ export const initialTaskState : ITaskState = {
 interface IActionTask {
     id: number;
     task: ICreateTask | IAcceptTask | ITransferTask;
-
 }
 
 const taskSlice = createSlice({
@@ -79,7 +94,8 @@ const taskSlice = createSlice({
     initialState: initialTaskState,
     reducers: {
         createTask: (state, action: PayloadAction<ICreateTask | IAcceptTask | ITransferTask>) => {
-            state.taskList.push(action.payload);
+            state.taskList = [action.payload, ...state.taskList]
+            state.tasksInProgress += 1;
             return state;
         },
         
@@ -90,20 +106,23 @@ const taskSlice = createSlice({
 
         updateTask: (state, action: PayloadAction<IActionTask>) => {
             const { id, task } = action.payload;
-            state.taskList[id] = task;
+            state.taskList[state.taskList.length - id -1] = task;
             return state;
         },
-
+        doneOneTask: (state, action: PayloadAction<undefined>) => {
+            state.tasksInProgress -= 1;
+            return state;
+        },
         openTaskModel: (state, action: PayloadAction<number>) => {
-
+            state.openModalTask = action.payload;
         },
         
         closeTaskModel: (state, action: PayloadAction<undefined>) => {
-
+            state.openModalTask = -1;
         }
     }
 })
 
-export const { createTask, updateTask } = taskSlice.actions;
+export const { createTask, updateTask, openTaskModel, closeTaskModel, doneOneTask } = taskSlice.actions;
 
 export default taskSlice.reducer;
