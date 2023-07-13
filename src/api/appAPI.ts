@@ -9,15 +9,10 @@ class AppAPI {
         const url = LOYALCHAIN_API.concat("/enterprises");
         return axiosClient.get(url);
     }
-
-    createOrder = async (data: any) => {
-        if (LOYALCHAIN_API === undefined) return;
-        const url = LOYALCHAIN_API.concat("/transactions/create");
-        return axiosClient.post(url, data);
-    }
+    
     getAllOrders = async () => {
         if (LOYALCHAIN_API === undefined) return;
-        const url = LOYALCHAIN_API.concat("/transactions");
+        const url = LOYALCHAIN_API.concat("/transactions/?page=2");
         return axiosClient.get(url);
     }
 
@@ -26,11 +21,28 @@ class AppAPI {
         const url = LOYALCHAIN_API.concat("/transactions");
         return axiosClient.get(url, {params: data});
     }
-
+    
+    createOrder = async (data: any) => {
+        if (LOYALCHAIN_API === undefined) return;
+        const url = LOYALCHAIN_API.concat("/transactions/create");
+        return axiosClient.post(url, {...data, transactionType: 'exchange'});
+    }
+    
     acceptOder = async (txId: string, txIDto: string) => {
         if (LOYALCHAIN_API === undefined) return;
         const url = LOYALCHAIN_API.concat(`/transactions/${txId}/accept`);
         return axiosClient.patch(url, {txIdTo: txIDto});
+    }
+
+    createTransfer = async (data: any) => {
+        if (LOYALCHAIN_API === undefined) return;
+        const url = LOYALCHAIN_API.concat("/transactions/create");
+        return axiosClient.post(url, {
+            ...data, 
+            transactionType: 'transfer', 
+            toTokenId: data.fromTokenId,
+            toValue: 0,
+        });
     }
 }
 

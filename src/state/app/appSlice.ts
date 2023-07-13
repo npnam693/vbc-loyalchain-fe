@@ -12,7 +12,6 @@ interface IApp {
     isConnectedWallet: boolean,
     isListening: boolean,
     tokens: IToken[],
-    
 }
 
 const initialAppState : IApp= {

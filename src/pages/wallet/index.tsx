@@ -7,6 +7,7 @@ import "./Wallet.scss";
 import {History, Reward, Token} from "./helper";
 import { CopyOutlined } from "@ant-design/icons";
 import appApi from "../../api/appAPI";
+import { join } from "path";
 interface IForm {
   token: string;
   amount: number;
@@ -17,12 +18,6 @@ enum WalletPage { TOKEN, REWARD, HISTORY }
 const Wallet = () => {
   const [page, setPage] = useState<WalletPage>(WalletPage.TOKEN);
   
-  // useEffect(() => {
-  //   const getTokens = async () => {
-  //     console.log('huhu', await appApi.getTokens())
-  //   }
-  //   getTokens()
-  // }, [])
   const userState= useAppSelector((state) => state.userState);
   const contentPage = () => {
     if (page === WalletPage.TOKEN) {
@@ -34,63 +29,14 @@ const Wallet = () => {
     else return <History />
   }
 
-  // const transfer = async () => {
-  //   if (!myWeb3.isConnected) {
-  //     alert("M can phai dang nhap trc");
-  //     return;
-  //   }
+  const getJoinedTime = () : String  => {
+    const joinTime = new Date(userState.createdAt)
+    const nowTime = new Date()
+    const joinedTime = (Number(nowTime.getTime()) - Number(joinTime.getTime())) / (1000 * 60 * 60 * 24)
+    return String(joinedTime.toFixed(0)) + ' days'
+  }
 
-  //   const contractABI = contractToken.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
-  //   const contractAddress = formData.token;
-  //   const contract = new myWeb3.web3.eth.Contract(contractABI, "0xb003312Fc97dD7534fb96166b46A7018cd7a6573");
-
-  //   const fromAddress = userState.address; // Địa chỉ ví nguồn (tài khoản của bạn)
-  //   const toAddress = formData.to; // Địa chỉ ví đích
-
-  //   const decimal = await contract.methods.decimals().call({
-  //     from: userState.address,
-  //   });
-
-  //   const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
-
-  //   // // const transactionObject = {
-  //   // //   from: fromAddress,
-  //   // //   to: contractAddress,
-  //   // //   value: "0", // Nếu bạn chỉ chuyển token, value = 0
-  //   // //   data: contract.methods.transfer(toAddress, amount).encodeABI(),
-  //   // //   // gasLimit: await contract.methods.transfer(toAddress, amount).estimateGas({
-  //   // //   //   from: userState.address,
-  //   // //   //   data: contract.methods.transfer(toAddress, amount).encodeABI(),
-  //   // //   // }),
-  //   // //   // // maxPriorityFeePerGas: "0x00",
-  //   // //   // maxFeePerGas: "0x00",
-  //   // //   // nonce: await myWeb3.web3.eth.getTransactionCount(userState.address),
-  //   // //   // type: "0x02",
-  //   // //   // accessList: [],
-  //   // // };
-
-  //   // const myReceipt = await contract.methods.transfer(toAddress, amount).send({
-  //   //   from: userState.address,
-  //   //   gas: await contract.methods.transfer(toAddress, amount).estimateGas({
-  //   //     from: userState.address,
-  //   //     data: contract.methods.transfer(toAddress, amount).encodeABI(),
-  //   //   }),
-  //   // });
-
-  //   // console.log("myReceipt", myReceipt);
-
-  //   // myWeb3.web3.eth
-  //   //   .sendTransaction(transactionObject)
-  //   //   .on("transactionHash", (hash: any) => {
-  //   //     console.log("Transaction hash:", hash);
-  //   //   })
-  //   //   .on("receipt", (receipt: any) => {
-  //   //     console.log("Transaction receipt:", receipt);
-  //   //   })
-  //   //   .on("error", (error: any) => {
-  //   //     console.error("Error:", error);
-  //   //   });
-  // };
+  console.log(getJoinedTime())
   return (
     <div className="app-wallet">
       <div className="content">
@@ -103,7 +49,7 @@ const Wallet = () => {
           </div>
           <div className="account-info">
             Join time: 
-            <p>Wed Jul 05 2023 12:19:57 GMT+0700 (Indochina Time)</p></div>
+            <p>{getJoinedTime()}</p></div>
           <div className="qrcode-container">
             <div className="qrcode">
               <QRCode

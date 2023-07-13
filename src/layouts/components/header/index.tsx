@@ -2,13 +2,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Search } from "react-feather";
-import { Input } from "antd";
+import { FloatButton, Input } from "antd";
 import clsx from "clsx";
 
 import Logo from "../../../assets/svg/logo_loyal-chain.svg";
 import ConnectWallet from "./helper/ConnectWallet";
 import SITEMAP from "../../../constants/sitemap";
 import "./Header.scss";
+import { VerticalAlignTopOutlined } from "@ant-design/icons";
 const Header = () => {
   const currentUrl = useLocation().pathname;
   const { t } = useTranslation("common");
@@ -84,6 +85,12 @@ const Header = () => {
               </div>
             )}
             <ConnectWallet />
+            {
+              (headerShow && currentUrl === "/") &&
+              <FloatButton style={{right: 80}} icon={<VerticalAlignTopOutlined rev={""}/>} 
+                onClick={() => window.scrollTo({top: 0, left: 0, behavior: 'smooth'})}
+              />
+            }
           </div>
         </div>
       </div>

@@ -7,17 +7,13 @@ import type { Container, Engine, ISourceOptions } from "tsparticles-engine";
 import Header from "./components/header";
 import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
-import { useAppDispatch } from "../state/hooks";
-import Web3 from "web3";
-import { saveWeb3 } from "../state/app/appSlice";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { saveTokens } from "../state/app/appSlice";
+import { FloatButton, Popover } from 'antd';
 
 import appApi from "../api/appAPI";
-
-
-
-
-
+import { CheckCircleTwoTone, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
+import { openTaskModel } from "../state/task/taskSlice";
 const Layout = ({ children }: LayoutProps) => {
   const particlesInit = useCallback(async (engine: Engine) => {
     // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
@@ -31,6 +27,11 @@ const Layout = ({ children }: LayoutProps) => {
     },
     []
   );
+
+  const taskState = useAppSelector((state) => state.taskState);
+
+
+  
   const dispatch = useAppDispatch();
     useEffect(() => {
       async function fetchTokens() {
@@ -38,19 +39,68 @@ const Layout = ({ children }: LayoutProps) => {
         if (tokens){
           dispatch(saveTokens(tokens.data));
         }
-    }
-    // async function fetchAccount() {
-    //   const accounts = await window.ethereum.request({method: 'eth_accounts'});       
-    //   if (accounts.length > 0) {
-    //     const myWeb3 = new Web3(window.ethereum);
-    //     dispatch(saveWeb3({ web3: myWeb3, isConnected: true }));
-    //   }
-    // }
-    // fetchAccount()
+      }
+
     fetchTokens()
   }, [])    
   
+  const contentTaskPopover = () => {
+    return (
+      <div style={{maxHeight: 300, minWidth: 400, overflow: 'scroll', cursor: 'pointer'}}>
+        {
+          taskState.taskList.map((task, index) => {
+            return (
+              <div key={index} style={{ 
+                display:'flex', flexDirection:'row', alignItems:"center", 
+                padding: "5px 20px",   margin: "5px 0", borderRadius: 3, 
+                backgroundColor: 'rgba(219, 219, 219, 0.5)'}}
+                
+                onClick={() => dispatch(openTaskModel(index))}
+              >
+                <div style={{margin: "0 16px 0 -10px"}}>
+                  {
+                      (task.status === 1 || task.status === 2) ?
+                        <LoadingOutlined rev={""} style={{fontSize: '2.5rem', color:"var(--color-secondary)"}}/>
+                      :
+                      (
+                        task.status === 3 ? <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2.5rem'}}/> 
+                        : <CloseCircleTwoTone twoToneColor={"rgba(252, 75, 75, 1)"} rev={""} style={{fontSize: '2.5rem'}}/>
+                      )
+                  }
+                </div>
+                <div>
+                  <p style={{fontSize: '1.4rem', fontWeight: 500}}>
+                  {
+                    task.type === "TRANSFER" ? "Transfer Token" : (task.type === "ACCEPT" ? "Accept Order" : "Create Order")
+                  }
+                  </p>
+                  <p style={{fontSize: '1.2rem'}}>Task ID: #0{task.id}
+                    <span style={{marginLeft: 10}}>Step: {
+                      task.status === 2 ? 'Send Token' : (task.status === 3 ? 'Done' : (task.status === 2 ? 'Approve Token' : 'Fail'))
+                    }</span>
+                  </p>
+                </div>
+                
+                <div style={{marginLeft: 'auto'}}>
+                  {
+                    task.type === "TRANSFER" ? 
+                      <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
+                        <p style={{fontWeight: 500, marginRight: 10}}>{task.amount} {task.token.symbol}</p>
+                        <img src={task.token ? task.token.image : 'token'} alt={""} style={{height: 30}}/>
+                      </div>
+                    :
+                      <div>
+                      </div>
+                  }
+                </div>
 
+              </div>
+            )
+          })
+        }
+      </div>
+    )
+  }
   return (
     <>
       <div className="gradient"></div>
@@ -62,9 +112,19 @@ const Layout = ({ children }: LayoutProps) => {
       />
       <Header />
       <div style={{ height: "var(--header-height)" }}></div>
-      <div style={{ margin: "50px var(--app-margin) 0 var(--app-margin)" }}>
+      <div style={{ margin: "30px var(--app-margin) 0 var(--app-margin)" }}>
         {children}
       </div>
+
+
+      <Popover placement="leftBottom" title={'Your task'} content={contentTaskPopover} trigger="click">
+        <FloatButton shape="square" icon={
+          // <LoadingOutlined rev={""} style={{fontSize: '2.5rem', color:"var(--color-secondary)"}}/>
+          taskState.tasksInProgress !== 0 &&
+          <SyncOutlined spin rev={""}/>
+        }/>
+      </Popover>
+
       <Footer />
     </>
   );

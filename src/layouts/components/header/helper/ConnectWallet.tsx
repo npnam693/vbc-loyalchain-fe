@@ -12,13 +12,15 @@ import { fixStringBalance, shortenAddress } from "../../../../utils/string";
 import { getBalanceAccount, mappingNetwork } from "../../../../utils/blockchain";
 import { runLoading, stopLoading } from "../../../../state/loading/loadingSlice";
 
+const SIGN_MESSAGE = "Verify Account"
+
 const ConnectWallet = () => {
     const dispatch = useAppDispatch();
     const userState = useAppSelector((state) => state.userState);
     const appState = useAppSelector((state) => state.appState);
     
     const signatureLogin = async (web3: any, userAddress: string) : Promise<string> => {
-        return await web3.eth.personal.sign("Login", userAddress, "");
+        return await web3.eth.personal.sign(SIGN_MESSAGE, userAddress, "");
     };
 
     const hdAccountChange = async () => {
@@ -26,6 +28,7 @@ const ConnectWallet = () => {
         // if(!appState.isConnectedWallet) return?
         // else {
             toast("Account changed, please wait a moment...")
+
             dispatch(runLoading())
             const myWeb3 = new Web3(window.ethereum);
             const address = (await myWeb3.eth.getAccounts())[0];
@@ -34,7 +37,7 @@ const ConnectWallet = () => {
             .post("http://localhost:3333/api/auth/login", {
                 address: address,
                 signature: signature,
-                message: "Login",
+                message: "Verify Account",
             }, { withCredentials: true }
             ).then(async (res) => {
                 const myUserState : IUserState = {
@@ -46,6 +49,8 @@ const ConnectWallet = () => {
                         await myWeb3.eth.getBalance(address)
                     ), 18),
                     isAuthenticated: true,
+                    signature: signature,
+                    createdAt: res.data.user.createdAt
                 }
                 myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
                 dispatch(saveInfo(myUserState));
@@ -58,35 +63,36 @@ const ConnectWallet = () => {
 
     const hdNetworkChange = async () => {
         console.log(hdAccountChange, userState, appState)
-        // if(!appState.isConnectedWallet) return
-        // else {
-            toast("Network changed, please wait a moment...")
-            dispatch(runLoading())
-            const myWeb3 = new Web3(window.ethereum);
-            const address = (await myWeb3.eth.getAccounts())[0];
-            
-            const myUserState : IUserState = {
-                address:  address,
-                token: userState.token,
-                network: Number(await myWeb3.eth.net.getId()),
-                wallet: [],
-                balance:fixStringBalance(String(
-                    await myWeb3.eth.getBalance(address)
-                ), 18),
-                isAuthenticated: true,
-            }
-            myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
-            dispatch(saveInfo(myUserState));
-            dispatch(saveWeb3(myWeb3));
-            dispatch(stopLoading())
-            toast.success("Connect wallet successfully!");
-        // }
+        toast("Network changed, please wait a moment...")
+        dispatch(runLoading())
+        const myWeb3 = new Web3(window.ethereum);
+        const address = (await myWeb3.eth.getAccounts())[0];
+        
+        const myUserState : IUserState = {
+            address:  address,
+            token: userState.token,
+            network: Number(await myWeb3.eth.net.getId()),
+            wallet: [],
+            balance:fixStringBalance(String(
+                await myWeb3.eth.getBalance(address)
+            ), 18),
+            isAuthenticated: true,
+            signature: userState.signature,
+            createdAt: userState.createdAt
+        }
+        myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
+        dispatch(saveInfo(myUserState));
+        dispatch(saveWeb3(myWeb3));
+        dispatch(stopLoading())
+        toast.success("Connect wallet successfully!");
     }
 
     const connectWallet = async () => {
-        toast("Connecting to wallet...")
+        // toast("Connecting to wallet...")
+        const id = toast.loading("Connecting to wallet...")
+
         if (typeof window.ethereum !== "undefined") {
-            dispatch(runLoading())
+            // dispatch(runLoading())
             const myWeb3 = new Web3(window.ethereum);
             await window.ethereum.request({ method: "eth_requestAccounts" });
             const address = (await myWeb3.eth.getAccounts())[0];
@@ -97,7 +103,7 @@ const ConnectWallet = () => {
                 .post("http://localhost:3333/api/auth/login", {
                         address: address,
                         signature: signature,
-                        message: "Login",
+                        message: "Verify Account",
                     }, { withCredentials: true }
                 ).then(async (res) => {
                     const myUserState : IUserState = {
@@ -109,16 +115,19 @@ const ConnectWallet = () => {
                             await myWeb3.eth.getBalance(address)
                         ), 18),
                         isAuthenticated: true,
+                        signature: signature,
+                        createdAt: res.data.user.createdAt
                     }
                     myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
                     console.log(myUserState);
                     dispatch(saveInfo(myUserState));
                     dispatch(saveWeb3(myWeb3));
                     dispatch(stopLoading())
-                    toast.success("Connect wallet success");
-                
+                    // toast.success("Connect wallet success");
+                    toast.update(id, { render: "All is good", type: "success", isLoading: false, autoClose: 1000});
+
                     if (!appState.isListening) {
-                        window.ethereum.on('accountsChanged', hdAccountChange)
+                        window.ethereum.on("accountsChanged", hdAccountChange)
                         window.ethereum.on("chainChanged", hdNetworkChange)
                     }
                 })
@@ -150,10 +159,6 @@ const ConnectWallet = () => {
     //     });
 
     //     console.log(deployTransaction);
-
-
-
-
     //     // const recipt = await web3Api.eth.getTransactionReceipt(
     //     //   "0x457d89c09be00fe61dba08515a17661088f5f1236561b6ee58f13aefcbf79b7d"
     //     // );

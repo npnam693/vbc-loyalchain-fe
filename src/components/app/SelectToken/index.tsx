@@ -3,59 +3,22 @@ import { TokenItem } from "./TokenItem";
 import { CloseCircleOutlined } from "@ant-design/icons";
 
 import "./SelecToken.scss";
-import SBP from "../../../assets/svg/tokens/starbuck.svg";
-import MDP from "../../../assets/svg/tokens/MDP.svg";
-import WMP from "../../../assets/svg/tokens/WMP.svg";
-import SAP from "../../../assets/svg/tokens/SAP.svg";
 import { useAppSelector } from "../../../state/hooks";
 import { getTokenInOtherNetwork, mappingNetwork } from "../../../utils/blockchain";
 
-export const mockDataToken = [
-  {
-    name: "StarBuck Loyalty Point",
-    network: "AGD Network",
-    symbol: "SBP",
-    balance: 3000,
-    uriImg: SBP,
-    address: "0x1234567890",
-  },
-  {
-    name: "McDonald Loyalty Point",
-    network: "AGD Network",
-    symbol: "MDP",
-    balance: 5000,
-    uriImg: MDP,
-    address: "0x1234567890",
-  },
-  {
-    name: "Walmart Loyalty Point",
-    network: "MBC Network",
-    symbol: "WMP",
-    balance: 3000,
-    uriImg: WMP,
-    address: "0x1234567890",
-  },
-  {
-    name: "Singapore Airlines Loyalty Point",
-    network: "MBC Network",
-    symbol: "SAP",
-    balance: 1000,
-    uriImg: SAP,
-    address: "0x1234567890",
-  },
-];
 
 interface ISelectTokenProps {
   closeFunction: () => void;
   onClickSelect?: (token : any) => void;
   top_css?: string;
   right_css?: string;
+  isFiller?: boolean;
+  isCheckNetwork?: boolean;
 }
 
 const SelectToken = (props: ISelectTokenProps) => {
-  const tokenState = useAppSelector((state) => state.appState.tokens);
+  const appState = useAppSelector((state) => state.appState);
   const userState = useAppSelector((state) => state.userState);
-
 
   return (
     <div
@@ -90,10 +53,10 @@ const SelectToken = (props: ISelectTokenProps) => {
           loading
           size="large"
         />
-
-        <div>
-          {userState.wallet.map((item , index) => {
-            return (
+        {
+          appState.isConnectedWallet ?
+          <div>
+            {userState.wallet.map((item , index) => (
               <TokenItem
                 onClickItem={() => props.onClickSelect && props.onClickSelect(item)}
                 name={item.token.name}
@@ -103,25 +66,44 @@ const SelectToken = (props: ISelectTokenProps) => {
                 uriImg={item.token.image}
                 key={index}
               />
-            )
-          })}
-          
-          {
-            getTokenInOtherNetwork(tokenState, userState).map((item, index) => {
-                          return (
-              <TokenItem
-                onClickItem={() => alert("Switch network to Select Token")}
+            ))}
+            
+            {
+              getTokenInOtherNetwork(appState.tokens, userState).map((item, index) => (
+                <TokenItem
+                  onClickItem={() => {
+                    if(props.isCheckNetwork) alert("Switch network to Select Token")
+                    else {
+                       props.onClickSelect && props.onClickSelect({balance: 0, token:item})
+                    }
+                  }}
+                  name={item.name}
+                  network={mappingNetwork(item.network)}
+                  symbol={item.symbol}
+                  balance={"*"}
+                  uriImg={item.image}
+                  key={index}
+                />
+              ))
+            }
+          </div>
+          : 
+          <div>
+            {
+              appState.tokens.map((item, index) => (
+                <TokenItem
+                onClickItem={() => props.onClickSelect && props.onClickSelect(item)}
                 name={item.name}
                 network={mappingNetwork(item.network)}
                 symbol={item.symbol}
                 balance={"*"}
                 uriImg={item.image}
                 key={index}
-              />
-            )
-            })
-          }
-        </div>
+                />
+              ))
+            }
+          </div>
+        }
       </div>
     </div>
   );

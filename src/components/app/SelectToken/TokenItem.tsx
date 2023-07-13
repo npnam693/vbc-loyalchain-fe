@@ -30,9 +30,9 @@ export const TokenItem = (props: ITokenItemProps) => {
         <div>
           <p
             style={{
-              fontSize: "1.6rem",
+              fontSize: "1.4rem",
               fontWeight: 600,
-              color: "#333",
+              color: "black",
             }}
           >
             {props.name}
@@ -40,7 +40,7 @@ export const TokenItem = (props: ITokenItemProps) => {
 
           <p
             style={{
-              fontSize: "1.4rem",
+              fontSize: "1.2rem",
               fontWeight: 500,
               color: "rgba(0,0,0,0.4)",
             }}
@@ -54,7 +54,7 @@ export const TokenItem = (props: ITokenItemProps) => {
         style={{
           fontSize: "1.6rem",
           fontWeight: 700,
-          color: "rgba(0,0,0,0.7)",
+          color: "#169ccc",
         }}
       >
         {props.balance} {props.symbol}{" "}

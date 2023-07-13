@@ -9,12 +9,35 @@
         background-color: #ccc;
         color: black;
         font-weight: 500;
-        
+
+    }
+    .icon-clearfilter{
+        background-color: #ccc;
+        border-radius: 300px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-left: 10px
     }
     .all-filter{
         background-color: var(--color-secondary);
         color: var(--color-primary);
         font-weight: 500;
         margin-left: 0;
+    }
+}
+
+.pane-popover {
+    .pane-popover--item{
+        font-size: 1.4rem;
+        font-weight: 500;
+        padding: 4px 10px;
+        cursor: pointer;
+        &:hover {
+            background-color: var(--color-hover);
+        }
     }
 }

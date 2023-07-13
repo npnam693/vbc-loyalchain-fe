@@ -11,7 +11,7 @@ import i18next from "./translation/index";
 import AppLayout from "./layouts";
 import 'react-toastify/dist/ReactToastify.css';
 import LoadingPage from "./components/app/LoadingPage";
- 
+import ModalPage from "./components/app/ModalPage";
 const queryClient = new QueryClient();
 
 
@@ -24,6 +24,7 @@ function App() {
           <I18nextProvider i18n={i18next}>
             <QueryClientProvider client={queryClient}>
               <LoadingPage />
+              <ModalPage />
               <AppLayout>
                 <RouterList />
               </AppLayout>
@@ -32,6 +33,8 @@ function App() {
         </BrowserRouter>
       </PersistGate>
       <ToastContainer position={toast.POSITION.BOTTOM_LEFT} />
+
+
     </Provider>
   );
 }
