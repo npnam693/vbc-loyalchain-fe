@@ -14,6 +14,7 @@ import { FloatButton, Popover } from 'antd';
 import appApi from "../api/appAPI";
 import { CheckCircleTwoTone, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
 import { openTaskModel } from "../state/task/taskSlice";
+import PairToken from "../components/app/PairToken";
 const Layout = ({ children }: LayoutProps) => {
   const particlesInit = useCallback(async (engine: Engine) => {
     // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
@@ -46,7 +47,7 @@ const Layout = ({ children }: LayoutProps) => {
   
   const contentTaskPopover = () => {
     return (
-      <div style={{maxHeight: 300, minWidth: 400, overflow: 'scroll', cursor: 'pointer'}}>
+      <div style={{height: 300, minWidth: 400, overflow: 'scroll', cursor: 'pointer'}}>
         {
           taskState.taskList.map((task, index) => {
             return (
@@ -89,8 +90,11 @@ const Layout = ({ children }: LayoutProps) => {
                         <img src={task.token ? task.token.image : 'token'} alt={""} style={{height: 30}}/>
                       </div>
                     :
-                      <div>
-                      </div>
+                      <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
+                        <p style={{fontWeight: 500, marginRight: -10}}>{task.amountFrom} {task.tokenFrom.symbol}</p>
+                        <PairToken from_img={task.tokenFrom.image} to_img={task.tokenTo.image} width={30}/>
+                        <p style={{fontWeight: 500, marginLeft: -10}}>{task.amountTo} {task.tokenTo.symbol}</p>
+                    </div>
                   }
                 </div>
 

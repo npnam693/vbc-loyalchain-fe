@@ -6,7 +6,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
         - Transfer Token: TRANSFER
 
     STATUS:
-        - -1: Fail
+        - -2: Fail Send
+        - -1: Fail Approve
         - 0: Pending
         - 1?: Approve Token
         - 2: Send Token

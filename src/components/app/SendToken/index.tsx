@@ -168,7 +168,7 @@ const SendToken = (props : ISendToken) => {
             >
                 <Steps
                     size="default"
-                    style={{width: 400, margin: 'auto', marginTop: 20, marginBottom: 20}}
+                    style={{width: 400, margin: 'auto', marginTop: 40, marginBottom: 30}}
                     items={[
                         idTask !== -1 ? {
                             title: 'Send Token',
