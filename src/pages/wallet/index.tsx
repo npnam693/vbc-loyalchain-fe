@@ -8,12 +8,17 @@ import {History, Reward, Token} from "./helper";
 import { CopyOutlined } from "@ant-design/icons";
 import appApi from "../../api/appAPI";
 import { join } from "path";
+import { toast } from "react-toastify";
 interface IForm {
   token: string;
   amount: number;
   to: string;
 }
 enum WalletPage { TOKEN, REWARD, HISTORY }
+const handleAddressClick = (address: string) => {
+  navigator.clipboard.writeText(address);
+  toast("Coppy address success")
+};
 
 const Wallet = () => {
   const [page, setPage] = useState<WalletPage>(WalletPage.TOKEN);
@@ -42,9 +47,12 @@ const Wallet = () => {
       <div className="content">
         <div className="content--left">
           <p className="title">My Wallet</p>
-          <div className="account-info">Your address: 
+          
+
+          <div className="account-info">Your address: <CopyOutlined rev={""} className="copy-icon"
+            onClick={() => handleAddressClick(userState.address)}
+          /> 
             <p>{userState.address}
-              <CopyOutlined rev={""} className="copy-icon"/> 
             </p>
           </div>
           <div className="account-info">

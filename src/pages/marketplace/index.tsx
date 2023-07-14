@@ -19,9 +19,6 @@ enum NETWORK {
   CROSS = "CROSS",
 }
 
-
-
-
 interface IFilterData {
   network: string,
   from: any,

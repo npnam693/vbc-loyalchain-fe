@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { DownOutlined, LoadingOutlined, SwapOutlined } from "@ant-design/icons";
+import { DownOutlined, LoadingOutlined, SwapOutlined, WarningOutlined } from "@ant-design/icons";
 import { Button, Divider, InputNumber, Modal, Steps } from "antd";
 import { v4 as uuidv4 } from 'uuid';
-import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify'
 
 import "./CreateOrder.scss";
@@ -17,7 +16,6 @@ import { getBalanceAccount, mappingNetwork } from "../../utils/blockchain";
 import { saveInfo } from "../../state/user/userSlice";
 import {MBC_EXCHANGE_ADDRESS} from '../../constants/contracts'
 import TokenContract from '../../contract/Token/data.json'
-import { saveModal } from "../../state/modal/modalSlice";
 import { ICreateTask, createTask, updateTask } from "../../state/task/taskSlice";
 
 
@@ -36,13 +34,12 @@ export default function CreateOrder() {
   const taskState = useAppSelector((state) => state.taskState)
   
   const dispatch = useAppDispatch()
-  const navigate = useNavigate()
   
   const [formData, setFormData] = useState<IFormData>({
     from: '',
     from_amount: 0,
     to: '',
-    to_amount: 10,
+    to_amount: 0,
     timelock: 0,
   });
   const [openModal, setOpenModal] = useState<boolean>(false)
@@ -86,7 +83,6 @@ export default function CreateOrder() {
     }
     setOpenModal(true)
   }
-
 
 
   const onConfirmCreate = async () => {
@@ -171,21 +167,6 @@ export default function CreateOrder() {
         }, 
         id: transferTask.id
       }))
-
-      // dispatch(saveModal({
-      //   open: true,
-      //   titleModal: "Notification",
-      //   status: "success",
-      //   title: "Successfully Upload Order to Marketplace",
-      //   subtitle: `Order ID: ${orderData ? orderData.data._id : ""}`,
-      //   content:                     
-      //   <>
-      //     <p>Swap: {formData.from_amount}{formData.from.token.symbol} for {formData.to_amount}{formData.to.token.symbol}</p>
-      //     <p>Transaction hash: {reciptExchange.blockHash}</p>
-      //     <p>Time created: {orderData ? orderData.data.createdAt : ''}</p>
-      //   </>
-      // }))
-
     } catch (error) {
       alert(error)
       dispatch(updateTask({
@@ -213,8 +194,16 @@ export default function CreateOrder() {
 
   return (
     <div className="app-create">
-      <p className="title">Swap</p>
-      <p className="title--desc">Easy way to exchange your loyalty points</p>
+      <div style={{display: 'flex', flexDirection:'row', justifyContent:'space-between'}}>
+        <div>
+          <p className="title">Swap</p>
+          <p className="title--desc">Easy way to exchange your loyalty points</p>
+        </div>
+        <div>
+          <Button>One Chain</Button>
+          <Button>MultiChain</Button>
+        </div>
+      </div>
 
       <div className="content">
         <div className="form">
@@ -336,9 +325,14 @@ export default function CreateOrder() {
         <div className="info">
           <div className="average">
             <p className="info-title">Average exchange rate</p>
-            <div className="pair">
-              <PairToken from_img={formData.from !== '' ? formData.from.token.image : SBP} to_img={formData.to !== '' ? formData.to.token.image : SBP} />
-              <p className="average">{1.005}</p>
+            <div style={{minHeight: 40}}>
+            {
+              formData.from !== '' && formData.to !== '' &&  (
+                <div className="pair">
+                  <PairToken from_img={formData.from !== '' ? formData.from.token.image : SBP} to_img={formData.to !== '' ? formData.to.token.image : SBP} />
+                  <p className="average">{1.005}</p>
+                </div>)
+            }
             </div>
           </div>
 
@@ -351,7 +345,15 @@ export default function CreateOrder() {
           </div>
         </div>
       </div>
-
+      
+      <div>
+          <p style={{fontSize: '1.4rem', color:'orange'}}>
+            <WarningOutlined rev={""}/> {" "}
+            Warning: {" "}
+            <span style={{color: 'black'}}>Your exchange rate is higer than average. </span>
+          </p>
+          <p>Exchange Rate: 1.5 STB for 1 MCD</p>
+      </div>
       <Button
         type="primary"
         onClick={onClickCreate}
@@ -484,7 +486,6 @@ export default function CreateOrder() {
                   }</span>
               </p>
           </div>
-       
       </Modal>
       }
       </div>

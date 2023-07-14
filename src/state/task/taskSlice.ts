@@ -30,6 +30,8 @@ export interface ICreateTask {
     token?: any;
     amount?: number;
     recipient?: string;
+    owner?: string;
+
 }   
  
 export interface IAcceptTask {
@@ -68,6 +70,8 @@ export interface ITransferTask {
     amountTo?: number;
 
     recipient?: string;
+    owner?: string;
+
 }
 
 
