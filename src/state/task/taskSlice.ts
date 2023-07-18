@@ -4,13 +4,17 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
         - Create Order: CREATE
         - Accept Order: ACCEPT
         - Transfer Token: TRANSFER
+        
+        + Create Order: TWOCHAIN-CREATE
+        + Accept Order: TWOCHAIN-DEPOSIT
+        + Transfer Token: TWOCHAIN-WITHDRAW
 
     STATUS:
         - -2: Fail Send
         - -1: Fail Approve
         - 0: Pending
-        - 1?: Approve Token
-        - 2: Send Token
+        - 1?: Approve Token  // Check Balance
+        - 2: Send Token      // Save Order 
         - 3: Done
 */
 export interface ICreateTask {

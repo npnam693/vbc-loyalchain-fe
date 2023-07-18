@@ -3,7 +3,12 @@
     width: 320px;
     border-radius: 6px;
     background-color:#0B2134;
-    
+    box-shadow: rgba(136, 165, 191, 0.48) 1px 1px 3px 0px, rgba(255, 255, 255, 0.8) -1px -1px 3px 0px;
+
+    &:hover {
+        box-shadow: (var(--color-secondary)) 1px 1px 3px 0px, rgba(255, 255, 255, 0.8) -1px -1px 3px 0px;
+
+    }
     &--info {
         display: flex;
         flex-direction: row;
@@ -62,10 +67,14 @@
             border-radius: 4px;
         }
         &--btn {
-            font-size: 1.4rem;
-            cursor: pointer;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.8)
+            font-size: 1.6rem;
+            cursor: pointer;    
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+
+            &:hover {
+                color: rgba(21, 191, 253, 0.5);
+            }
         }
     }
 }

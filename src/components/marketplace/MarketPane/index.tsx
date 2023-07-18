@@ -7,26 +7,15 @@ interface IMarketPaneProps {
   openFilter: () => void;
   dataFilter: any;  
   toggleModeView: () => void;
-  funcNetwork?: (network: string) => void;
+  funcNetwork: (network: number) => void;
   funcSwapTo?: () => void;
   funcSwapFrom?: () => void;
   funcClearFilter?: () => void;
 }
 
 const MarketPane = (props: IMarketPaneProps) => {
-  const content = (
-    <div className="pane-popover">
-      <div className="pane-popover--item"
-        onClick={() => props.funcNetwork && props.funcNetwork("MBC")}
-      >MBC Network</div>
-      <div className="pane-popover--item"
-        onClick={() => props.funcNetwork && props.funcNetwork("AGD")}
-      >AGD Network</div>
-      <div className="pane-popover--item"
-        onClick={() => props.funcNetwork && props.funcNetwork("Cross")}
-      >Cross Network</div>
-    </div>
-  );
+  console.log('vcl', props.dataFilter)
+
   return (
     <div className="app-market--pane">
       <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
@@ -39,15 +28,39 @@ const MarketPane = (props: IMarketPaneProps) => {
           All Filters
         </Button>
         
-        <Popover placement="bottom" trigger="click" content={content}>
-          <Button type="primary" size="middle">
-            {
-              props.dataFilter.network === '' ? 'Network' :
-              props.dataFilter.network + ' Network'
-            }
+
+        <div>
+          <Button style={{margin: 0, borderRadius: 0, borderTopLeftRadius: 6, borderBottomLeftRadius: 6, 
+            backgroundColor: props.dataFilter.network === 4444 ? 'rgba(21, 191, 253, 0.5)' : '#ccc' }}
+            onClick={() => {
+              if (props.dataFilter.network === 4444)
+                props.funcNetwork(-1)
+              else props.funcNetwork(4444)
+            }}
+          >
+            MBC
           </Button>
-        </Popover>
-        
+
+          <Button style={{margin: 0, borderRadius: 0,
+            backgroundColor: props.dataFilter.network === 8888 ? 'rgba(21, 191, 253, 0.5)' : '#ccc' }}
+            onClick={() => {
+              if (props.dataFilter.network === 8888)
+                props.funcNetwork(-1)
+              else props.funcNetwork(8888)
+            }}>
+            AGD
+          </Button>
+
+          <Button style={{margin: 0, borderRadius: 0, borderTopRightRadius: 6, borderBottomRightRadius: 6,
+            backgroundColor: props.dataFilter.network === 0 ? 'rgba(21, 191, 253, 0.5)' : '#ccc' }}
+            onClick={() => {
+              if (props.dataFilter.network === 0)
+                props.funcNetwork(-1)
+              else props.funcNetwork(0)
+            }}          >
+            Cross Network
+          </Button>
+        </div>
         <Button type="primary" size="middle" onClick={props.funcSwapFrom} >
           {
             props.dataFilter.from !== '' ?

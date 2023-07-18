@@ -47,6 +47,13 @@ class AppAPI {
         return axios.get(url);
     } 
 
+    getStatisApp = () => {
+        if (LOYALCHAIN_API === undefined) return;
+        const url = LOYALCHAIN_API.concat("/transactions/general");
+        return axios.get(url);
+    }
+
+    // App State
     createOrder = (data: any) => {
         if (LOYALCHAIN_API === undefined) return;
         const url = LOYALCHAIN_API.concat("/transactions/create");

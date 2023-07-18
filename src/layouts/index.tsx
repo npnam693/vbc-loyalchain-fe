@@ -9,7 +9,7 @@ import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { saveTokens } from "../state/app/appSlice";
-import { FloatButton, Popover } from 'antd';
+import { Empty, FloatButton, Popover } from 'antd';
 
 import appApi from "../api/appAPI";
 import { CheckCircleTwoTone, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
@@ -41,7 +41,6 @@ const Layout = ({ children }: LayoutProps) => {
           dispatch(saveTokens(tokens.data));
         }
       }
-
     fetchTokens()
   }, [])    
   
@@ -49,6 +48,8 @@ const Layout = ({ children }: LayoutProps) => {
     return (
       <div style={{height: 300, minWidth: 400, overflow: 'scroll', cursor: 'pointer'}}>
         {
+          taskState.taskList.length === 0 ?
+          <Empty /> :
           taskState.taskList.map((task, index) => {
             return (
               <div key={index} style={{ 

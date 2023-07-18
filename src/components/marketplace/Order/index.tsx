@@ -1,21 +1,20 @@
 import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
 import { Divider, Modal, Steps } from "antd";
-import ExchangeContract from "../../../contract/Exchange/data.json";
-import TokenContract from "../../../contract/Token/data.json";
-import "./Order.scss";
-import { useAppSelector } from "../../../state/hooks";
-import appApi from "../../../api/appAPI";
-import { useAppDispatch } from "../../../state/hooks";
-import { getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
 import { toast } from "react-toastify";
-import { saveInfo } from "../../../state/user/userSlice";
-import { MBC_EXCHANGE_ADDRESS } from "../../../constants/contracts";
 import { useState } from "react";
+
+import "./Order.scss";
+import appApi from "../../../api/appAPI";
 import PairToken from "../../app/PairToken";
+import { useAppSelector } from "../../../state/hooks";
+import { useAppDispatch } from "../../../state/hooks";
+import { saveInfo } from "../../../state/user/userSlice";
 import { IAcceptTask, createTask, updateTask } from "../../../state/task/taskSlice";
+import { getSwapOneContract, getTokenContract } from "../../../services/contract";
+import { getAddressOneChainContract, getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
+
 const Order = (props : any) => {
   const dispatch = useAppDispatch()
-
   const web3State = useAppSelector((state) => state.appState.web3)
   const tokenState = useAppSelector((state) => state.appState.tokens)
   const userState = useAppSelector((state) => state.userState)
@@ -30,7 +29,7 @@ const Order = (props : any) => {
   
   
   const onConfirmAccept = async () => {
-    const acceptTask : IAcceptTask = {
+    let acceptTask : IAcceptTask = {
       id: taskState.taskList.length,
       type: "ACCEPT",
       status: 1,
@@ -41,28 +40,24 @@ const Order = (props : any) => {
       orderID: props.data._id,
       owner: props.data.from.address
     }
-
+    const toaster = toast.loading("Approving token...")
+    dispatch(createTask(acceptTask))
+    setIdTask(acceptTask.id)
     try {
-      const exchangeContract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
-      const tokenContract = new web3State.eth.Contract(TokenContract.abi, props.data.toValue.token.deployedAddress)
-
-      dispatch(createTask(acceptTask))
-      setIdTask(acceptTask.id)
-
-      const toaster = toast.loading("Approving token...")
+      const exchangeContract = getSwapOneContract(web3State, userState.network);
+      const tokenContract = getTokenContract(web3State, props.data.toValue.token.deployedAddress)
+      const SWAP_ADDRESS_CONTRACT = getAddressOneChainContract(userState.network)
+      
       const approveRecipt = await tokenContract.methods.approve(
-        MBC_EXCHANGE_ADDRESS,
+        SWAP_ADDRESS_CONTRACT,
         BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
       ).send({from: userState.address})
 
+      acceptTask = {...acceptTask, status: 2}
       dispatch(updateTask({
-        task: {
-            ...acceptTask, 
-            status: 2,
-        }, 
+        task: acceptTask, 
         id: acceptTask.id
       }))
-
 
       toast.update(toaster, { render: "Buying token...", type: "default", isLoading: true});
       const acceptExchangeMethod = exchangeContract.methods.acceptTx(
@@ -75,52 +70,35 @@ const Order = (props : any) => {
           from: userState.address,
           data: acceptExchangeMethod.encodeABI()
         }),
-        to: MBC_EXCHANGE_ADDRESS,
+        to: SWAP_ADDRESS_CONTRACT,
         value: "0",
         data: acceptExchangeMethod.encodeABI(),
       })
+
       const orderData = await appApi.acceptOder(props.data._id, props.data.txIdFrom )
-
-
+      
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
-
+      
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
-
-      // dispatch(saveModal({
-      //   open: false,
-      //   titleModal: "Notification",
-      //   status: "success",
-      //   title: "Successfully Accept Order",
-      //   subtitle: `Order ID: ${orderData ? orderData.data._id : ""}`,
-      //   content:                     
-      //   <>
-      //     <p>Swap: {props.data.toValue.amount}{props.data.toValue.token.symbol} for {props.data.fromValue.amount}{props.data.fromValue.token.symbol}</p>
-      //     <p>Transaction hash: {exchangeRecepit.blockHash}</p>
-      //     <p>Time created: {orderData ? orderData.data.createdAt : ''}</p>
-      //   </>
-      // }))
-
+      
+      acceptTask = {...acceptTask, status: 3, transactionHash: exchangeRecepit.blockHash}
       dispatch(updateTask({
-        task: {
-            ...acceptTask, 
-            status: 3,
-            transactionHash: exchangeRecepit.blockHash,
-        }, 
+        task: acceptTask, 
         id: acceptTask.id
       }))
 
     } catch (error) {
-      alert(error);
+      console.log(error);
       dispatch(updateTask({
         task: {
             ...acceptTask, 
-            status: -1,
+            status: acceptTask.status === 1 ? -1 : -2 ,
         }, 
-        id: getTask(idTask).status === 1 ? -1 : -2 
+        id: acceptTask.id
       }))
+      toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
     }
   }
-  
 
   return (
     <div className="app-order" style={{marginBottom: 20}}>
@@ -145,11 +123,13 @@ const Order = (props : any) => {
       </div>
 
       <div style={{fontSize: '1.2rem', color:'rgba(255,255,255,0.8)', fontWeight: 500}}>
-        <div style={{display: 'flex', flexDirection:'row', justifyContent:'space-between'}}>
-          <p >ID: <span>#64363212</span></p>
+        <div style={{display: 'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'flex-end'}}>
+          <div>
+          <p>ID: <span>#{props.data._id.slice(0,4)}...{props.data._id.slice(-5)}</span></p>
           <p>MBC Network</p>
+          </div>
+          <p>Exchange rate: 0.01</p>
         </div>
-        <p>Exchange rate: 0.01</p>
       </div>
 
 

@@ -18,7 +18,7 @@ const signatureLogin = async (web3: any, userAddress: string) : Promise<string> 
     return await web3.eth.personal.sign(SIGN_MESSAGE, userAddress, "");
 };
 
-const hdConnectWallet = async (dispatch : any, appState: any, userState : IUserState) => {
+export const hdConnectWallet = async (dispatch : any, appState: any, userState : IUserState) => {
     if (typeof window.ethereum !== "undefined") {
         const toastify = toast.loading("Connecting to wallet...")
         const myWeb3 = new Web3(window.ethereum);
@@ -121,11 +121,6 @@ const hdNetworkChange = async (dispatch : any, appState: any, userState: any) =>
     toast.update(toastify, { render: "Change network successful!", type: "success", isLoading: false, autoClose: 1000});
 }
 
-
-
-
-
-
 const ConnectWallet = () => {
     const dispatch = useAppDispatch();
     const userState = useAppSelector((state) => state.userState);
@@ -197,7 +192,6 @@ const ConnectWallet = () => {
                         {shortenAddress(userState.address)}
                     </Button>
                 </div>
-                {/* <Button onClick={Deploycontract}>deploy</Button> */}
             </Popover>
         );
     } else {

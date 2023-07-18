@@ -3,74 +3,79 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Divider, Button, Slider, Drawer, Modal, InputNumber, Radio } from "antd";
 
+
 import "./Marketplace.scss";
+import appApi from "../../api/appAPI";
 import Order from "../../components/marketplace/Order";
+import { IUserState } from "../../state/user/userSlice";
 import SelectToken from "../../components/app/SelectToken";
-import MarketPane from "../../components/marketplace/MarketPane";
 import TableOrder from "../../components/marketplace/TableOrder";
+import MarketPane from "../../components/marketplace/MarketPane";
+import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import StatisticItem from "../../components/marketplace/StatisticItem";
 import { CloseCircleOutlined, UploadOutlined } from "@ant-design/icons";
-import appApi from "../../api/appAPI";
-import { useAppSelector } from "../../state/hooks";
-
+import { hdConnectWallet } from "../../layouts/components/header/helper/ConnectWallet";
 interface IFilterData {
-  network: string,
+  network: number,
   from: any,
   to: any,
   amountFrom:  [number, number],
   amountTo:  [number, number],
 } 
 const filterRawData : IFilterData = {
-  network: "",
+  network: -1,
   from: "",
   to: "",
   amountFrom: [0, 10000],
   amountTo: [0, 10000],
 };
-export const showConfirmConnectWallet = () => {
+const titleStatistic = [
+  {
+    title: "Total Transaction",
+    note: ""
+  },
+  {
+    title: "Transaction",
+    note: "24h"
+  },
+  {
+    title: "Amount Order",
+    note: "now"
+  }
+]
+export const showConfirmConnectWallet = (dispatch : any, appState: any, userState : IUserState) => {
   Modal.confirm({
     title: 'You need to connect a wallet to create order!',
     okText: 'Connect Wallet',
     cancelText: 'Cancel ',
     onOk() {
-      console.log('OK');
+      hdConnectWallet(dispatch, appState, userState);
     },
     onCancel() {
       console.log('Cancel');
     },
   })
 };
+
 const Marketplace = () => {
   const [isListMode, setIsListMode] = useState(false);
+  const [data, setData] = useState([])
+  const [statis, setStatic] = useState([0, 0, 0])
   const [selectState, setSelectState] = useState({
     selectFrom: false,
     selectTo: false
   });
-  const [data, setData] = useState([])
   const [filter, setFilter] = useState({
     open: false,
     isFilterMode: true,
     filterData: filterRawData,
   });
   const appState = useAppSelector((state) => state.appState)
+  const userState = useAppSelector((state) => state.userState)
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
-  console.log(filter)
-
-
   useEffect(() => {
-    // if (filter.filterData.network !== "") {
-
-    // } else if (filter.filterData.from !== "") {
-
-    // } else if (filter.filterData.to !== "") {
-
-    // } else if (filter.filterData.amountFrom[0] !== 0 && filter.filterData.amountFrom[1] !== 1000) {
-
-    // } else if (filter.filterData.amountTo[0] !== 0 && filter.filterData.amountTo[1] !== 1000) {
-      
-    // }
-
     const fetchFilterOrder = async () => {
       const filterData = {
         // network: filter.filterData.network,
@@ -80,23 +85,24 @@ const Marketplace = () => {
         fromValueDown: filter.filterData.amountFrom[0],
         toValueUp: filter.filterData.amountFrom[1],
         toValueDown: filter.filterData.amountFrom[0],
+        network: filter.filterData.network === -1 ? null : filter.filterData.network ,
       }
       const tdata = await appApi.getOrdersWithFilter({...filterData})
       if(tdata) setData(tdata.data)
       console.log(filter.filterData)
-    }
-    
-    const fetchAllOrder = async () => {
+    } 
 
+    const fetchStatic = async () => {
+      const res = await appApi.getStatisApp()
+      if(res) setStatic([res.data.total, res.data.total24h, res.data.totalNow])
+      console.log(res)
     }
 
-    console.log('dcccccccccccccccm')
+    fetchStatic()
     fetchFilterOrder()
   }, [filter.filterData])
 
   const toggleModeView = () => { setIsListMode(!isListMode) };
-  
-  
   const openFilter = () => {
     setFilter({
       open: true,
@@ -110,15 +116,9 @@ const Marketplace = () => {
 
   const closeSelectToken = () => {setSelectState({selectFrom: false, selectTo: false}) };
 
-
-
-
-  const setFilterNetwork = (network: string) => {
+  const setFilterNetwork = (network: number) => {
     setFilter({ ...filter, filterData: { ...filter.filterData, network } });
   }
-
-
-
   return (
     <div className="app-market">
       <Drawer
@@ -318,17 +318,17 @@ const Marketplace = () => {
                   <p className="item--title">Network</p>
                   <div className="item--amount" style={{marginLeft:90}}>
                     <Radio.Group defaultValue={() => {
-                      if (filter.filterData.network === 'MBC')
+                      if (filter.filterData.network === 4444)
                         return 'a'
-                      else if (filter.filterData.network === 'AGD')
+                      else if (filter.filterData.network === 8888)
                         return 'b'
-                      else if (filter.filterData.network === 'Cross')
+                      else if (filter.filterData.network === 0)
                         return 'c'
                       else return ''
                     }} size="middle" >
-                      <Radio.Button value="a" onClick={() => setFilter({...filter, filterData: {...filter.filterData, network: "MBC"}})}>MBC Network</Radio.Button>
-                      <Radio.Button value="b" onClick={() => setFilter({...filter, filterData: {...filter.filterData, network: "AGD"}})}>AGD Network</Radio.Button>
-                      <Radio.Button value="c" onClick={() => setFilter({...filter, filterData: {...filter.filterData, network: "Cross"}})}>Cross Network</Radio.Button>
+                      <Radio.Button value="a" onClick={() => {if (filter.filterData.network === 4444) setFilterNetwork(-1); else setFilterNetwork(4444) }}>MBC Network</Radio.Button>
+                      <Radio.Button value="b" onClick={() => {if (filter.filterData.network === 8888) setFilterNetwork(-1); else setFilterNetwork(8888) }}>AGD Network</Radio.Button>
+                      <Radio.Button value="c" onClick={() => {if (filter.filterData.network === 0) setFilterNetwork(-1); else setFilterNetwork(0) }}>Cross Network</Radio.Button>
                     </Radio.Group>
                   </div>
                 </div>
@@ -374,13 +374,23 @@ const Marketplace = () => {
       <p className="title">Marketplace</p>
       <div className="header">
         <div className="statistic-list">
-          <StatisticItem title="Amount Order" note="total" value={102101}/>
+          {
+            statis.map((value, index) => (
+              <StatisticItem title={titleStatistic[index].title} note={titleStatistic[index].note} value={Number(value) * 100}/>
+            ))
+          }
         </div>
-
-        <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('create') : showConfirmConnectWallet}>
+        
+        <div style={{display: 'flex', flexDirection:'column', justifyContent: 'space-between'}}>
+        <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('create') : () => showConfirmConnectWallet(dispatch, appState, userState)}>
+          My Order
+        </Button>
+        <Button className="btn-create" style={{marginTop: 20}}
+          onClick={appState.isConnectedWallet ? () => navigate('create') : () => showConfirmConnectWallet(dispatch, appState, userState)}>
           <UploadOutlined rev={""} style={{fontSize:'2.2rem'}}/>
           Create Order
         </Button>
+        </div>
       </div>
       
       <MarketPane

@@ -1,17 +1,16 @@
 import { useState } from 'react'
-import { Button, Divider, Input, InputNumber, Modal, Result, Steps } from 'antd'
+import { toast } from 'react-toastify'
+import { Button, Divider, Input, InputNumber, Modal, Steps } from 'antd'
+import { CloseCircleOutlined, LoadingOutlined, RightSquareTwoTone } from '@ant-design/icons'
 
 import './SendToken.scss'
-import { useAppSelector } from '../../../state/hooks'
-import { CloseCircleOutlined, LoadingOutlined, RightSquareTwoTone } from '@ant-design/icons'
-import contractToken from '../../../contract/Token/data.json'
-import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
-import { useAppDispatch } from '../../../state/hooks'
-import { saveInfo } from '../../../state/user/userSlice'
-import { showConfirmConnectWallet } from '../../../pages/marketplace'
-import { ITransferTask, createTask, doneOneTask, updateTask } from '../../../state/task/taskSlice'
 import appApi from '../../../api/appAPI'
-import { toast } from 'react-toastify'
+import { saveInfo } from '../../../state/user/userSlice'
+import { getTokenContract } from '../../../services/contract'
+import { showConfirmConnectWallet } from '../../../pages/marketplace'
+import { useAppDispatch, useAppSelector } from '../../../state/hooks'
+import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
+import { ITransferTask, createTask, doneOneTask, updateTask } from '../../../state/task/taskSlice'
 
 interface ISendToken {
     token?: any;
@@ -25,18 +24,21 @@ const SendToken = (props : ISendToken) => {
     const appState = useAppSelector((state) => state.appState); 
     const taskState = useAppSelector(state => state.taskState)
 
-    
     const [openModal, setOpenModal] = useState(false)
     const [formData, setFormData] = useState({
         token: {},
         amount: 0,
         to: "",
     })
-    
     const [idTask, setIdTask] = useState(-1)
     
 
     const submitSendToken = async () => {
+        if (!appState.isConnectedWallet) {
+            showConfirmConnectWallet(dispatch, appState, userState)
+            return
+        }
+        const toaster = toast.loading("Transfering token...")
         const transferTask : ITransferTask = {
             id: taskState.taskList.length,
             type: "TRANSFER",
@@ -45,27 +47,20 @@ const SendToken = (props : ISendToken) => {
             amount: formData.amount,
             recipient: formData.to,
         }
-        if (!appState.isConnectedWallet) {
-            showConfirmConnectWallet()
-            return
-        }
+
+        dispatch(createTask(transferTask))
+        setIdTask(transferTask.id)
+        
         try {
-            toast("Transfering Token...")
-            dispatch(createTask(transferTask))
-            setIdTask(transferTask.id)
-            const contractABI = contractToken.abi; // ABI của hợp đồng bạn muốn chuyển đổi token
-            const contractAddress = props.token.token.deployedAddress;
-            const contract = new appState.web3.eth.Contract(contractABI, contractAddress);
-            const decimal = await contract.methods.decimals().call({
-                from: userState.address,
-            });
+            const tokenContract = getTokenContract(appState.web3, props.token.token.deployedAddress)
+
+            const decimal = await tokenContract.methods.decimals().call({from: userState.address});
             const amount: BigInt = BigInt(10 ** Number(decimal) * formData.amount); // Số lượng token bạn muốn chuyển (1 token = 10^18 wei)
-            
-            const myReceipt = await contract.methods.transfer(formData.to, amount).send({
+            const myReceipt = await tokenContract.methods.transfer(formData.to, amount).send({
                 from: userState.address,
-                gas: await contract.methods.transfer(formData.to, amount).estimateGas({
+                gas: await tokenContract.methods.transfer(formData.to, amount).estimateGas({
                   from: userState.address,
-                  data: contract.methods.transfer(formData.to, amount).encodeABI(),
+                  data: tokenContract.methods.transfer(formData.to, amount).encodeABI(),
                 }),
                 gasPrice: "0"
             });
@@ -88,7 +83,7 @@ const SendToken = (props : ISendToken) => {
                 id: transferTask.id
             }))
             dispatch(doneOneTask())
-            toast.success("Transfer Token successfully!")
+            toast.update(toaster, { render: "Transfer Token successfully!", type: "success", isLoading: false, autoClose: 1000});
         } catch (error) {
             console.log(error)
             dispatch(updateTask({
@@ -99,7 +94,7 @@ const SendToken = (props : ISendToken) => {
                 id: transferTask.id
             }))
             dispatch(doneOneTask())
-            toast.error("Transfer Token Failed!")
+            toast.update(toaster, { render: "Transfer Token fail!", type: "error", isLoading: false, autoClose: 1000});
         }
     }
      
@@ -152,16 +147,12 @@ const SendToken = (props : ISendToken) => {
             <Modal
                 title="Transfer Token"
                 open={openModal}
-                
                 onOk={idTask === -1 ? submitSendToken : () => {setOpenModal(false);  setIdTask(-1)}}
                 okText= {idTask === -1 ? "Confirm" : 'OK'}
-
                 cancelText="Cancel"
                 onCancel={() => {setOpenModal(false); setIdTask(-1)}}
-
                 width={700}
                 style={{top: 200}}
-                
                 closable={true}
             >
                 <Steps
