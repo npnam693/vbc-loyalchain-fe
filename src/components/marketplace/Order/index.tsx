@@ -28,7 +28,6 @@ const Order = (props : any) => {
     return taskState.taskList[taskState.taskList.length - 1 - id]
   }
   
-  console.log(props)
   
   const onConfirmAccept = async () => {
     const acceptTask : IAcceptTask = {
@@ -55,7 +54,6 @@ const Order = (props : any) => {
         MBC_EXCHANGE_ADDRESS,
         BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
       ).send({from: userState.address})
-      console.log(approveRecipt)
 
       dispatch(updateTask({
         task: {
@@ -81,7 +79,6 @@ const Order = (props : any) => {
         value: "0",
         data: acceptExchangeMethod.encodeABI(),
       })
-      console.log(exchangeRecepit)
       const orderData = await appApi.acceptOder(props.data._id, props.data.txIdFrom )
 
 
@@ -129,10 +126,10 @@ const Order = (props : any) => {
     <div className="app-order" style={{marginBottom: 20}}>
       <div className="app-order--info">
         <div className="app-order--info--token">
-          <img src={props.data.toValue.token.image} alt="StarBuck" />
+          <img src={props.data.toValue.token.image} alt="StarBuck" width={60} />
           <div>
-            <p className="quantity">{props.data.toValue.amount}</p>
-            <p className="symbol">{props.data.toValue.token.symbol}</p>
+            <p className="quantity">{props.data.toValue.amount} <span className="symbol">{props.data.toValue.token.symbol}</span></p>
+            
           </div>
         </div>
       
@@ -140,83 +137,33 @@ const Order = (props : any) => {
           <SwapOutlined rev={""} className="icon" />
         </div>
         <div className="app-order--info--token">
-          <img src={props.data.fromValue.token.image} alt="StarBuck" />
+          <img src={props.data.fromValue.token.image} alt="Token" width={60} />
           <div>
-            <p className="quantity">{props.data.fromValue.amount}</p>
-            <p className="symbol">{props.data.fromValue.token.symbol}</p>
+            <p className="quantity">{props.data.fromValue.amount} <span className="symbol">{props.data.fromValue.token.symbol}</span></p>
           </div>
         </div>
       </div>
 
+      <div style={{fontSize: '1.2rem', color:'rgba(255,255,255,0.8)', fontWeight: 500}}>
+        <div style={{display: 'flex', flexDirection:'row', justifyContent:'space-between'}}>
+          <p >ID: <span>#64363212</span></p>
+          <p>MBC Network</p>
+        </div>
+        <p>Exchange rate: 0.01</p>
+      </div>
 
-      <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+
+      <Divider style={{ marginTop: 6 , marginBottom: 6, borderColor: '#333' }} />
       
       <div className="app-order--action">
-        <div className="app-order--action--time_left">3h 50m 2s left</div>
+          {
+            props.data.fromValue.network === props.data.toValue.network ? <div></div> :
+            <div className="app-order--action--time_left">3h 50m 2s left</div>
+          }
           <div className="app-order--action--btn" onClick={() => setOpenModal(true)}>Buy</div>
       </div>
 
-      {/* <Modal
-            title= {`Accept Order: `}
-            open={openModal}
-            onOk={approveAndBuyOrder}
-            okText="Approve & Buy"
-            width={900}
-            style={{
-              top: 200,
-            }}
-            closable={true}
-            afterClose={() => {setOpenModal(false)}}
-            cancelText="Approve"
-            onCancel={() => {}}
-        >
-          <p>Order ID: {props.data._id}</p>
-          <p>Owner: {props.data.from.address}</p>
-          <p>Create At: {props.data.createdAt}</p>
-
-          <Steps
-              size="default"
-              style={{width: 600, margin: 'auto', marginTop: 20, marginBottom: 20}}
-              items={[
-                {
-                  title: 'Approve Token',
-                  status: 'finish',
-                },
-                {
-                  title: 'Send Token',
-                  status: 'process',
-                  icon: <LoadingOutlined  rev={""}/>,
-                },
-                {
-                  title: 'Done',
-                  status: 'wait',
-                },
-              ]}
-            />
-
-            <div className="app-order--info">
-                    <div className="app-order--info--token">
-                      <img src={props.data.toValue.token.image} alt="StarBuck" />
-                      <div>
-                        <p className="quantity">{props.data.toValue.amount}</p>
-                        <p className="symbol">{props.data.toValue.token.symbol}</p>
-                      </div>
-                    </div>
-                  
-                    <div className="icon-container">
-                      <SwapOutlined rev={""} className="icon" />
-                    </div>
-                    <div className="app-order--info--token">
-                      <img src={props.data.fromValue.token.image} alt="StarBuck" />
-                      <div>
-                        <p className="quantity">{props.data.fromValue.amount}</p>
-                        <p className="symbol">{props.data.fromValue.token.symbol}</p>
-                      </div>
-                    </div>
-                  </div>
-        </Modal> */}
-        
-        <Modal
+      <Modal
           title="Accept Order"
           open={openModal}
           
@@ -319,8 +266,6 @@ const Order = (props : any) => {
               </p>
           </div>
       </Modal>
-        
-        
     </div>
   );
 };

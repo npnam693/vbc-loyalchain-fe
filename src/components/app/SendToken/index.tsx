@@ -13,8 +13,6 @@ import { ITransferTask, createTask, doneOneTask, updateTask } from '../../../sta
 import appApi from '../../../api/appAPI'
 import { toast } from 'react-toastify'
 
-
-
 interface ISendToken {
     token?: any;
     onCloseBtn: () => void

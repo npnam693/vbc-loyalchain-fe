@@ -3,7 +3,6 @@ import { DownOutlined, LoadingOutlined, SwapOutlined, WarningOutlined } from "@a
 import { Button, Divider, InputNumber, Modal, Steps } from "antd";
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'react-toastify'
-
 import "./CreateOrder.scss";
 import SBP from "../../assets/svg/tokens/starbuck.svg";
 import PairToken from "../../components/app/PairToken";
@@ -27,6 +26,9 @@ interface IFormData {
   timelock: number;
 }
 
+
+
+
 export default function CreateOrder() {
   const web3State = useAppSelector((state) => state.appState.web3)
   const tokenState = useAppSelector((state) => state.appState.tokens)
@@ -34,7 +36,7 @@ export default function CreateOrder() {
   const taskState = useAppSelector((state) => state.taskState)
   
   const dispatch = useAppDispatch()
-  
+ 
   const [formData, setFormData] = useState<IFormData>({
     from: '',
     from_amount: 0,
@@ -46,8 +48,8 @@ export default function CreateOrder() {
   const [selectingTokenFrom, setSelectingTokenFrom] = useState<boolean>(false);
   const [selectingTokenTo, setSelectingTokenTo] = useState<boolean>(false);
   const [idTask, setIdTask] = useState(-1);
-
-
+  const [isOneChain, setIsOneChain] = useState<boolean>(true);
+  const [rate, setRate] = useState('0.000')
   const hdClickSwap = () => {
     const newData: IFormData = {
       from: formData.to,
@@ -57,6 +59,7 @@ export default function CreateOrder() {
       timelock: formData.timelock,
     };
     setFormData(newData);
+    countExchangeRateForm()
   };
   
 
@@ -98,8 +101,8 @@ export default function CreateOrder() {
       amountTo: formData.to_amount,
     }
 
+    const id = toast.loading("Approving token...")
     try {
-      const id = toast.loading("Approving token...")
       
       const exchangeContract = new web3State.eth.Contract(ExchangeContract.abi, MBC_EXCHANGE_ADDRESS);
       const tokenContract = new web3State.eth.Contract(TokenContract.abi, formData.from.token.deployedAddress)
@@ -150,8 +153,8 @@ export default function CreateOrder() {
         toValue: formData.to_amount,
         toTokenId: formData.to.token._id,
         timelock: 24,
-        hashlock: 'LoyalChain',
-        txIdFrom: orderId
+        txId: orderId
+        // hashlock: 'LoyalChain',
       })
     
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState) }))
@@ -169,6 +172,7 @@ export default function CreateOrder() {
       }))
     } catch (error) {
       alert(error)
+      toast.update(id, { render: "The order was created fail.", type: "error", isLoading: false, autoClose: 1000});
       dispatch(updateTask({
         task: {
             ...transferTask, 
@@ -192,6 +196,14 @@ export default function CreateOrder() {
     return taskState.taskList[taskState.taskList.length - 1 - id]
   }
 
+
+  const countExchangeRateForm = async () => {
+    console.log('vcl')
+    const res = await appApi.getExchangeRate({tokenId1: formData.from.token._id, tokenId2: formData.to.token._id})
+    setRate(String(res?.data))
+  } 
+
+
   return (
     <div className="app-create">
       <div style={{display: 'flex', flexDirection:'row', justifyContent:'space-between'}}>
@@ -200,8 +212,16 @@ export default function CreateOrder() {
           <p className="title--desc">Easy way to exchange your loyalty points</p>
         </div>
         <div>
-          <Button>One Chain</Button>
-          <Button>MultiChain</Button>
+          <Button style={isOneChain ? {backgroundColor: "#597ef7"} : {}}
+            onClick={() => setIsOneChain(true)}
+          >
+            One Chain
+          </Button>
+
+          <Button 
+            style={{marginLeft: 10, backgroundColor: !isOneChain ? "#9254de" : "white"}}
+            onClick={() => setIsOneChain(false)}
+          >Cross Chain</Button>
         </div>
       </div>
 
@@ -327,32 +347,44 @@ export default function CreateOrder() {
             <p className="info-title">Average exchange rate</p>
             <div style={{minHeight: 40}}>
             {
-              formData.from !== '' && formData.to !== '' &&  (
                 <div className="pair">
-                  <PairToken from_img={formData.from !== '' ? formData.from.token.image : SBP} to_img={formData.to !== '' ? formData.to.token.image : SBP} />
-                  <p className="average">{1.005}</p>
-                </div>)
+                  <PairToken from_img={formData.from !== '' ? formData.from.token.image : null} to_img={formData.to !== '' ? formData.to.token.image : null} />
+                  <p className="average">{rate}</p>
+                </div>
             }
+            <div style={{fontSize: '1.6rem', fontWeight: 500, marginTop: 24}}>
+              <p className="info-title">Exchange Rate:</p> 
+              {
+                <p style={{width: "100%", textAlign:'center'}}>
+                  <InputNumber step={0.1} min={0} precision={3} value={(formData.from_amount / formData.to_amount)} 
+                    onChange={(e) => e && setFormData({...formData, to_amount: formData.from_amount / e})}
+                  />
+                  <span style={{marginLeft: '1rem'}}>{formData.from !== '' ? formData.from.token.symbol : ''}</span> {"/"}
+                  <span>{formData.to !== '' ? formData.to.token.symbol : ''}</span> {""}
+                </p>
+              }
+            </div>
             </div>
           </div>
 
-          <div className="locktime">
-            <p className="info-title">Time Lock</p>
-            <div className="input-time">
-              <InputNumber min={0} placeholder="24" />
-              <p>hours</p>
+          {
+            !isOneChain && 
+            <div className="locktime">
+              <p className="info-title">Time Lock</p>
+              <div className="input-time">
+                <InputNumber min={0} value={24} />
+                <p>hours</p>
+              </div>
             </div>
-          </div>
+          }
         </div>
       </div>
-      
       <div>
           <p style={{fontSize: '1.4rem', color:'orange'}}>
             <WarningOutlined rev={""}/> {" "}
             Warning: {" "}
             <span style={{color: 'black'}}>Your exchange rate is higer than average. </span>
           </p>
-          <p>Exchange Rate: 1.5 STB for 1 MCD</p>
       </div>
       <Button
         type="primary"
@@ -367,8 +399,12 @@ export default function CreateOrder() {
           onClickSelect={(token: any) => {
             setFormData({...formData, from: token})
             hdClickSelectTokenFrom()
+            if (formData.to !== '') {
+              countExchangeRateForm()
+            }
           }}
-          isCheckNetwork={true}
+          tokenHidden={formData.to !== '' ? formData.to.token.deployedAddress : ''}
+          isCheckNetwork={isOneChain ? true : false}
         />
       )}
 
@@ -377,8 +413,13 @@ export default function CreateOrder() {
           onClickSelect={(token: any) => {
             hdClickSelectTokenTo()
             setFormData({...formData, to: token})
+            if (formData.from !== '') {
+              countExchangeRateForm()
+            }
           }}
-          isCheckNetwork={true}
+          isCheckNetwork={isOneChain ? true : false}
+          tokenHidden={formData.from !== '' ? formData.from.token.deployedAddress : ''}
+          hiddenOtherNetwork={isOneChain ? true : false}
         />
       )}
 

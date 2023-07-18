@@ -5,141 +5,131 @@ import { Button, Popover } from "antd";
 import { SafetyCertificateTwoTone } from "@ant-design/icons";
 
 import PopoverUser from "./PopoverUser";
-import { saveWeb3 } from "../../../../state/app/appSlice";
-import { IUserState, saveInfo } from "../../../../state/user/userSlice";
+import { clearWeb3, saveTokens, saveWeb3 } from "../../../../state/app/appSlice";
+import { IUserState, clearInfo, saveInfo } from "../../../../state/user/userSlice";
 import { useAppSelector, useAppDispatch } from "../../../../state/hooks";
 import { fixStringBalance, shortenAddress } from "../../../../utils/string";
 import { getBalanceAccount, mappingNetwork } from "../../../../utils/blockchain";
-import { runLoading, stopLoading } from "../../../../state/loading/loadingSlice";
+import jwt_decode from "jwt-decode";
+import appApi from "../../../../api/appAPI";
 
 const SIGN_MESSAGE = "Verify Account"
+const signatureLogin = async (web3: any, userAddress: string) : Promise<string> => {
+    return await web3.eth.personal.sign(SIGN_MESSAGE, userAddress, "");
+};
 
-const ConnectWallet = () => {
-    const dispatch = useAppDispatch();
-    const userState = useAppSelector((state) => state.userState);
-    const appState = useAppSelector((state) => state.appState);
-    
-    const signatureLogin = async (web3: any, userAddress: string) : Promise<string> => {
-        return await web3.eth.personal.sign(SIGN_MESSAGE, userAddress, "");
-    };
-
-    const hdAccountChange = async () => {
-        console.log(hdAccountChange, userState, appState)
-        // if(!appState.isConnectedWallet) return?
-        // else {
-            toast("Account changed, please wait a moment...")
-
-            dispatch(runLoading())
-            const myWeb3 = new Web3(window.ethereum);
-            const address = (await myWeb3.eth.getAccounts())[0];
-            const signature = await signatureLogin(myWeb3, address);
-            axios
-            .post("http://localhost:3333/api/auth/login", {
+const hdConnectWallet = async (dispatch : any, appState: any, userState : IUserState) => {
+    if (typeof window.ethereum !== "undefined") {
+        const toastify = toast.loading("Connecting to wallet...")
+        const myWeb3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const address = (await myWeb3.eth.getAccounts())[0];
+        const signature = await signatureLogin(myWeb3, address);
+        try {
+            const res = await appApi.login({
                 address: address,
                 signature: signature,
                 message: "Verify Account",
-            }, { withCredentials: true }
-            ).then(async (res) => {
-                const myUserState : IUserState = {
-                    address:  address,
-                    token: res.data.accessToken,
-                    network: Number(await myWeb3.eth.net.getId()),
-                    wallet: [],
-                    balance:fixStringBalance(String(
-                        await myWeb3.eth.getBalance(address)
-                    ), 18),
-                    isAuthenticated: true,
-                    signature: signature,
-                    createdAt: res.data.user.createdAt
-                }
-                myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
-                dispatch(saveInfo(myUserState));
-                dispatch(saveWeb3(myWeb3));
-                dispatch(stopLoading())
-                toast.success("Connect wallet successfully!");
             })
-        // }
+            const token_decode : any = (jwt_decode(res?.data.accessToken))
+            const myUserState : IUserState = {
+                address:  address,
+                token: res?.data.accessToken,
+                network: Number(await myWeb3.eth.net.getId()),
+                wallet: [],
+                balance:fixStringBalance(String(
+                    await myWeb3.eth.getBalance(address)
+                ), 18),
+                isAuthenticated: true,
+                signature: signature,
+                createdAt: res?.data.user.createdAt,
+                expiredTime: new Date(token_decode.exp * 1000)
+            }
+            myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
+            dispatch(saveInfo(myUserState));
+            dispatch(saveWeb3(myWeb3));
+            if (!appState.isListening) {
+                window.ethereum.on("accountsChanged", () => hdAccountChange(dispatch, appState, myUserState))
+                window.ethereum.on("chainChanged", () => hdNetworkChange(dispatch, appState, myUserState))
+            }
+            toast.update(toastify, { render: "Connect wallet successful!", type: "success", isLoading: false, autoClose: 1000});
+        } catch (error) {
+            toast.update(toastify, { render: "Error", type: "error", isLoading: false, autoClose: 1000});
+            alert(error);
+        }
+    } else {
+        alert("MetaMask is not installed");
     }
-
-    const hdNetworkChange = async () => {
-        console.log(hdAccountChange, userState, appState)
-        toast("Network changed, please wait a moment...")
-        dispatch(runLoading())
-        const myWeb3 = new Web3(window.ethereum);
-        const address = (await myWeb3.eth.getAccounts())[0];
-        
+}
+const hdAccountChange = async (dispatch : any, appState: any, userState: any) => {
+    const toastify = toast.loading("Account changed, please wait a moment...")
+    const myWeb3 = new Web3(window.ethereum);
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    const address = (await myWeb3.eth.getAccounts())[0];
+    const signature = await signatureLogin(myWeb3, address);
+    try {
+        const res = await appApi.login({
+            address: address,
+            signature: signature,
+            message: "Verify Account",
+        })
+        const token_decode : any = (jwt_decode(res?.data.accessToken))
         const myUserState : IUserState = {
             address:  address,
-            token: userState.token,
+            token: res?.data.accessToken,
             network: Number(await myWeb3.eth.net.getId()),
             wallet: [],
             balance:fixStringBalance(String(
                 await myWeb3.eth.getBalance(address)
             ), 18),
             isAuthenticated: true,
-            signature: userState.signature,
-            createdAt: userState.createdAt
+            signature: signature,
+            createdAt: res?.data.user.createdAt,
+            expiredTime: new Date(token_decode.exp * 1000)
         }
         myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
         dispatch(saveInfo(myUserState));
         dispatch(saveWeb3(myWeb3));
-        dispatch(stopLoading())
-        toast.success("Connect wallet successfully!");
+        toast.update(toastify, { render: "Change account successful!", type: "success", isLoading: false, autoClose: 1000});
+    } catch (error) {
+        toast.update(toastify, { render: "Error", type: "error", isLoading: false, autoClose: 1000});
+        alert(error);
     }
+}
+const hdNetworkChange = async (dispatch : any, appState: any, userState: any) => {
+    const toastify = toast.loading("Network changed, please wait a moment...")
+    const myWeb3 = new Web3(window.ethereum);
+    const address = (await myWeb3.eth.getAccounts())[0];
+    const tokens = await appApi.getTokens();
+    if (tokens) dispatch(saveTokens(tokens.data));
+    const myUserState : IUserState = {
+        address:  address,
+        token: userState.token,
+        network: Number(await myWeb3.eth.net.getId()),
+        wallet: [],
+        balance:fixStringBalance(String(
+            await myWeb3.eth.getBalance(address)
+        ), 18),
+        isAuthenticated: true,
+        signature: userState.signature,
+        createdAt: userState.createdAt,
+        expiredTime: userState.expiredTime
+    }
+    myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
+    dispatch(saveInfo(myUserState));
+    dispatch(saveWeb3(myWeb3));
+    toast.update(toastify, { render: "Change network successful!", type: "success", isLoading: false, autoClose: 1000});
+}
 
-    const connectWallet = async () => {
-        // toast("Connecting to wallet...")
-        const id = toast.loading("Connecting to wallet...")
 
-        if (typeof window.ethereum !== "undefined") {
-            // dispatch(runLoading())
-            const myWeb3 = new Web3(window.ethereum);
-            await window.ethereum.request({ method: "eth_requestAccounts" });
-            const address = (await myWeb3.eth.getAccounts())[0];
 
-            const signature = await signatureLogin(myWeb3, address);
-            console.log(signature)
-            axios
-                .post("http://localhost:3333/api/auth/login", {
-                        address: address,
-                        signature: signature,
-                        message: "Verify Account",
-                    }, { withCredentials: true }
-                ).then(async (res) => {
-                    const myUserState : IUserState = {
-                        address:  address,
-                        token: res.data.accessToken,
-                        network: Number(await myWeb3.eth.net.getId()),
-                        wallet: [],
-                        balance:fixStringBalance(String(
-                            await myWeb3.eth.getBalance(address)
-                        ), 18),
-                        isAuthenticated: true,
-                        signature: signature,
-                        createdAt: res.data.user.createdAt
-                    }
-                    myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, appState.tokens)
-                    console.log(myUserState);
-                    dispatch(saveInfo(myUserState));
-                    dispatch(saveWeb3(myWeb3));
-                    dispatch(stopLoading())
-                    // toast.success("Connect wallet success");
-                    toast.update(id, { render: "All is good", type: "success", isLoading: false, autoClose: 1000});
 
-                    if (!appState.isListening) {
-                        window.ethereum.on("accountsChanged", hdAccountChange)
-                        window.ethereum.on("chainChanged", hdNetworkChange)
-                    }
-                })
-                .catch((err) => {
-                    dispatch(stopLoading())
-                    console.log("error");
-                });
-        } else {
-            alert("MetaMask is not installed");
-        }
-    };
 
+
+const ConnectWallet = () => {
+    const dispatch = useAppDispatch();
+    const userState = useAppSelector((state) => state.userState);
+    const appState = useAppSelector((state) => state.appState);
     // const Deploycontract = async () => {
     //     let contract = new web3State.web3.eth.Contract(
     //       JSON.parse(JSON.stringify(contractToken)).abi
@@ -181,11 +171,17 @@ const ConnectWallet = () => {
     //     //   }
     //     // });
     // };
+    
 
     if (appState.isConnectedWallet) {
         return (
             <Popover
-                content={<PopoverUser hdNetworkChange={hdNetworkChange} hdAccountChange={hdNetworkChange}/>}
+                content={<PopoverUser onClickLogout = {() => {
+                    dispatch(clearInfo());
+                    dispatch(clearWeb3());
+                    window.ethereum.removeListener('accountsChanged', hdAccountChange);
+                    window.ethereum.removeListener('chainChanged', hdNetworkChange);
+                }}/>}
                 placement={"bottomRight"}
             >
                 <div className="header-popover--container">
@@ -210,15 +206,15 @@ const ConnectWallet = () => {
                 <Button
                     type="primary"
                     className="btn-connect_wallet"
-                    onClick={() => connectWallet()}
+                    onClick={() => hdConnectWallet(dispatch, appState, userState)}
                     size="middle"
                 >
                     Connect Wallet
                 </Button>
-
             </>
         );
     }
+
 };
 
 export default ConnectWallet;

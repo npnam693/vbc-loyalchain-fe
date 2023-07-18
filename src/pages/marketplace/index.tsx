@@ -13,12 +13,6 @@ import { CloseCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import appApi from "../../api/appAPI";
 import { useAppSelector } from "../../state/hooks";
 
-enum NETWORK {
-  MBC = "MBC",
-  AGD = "AGD",
-  CROSS = "CROSS",
-}
-
 interface IFilterData {
   network: string,
   from: any,
@@ -59,21 +53,46 @@ const Marketplace = () => {
     filterData: filterRawData,
   });
   const appState = useAppSelector((state) => state.appState)
-  // const [quantityFilter, setQuantityFilter] = useState({
-  //   from: [0,0],
-  //   to: [0,0]
-  // });
   const navigate = useNavigate()
 
   console.log(filter)
+
+
   useEffect(() => {
-    const fetchDataOrder = async () => {
-      const tdata = await appApi.getAllOrders()
+    // if (filter.filterData.network !== "") {
+
+    // } else if (filter.filterData.from !== "") {
+
+    // } else if (filter.filterData.to !== "") {
+
+    // } else if (filter.filterData.amountFrom[0] !== 0 && filter.filterData.amountFrom[1] !== 1000) {
+
+    // } else if (filter.filterData.amountTo[0] !== 0 && filter.filterData.amountTo[1] !== 1000) {
+      
+    // }
+
+    const fetchFilterOrder = async () => {
+      const filterData = {
+        // network: filter.filterData.network,
+        fromTokenId: filter.filterData.from !== '' ? filter.filterData.from._id : null,
+        toTokenId: filter.filterData.to !== '' ? filter.filterData.to._id : null,
+        fromValueUp: filter.filterData.amountFrom[1],
+        fromValueDown: filter.filterData.amountFrom[0],
+        toValueUp: filter.filterData.amountFrom[1],
+        toValueDown: filter.filterData.amountFrom[0],
+      }
+      const tdata = await appApi.getOrdersWithFilter({...filterData})
       if(tdata) setData(tdata.data)
-      console.log(tdata)
+      console.log(filter.filterData)
     }
-    fetchDataOrder()
-  }, [])
+    
+    const fetchAllOrder = async () => {
+
+    }
+
+    console.log('dcccccccccccccccm')
+    fetchFilterOrder()
+  }, [filter.filterData])
 
   const toggleModeView = () => { setIsListMode(!isListMode) };
   

@@ -2,27 +2,40 @@ import axios from "axios";
 import queryString from "query-string";
 import { toast } from "react-toastify";
 import store from "../state";
-
-
-
+import { clearInfo, updateToken } from "../state/user/userSlice";
+import appApi from "./appAPI";
+import jwt_decode from "jwt-decode";
 const getToken = async () => {
   let storeData = store.getState();
-  if (storeData && storeData.userState && storeData.userState.token) {
-    // let currentTime = moment(new Date()).valueOf();
-    // if (
-    //   currentTime - moment(storeData.userState.expiresIn).valueOf() <
-    //   1209600
-    // ) {
-    //   return storeData.userState.token;
-    // } else {
-    //   store.dispatch(logOut());
-    //   return;
-    // }
+  let currentTime = new Date();
+  const res = await appApi.getNewToken()
+  console.log(res)
+  console.log(storeData.userState.expiredTime < currentTime)
+  if (storeData && storeData.userState.expiredTime && storeData.userState.token) {
+    if (storeData.userState.expiredTime < currentTime) {
+      try {
+        const res = await appApi.getNewToken()
+        const token_decode : any = (jwt_decode(res?.data.accessToken))
+        store.dispatch(
+          updateToken({
+            token: res?.data,
+            expiredTime: new Date(token_decode.exp * 1000)
+          })
+        )
+        console.log(res?.data)
+      } catch (error) {
+        console.log(error)
+        store.dispatch(clearInfo());
+      }
+    } else {
+      return storeData.userState.token;;
+    }  
     return storeData.userState.token;
   } else {
     return "";
   }
 };
+
 
 const axiosClient = axios.create({
   baseURL: process.env.API_CORE_ENDPOINT,

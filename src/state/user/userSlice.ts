@@ -14,6 +14,7 @@ export interface IUserState {
   isAuthenticated: boolean;
   signature: string,
   createdAt: Date,
+  expiredTime: Date,
 }
 
 export const initialUserState : IUserState = {
@@ -25,6 +26,13 @@ export const initialUserState : IUserState = {
   isAuthenticated: false,
   signature: "",
   createdAt: new Date(),
+  expiredTime: new Date(),
+
+}
+
+interface IPayloadUpdateToken {
+  token: string;
+  expiredTime : Date
 }
 
 const userSlice = createSlice({
@@ -39,9 +47,14 @@ const userSlice = createSlice({
       state = initialUserState;
       return state;
     },
+    updateToken: (state, action: PayloadAction<IPayloadUpdateToken>) => {
+      state.token = action.payload.token;
+      state.expiredTime = action.payload.expiredTime;
+      return state
+    }
   },
 });
 
-export const { saveInfo, clearInfo } = userSlice.actions;
+export const { saveInfo, clearInfo, updateToken } = userSlice.actions;
 
 export default userSlice.reducer;

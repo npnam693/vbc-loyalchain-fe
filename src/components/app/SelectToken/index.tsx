@@ -14,6 +14,8 @@ interface ISelectTokenProps {
   right_css?: string;
   isFiller?: boolean;
   isCheckNetwork?: boolean;
+  hiddenOtherNetwork?: boolean;
+  tokenHidden?: string;
 }
 
 const SelectToken = (props: ISelectTokenProps) => {
@@ -56,23 +58,38 @@ const SelectToken = (props: ISelectTokenProps) => {
         {
           appState.isConnectedWallet ?
           <div>
-            {userState.wallet.map((item , index) => (
-              <TokenItem
-                onClickItem={() => props.onClickSelect && props.onClickSelect(item)}
-                name={item.token.name}
-                network={mappingNetwork(item.token.network)}
-                symbol={item.token.symbol}
-                balance={item.balance}
-                uriImg={item.token.image}
-                key={index}
-              />
-            ))}
+            {userState.wallet.map((item , index) =>{
+              if (props.tokenHidden && props.tokenHidden === item.token.deployedAddress) return <></>
+              else return(
+                <TokenItem
+                  onClickItem={() => props.onClickSelect && props.onClickSelect(item)}
+                  name={item.token.name}
+                  network={mappingNetwork(item.token.network)}
+                  symbol={item.token.symbol}
+                  balance={item.balance}
+                  uriImg={item.token.image}
+                  key={index}
+                />
+              )
+            } 
+            )}
             
             {
+              (props.hiddenOtherNetwork && props.hiddenOtherNetwork === true) ? null :
               getTokenInOtherNetwork(appState.tokens, userState).map((item, index) => (
                 <TokenItem
-                  onClickItem={() => {
-                    if(props.isCheckNetwork) alert("Switch network to Select Token")
+                  onClickItem={async () => {
+                    if(props.isCheckNetwork) {
+                      alert("Switch network to Select Token")
+                      try {
+                        await window.ethereum.request({
+                          method: 'wallet_switchEthereumChain',
+                          params: [{ chainId: '0x' + item.network.toString(16) }], // chainId must be in hexadecimal numbers
+                        });
+                      } catch (error) {
+                        console.log(error)                        
+                      }
+                    } 
                     else {
                        props.onClickSelect && props.onClickSelect({balance: 0, token:item})
                     }

@@ -14,11 +14,10 @@ interface IItemPopover {
 }
 
 interface IPopoverUser {
-  hdNetworkChange: () => void;
-  hdAccountChange: () => void;
+  onClickLogout: () => void;
 }
 
-const PopoverUser = (props:IPopoverUser ) => {
+const PopoverUser = ({ onClickLogout }:IPopoverUser ) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const listItemPopover: IItemPopover[] = [
@@ -35,10 +34,7 @@ const PopoverUser = (props:IPopoverUser ) => {
       icon: <LogoutOutlined rev={""} className="popover-icon" />,
       title: "Log out",
       onClick: () => {
-        dispatch(clearInfo());
-        dispatch(clearWeb3());
-        window.ethereum.removeListener('accountsChanged', props.hdAccountChange);
-        window.ethereum.removeListener('chainChanged', props.hdNetworkChange);
+        onClickLogout()
       },
     },
   ];
