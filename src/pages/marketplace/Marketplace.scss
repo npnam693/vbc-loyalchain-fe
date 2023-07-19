@@ -20,6 +20,9 @@
             font-size: 1.6rem;
             font-weight: 600;
             height: 46px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
         }
         .statistic-list{
             display: flex;

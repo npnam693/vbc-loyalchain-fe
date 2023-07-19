@@ -13,7 +13,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
         - -2: Fail Send
         - -1: Fail Approve
         - 0: Pending
-        - 1?: Approve Token  // Check Balance
+        - 1?: Approve Token  // Check Balance  
         - 2: Send Token      // Save Order 
         - 3: Done
 */

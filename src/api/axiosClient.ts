@@ -5,27 +5,29 @@ import store from "../state";
 import { clearInfo, updateToken } from "../state/user/userSlice";
 import appApi from "./appAPI";
 import jwt_decode from "jwt-decode";
+import { clearWeb3 } from "../state/app/appSlice";
 const getToken = async () => {
   let storeData = store.getState();
   let currentTime = new Date();
-  const res = await appApi.getNewToken()
-  console.log(res)
-  console.log(storeData.userState.expiredTime < currentTime)
   if (storeData && storeData.userState.expiredTime && storeData.userState.token) {
     if (storeData.userState.expiredTime < currentTime) {
       try {
         const res = await appApi.getNewToken()
-        const token_decode : any = (jwt_decode(res?.data.accessToken))
+        console.log("DCM", res)
+        const token_decode : any = (jwt_decode(res?.data))
         store.dispatch(
           updateToken({
             token: res?.data,
             expiredTime: new Date(token_decode.exp * 1000)
           })
         )
-        console.log(res?.data)
+        console.log('VCL', res?.data)
+        return res?.data
       } catch (error) {
+
         console.log(error)
         store.dispatch(clearInfo());
+        store.dispatch(clearWeb3())
       }
     } else {
       return storeData.userState.token;;

@@ -2,7 +2,7 @@ import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
 import { Divider, Modal, Steps } from "antd";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./Order.scss";
 import appApi from "../../../api/appAPI";
@@ -15,7 +15,12 @@ import { getSwapOneContract, getTokenContract, getSwapTwoConract } from "../../.
 import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
 import { requestChangeNetwork } from "../../../services/metamask";
 
-const Order = (props : any) => {
+
+interface IOrderItemProps {
+  data: any
+}
+
+const Order = ({data} : IOrderItemProps) => {
   const dispatch = useAppDispatch()
   const web3State = useAppSelector((state) => state.appState.web3)
   const tokenState = useAppSelector((state) => state.appState.tokens)
@@ -25,45 +30,44 @@ const Order = (props : any) => {
   const [idTask, setIdTask] = useState(-1);
   const [openModal, setOpenModal] = useState<boolean>(false);
 
+
   const getTask : any = (id : number) => {
     return taskState.taskList[taskState.taskList.length - 1 - id]
   }
-  
   const confirmTwoChain = async () => {
-    console.log(props.data)
+    console.log(data)
     const orderId = uuidv4();
     let acceptTask : IAcceptTask = {
       id: taskState.taskList.length,
       type: "TWOCHAIN-CREATE",
       status: 1,
-      tokenFrom: props.data.fromValue.token,
-      tokenTo: props.data.toValue.token,
-      amountFrom: props.data.fromValue.amount,
-      amountTo: props.data.toValue.amount,
-      orderID: props.data._id,
-      owner: props.data.from.address
+      tokenFrom: data.fromValue.token,
+      tokenTo: data.toValue.token,
+      amountFrom: data.fromValue.amount,
+      amountTo: data.toValue.amount,
+      orderID: data._id,
+      owner: data.from.address
     }
     const toaster = toast.loading("Approving token...")
     dispatch(createTask(acceptTask))
     setIdTask(acceptTask.id)
     try {
-
       console.log(orderId,
-        props.data.from.address,
-        props.data.toValue.token.deployedAddress,
-        BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
+        data.from.address,
+        data.toValue.token.deployedAddress,
+        BigInt(10 ** Number(18) * Number(data.toValue.amount)),
         "vcl that",
         web3State.utils.soliditySha3('vcl that'),
         BigInt(24))
 
 
       const exchangeContract = getSwapTwoConract(web3State, userState.network);
-      const tokenContract = getTokenContract(web3State, props.data.toValue.token.deployedAddress)
+      const tokenContract = getTokenContract(web3State, data.toValue.token.deployedAddress)
       const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
 
       const approveRecipt = await tokenContract.methods.approve(
         SWAP_ADDRESS_CONTRACT,
-        BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
+        BigInt(10 ** Number(18) * Number(data.toValue.amount)),
       ).send({from: userState.address})
       acceptTask = {...acceptTask, status: 2}
       dispatch(updateTask({
@@ -71,14 +75,13 @@ const Order = (props : any) => {
         id: acceptTask.id
       }))
 
-
       toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
   
       const acceptExchangeMethod = exchangeContract.methods.create(
         orderId,
-        props.data.from.address,
-        props.data.toValue.token.deployedAddress,
-        BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
+        data.from.address,
+        data.toValue.token.deployedAddress,
+        BigInt(10 ** Number(18) * Number(data.toValue.amount)),
         "vcl that",
         web3State.utils.soliditySha3('vcl that'),
         BigInt(24)
@@ -96,7 +99,7 @@ const Order = (props : any) => {
         data: acceptExchangeMethod.encodeABI(),
       })
 
-      const orderData = await appApi.acceptOder(props.data._id, web3State.utils.soliditySha3('vcl that'))
+      const orderData = await appApi.acceptOder(data._id, web3State.utils.soliditySha3('vcl that'))
       
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
       
@@ -120,30 +123,29 @@ const Order = (props : any) => {
       toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
     }
   }
-
   const confirmOneChain = async () => {
     let acceptTask : IAcceptTask = {
       id: taskState.taskList.length,
       type: "ACCEPT",
       status: 1,
-      tokenFrom: props.data.fromValue.token,
-      tokenTo: props.data.toValue.token,
-      amountFrom: props.data.fromValue.amount,
-      amountTo: props.data.toValue.amount,
-      orderID: props.data._id,
-      owner: props.data.from.address
+      tokenFrom: data.fromValue.token,
+      tokenTo: data.toValue.token,
+      amountFrom: data.fromValue.amount,
+      amountTo: data.toValue.amount,
+      orderID: data._id,
+      owner: data.from.address
     }
     const toaster = toast.loading("Approving token...")
     dispatch(createTask(acceptTask))
     setIdTask(acceptTask.id)
     try {
       const exchangeContract = getSwapOneContract(web3State, userState.network);
-      const tokenContract = getTokenContract(web3State, props.data.toValue.token.deployedAddress)
+      const tokenContract = getTokenContract(web3State, data.toValue.token.deployedAddress)
       const SWAP_ADDRESS_CONTRACT = getAddressOneChainContract(userState.network)
       
       const approveRecipt = await tokenContract.methods.approve(
         SWAP_ADDRESS_CONTRACT,
-        BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
+        BigInt(10 ** Number(18) * Number(data.toValue.amount)),
       ).send({from: userState.address})
 
       acceptTask = {...acceptTask, status: 2}
@@ -154,7 +156,7 @@ const Order = (props : any) => {
 
       toast.update(toaster, { render: "Buying token...", type: "default", isLoading: true});
       const acceptExchangeMethod = exchangeContract.methods.acceptTx(
-        props.data.txIdFrom,
+        data.txIdFrom,
       )
       const exchangeRecepit = await web3State.eth.sendTransaction({
         from: userState.address,
@@ -168,7 +170,7 @@ const Order = (props : any) => {
         data: acceptExchangeMethod.encodeABI(),
       })
 
-      const orderData = await appApi.acceptOder(props.data._id, props.data.txIdFrom )
+      const orderData = await appApi.acceptOder(data._id, data.txIdFrom )
       
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
       
@@ -192,16 +194,13 @@ const Order = (props : any) => {
       toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
     }
   }
-
-
-
   const onOkModal = () => {
-    if (props.data.toValue.token.network !== userState.network){
-      requestChangeNetwork(props.data.toValue.token.network)
+    if (data.toValue.token.network !== userState.network){
+      requestChangeNetwork(data.toValue.token.network)
       return;
     }
     
-    if (props.data.fromValue.token.network === props.data.toValue.token.network) {
+    if (data.fromValue.token.network === data.toValue.token.network) {
       if (idTask === -1) {
         confirmOneChain()
       } else {
@@ -215,13 +214,17 @@ const Order = (props : any) => {
       }
     }
   }
+
+
+
+
   return (
     <div className="app-order" style={{marginBottom: 20}}>
       <div className="app-order--info">
         <div className="app-order--info--token">
-          <img src={props.data.toValue.token.image} alt="StarBuck" width={60} />
+          <img src={data.toValue.token.image} alt="StarBuck" width={60} />
           <div>
-            <p className="quantity">{props.data.toValue.amount} <span className="symbol">{props.data.toValue.token.symbol}</span></p>
+            <p className="quantity">{data.toValue.amount} <span className="symbol">{data.toValue.token.symbol}</span></p>
             
           </div>
         </div>
@@ -229,9 +232,9 @@ const Order = (props : any) => {
           <SwapOutlined rev={""} className="icon" />
         </div>
         <div className="app-order--info--token">
-          <img src={props.data.fromValue.token.image} alt="Token" width={60} />
+          <img src={data.fromValue.token.image} alt="Token" width={60} />
           <div>
-            <p className="quantity">{props.data.fromValue.amount} <span className="symbol">{props.data.fromValue.token.symbol}</span></p>
+            <p className="quantity">{data.fromValue.amount} <span className="symbol">{data.fromValue.token.symbol}</span></p>
           </div>
         </div>
       </div>
@@ -239,10 +242,10 @@ const Order = (props : any) => {
       <div style={{fontSize: '1.2rem', color:'rgba(255,255,255,0.8)', fontWeight: 500}}>
         <div style={{display: 'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'flex-end'}}>
           <div>
-          <p>ID: <span>#{props.data._id.slice(0,4)}...{props.data._id.slice(-5)}</span></p>
+          <p>ID: <span>#{data._id.slice(0,4)}...{data._id.slice(-5)}</span></p>
 
           </div>
-          <p>Exchange rate: {(props.data.toValue.amount / props.data.fromValue.amount).toFixed(2)}</p>
+          <p>Exchange rate: {(data.toValue.amount / data.fromValue.amount).toFixed(2)}</p>
         </div>
       </div>
 
@@ -251,16 +254,19 @@ const Order = (props : any) => {
       
       <div className="app-order--action">
           {
-            // props.data.fromValue.network === props.data.toValue.network ? <div></div> :
+            // data.fromValue.network === data.toValue.network ? <div></div> :
             <div className="app-order--action--time_left">
-              <p style={{ color: props.data.fromValue.token.network === props.data.toValue.token.network ? '#597ef7' : '#9254de' }}>{
-                props.data.fromValue.token.network === props.data.toValue.token.network ?
-                mappingNetwork(props.data.toValue.token.network) : 
-                mappingNetwork(props.data.toValue.token.network)?.slice(0, Number(mappingNetwork(props.data.toValue.token.network)?.length) -  8) + " - " + mappingNetwork(props.data.fromValue.token.network)
+              <p style={{ color: data.fromValue.token.network === data.toValue.token.network ? '#597ef7' : '#9254de' }}>{
+                data.fromValue.token.network === data.toValue.token.network ?
+                mappingNetwork(data.toValue.token.network) : 
+                mappingNetwork(data.toValue.token.network)?.slice(0, Number(mappingNetwork(data.toValue.token.network)?.length) -  8) + " - " + mappingNetwork(data.fromValue.token.network)
               }</p>
             </div>
           }
-          <div className="app-order--action--btn" onClick={() => setOpenModal(true)}>Buy</div>
+          <div className={`app-order--action--btn`} onClick={() => setOpenModal(true)}
+          >
+            Buy
+          </div>
       </div>
 
       <Modal
@@ -290,7 +296,7 @@ const Order = (props : any) => {
                     status: "wait"
                   },
                   {
-                    title: props.data.fromValue.token.network === props.data.toValue.token.network ? "Send Token" : "Deposit Token",
+                    title: data.fromValue.token.network === data.toValue.token.network ? "Send Token" : "Deposit Token",
                     status: "wait"
                   },
                   {
@@ -306,7 +312,7 @@ const Order = (props : any) => {
                     icon:  getTask(idTask).status === 1 && <LoadingOutlined  rev={""}/>
                   },
                   {
-                    title: props.data.fromValue.token.network === props.data.toValue.token.network ? "Send Token" : "Deposit Token",
+                    title: data.fromValue.token.network === data.toValue.token.network ? "Send Token" : "Deposit Token",
                     status: getTask(idTask).status === -2 ? 'error' : (
                               getTask(idTask).status < 2 ? 'wait' : (
                                 getTask(idTask).status === 3 ? 'finish' : 'process'
@@ -323,13 +329,13 @@ const Order = (props : any) => {
           
            <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 30}}>
               <div>
-                  <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{props.data.toValue.token.name}</p>
-                  <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{props.data.toValue.amount} {props.data.toValue.token.symbol}</p>
+                  <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{data.toValue.token.name}</p>
+                  <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{data.toValue.amount} {data.toValue.token.symbol}</p>
               </div>
-              <PairToken from_img={props.data.toValue.token.image} to_img={props.data.fromValue.token.image} width={60}/>
+              <PairToken from_img={data.toValue.token.image} to_img={data.fromValue.token.image} width={60}/>
               <div >
-                <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{props.data.fromValue.token.name}</p>
-                <p style={{textAlign: "right", fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{props.data.fromValue.amount} {props.data.fromValue.token.symbol}</p>
+                <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{data.fromValue.token.name}</p>
+                <p style={{textAlign: "right", fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{data.fromValue.amount} {data.fromValue.token.symbol}</p>
               </div>
           </div>
           
@@ -343,19 +349,19 @@ const Order = (props : any) => {
                   : 
                       <span style={{fontWeight: 400, color: '#1677ff'}}>In Progress</span>)}
               </p>
-              <p>Owner: <span>{props.data.from.address}</span></p>
+              <p>Owner: <span>{data.from.address}</span></p>
               
               <p>Network: 
                   <span style={{fontWeight: 400}}> {
-                    props.data.fromValue.token.network === props.data.toValue.token.network ?
-                      mappingNetwork(props.data.fromValue.token.network)
-                    : mappingNetwork(props.data.fromValue.token.network) + ' - ' + mappingNetwork(props.data.toValue.token.network)  
+                    data.fromValue.token.network === data.toValue.token.network ?
+                      mappingNetwork(data.fromValue.token.network)
+                    : mappingNetwork(data.fromValue.token.network) + ' - ' + mappingNetwork(data.toValue.token.network)  
                   }
                   </span>
               </p>
               <p>Order ID:  
                   <span style={{fontWeight: 400}}> {
-                      props.data._id
+                      data._id
                   }</span>
               </p>
               <p>Transaction Hash:  

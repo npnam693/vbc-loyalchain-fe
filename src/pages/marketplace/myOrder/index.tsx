@@ -3,20 +3,23 @@ import './myOrder.scss'
 import appApi from '../../../api/appAPI'
 import { Segmented } from 'antd'
 import { AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
-import Order from '../../../components/marketplace/Order';
-
+import MyOrderItem from '../../../components/marketplace/MyOrderItem';
+import { useAppSelector } from '../../../state/hooks';
 
 interface IDataOrder {
     pendingOrder: any[],
     inprogressOrder: any[]
 } 
 const MyOrder = () => {
+
+
     const [dataFetch, setdataFetch] =  useState<IDataOrder>({
         pendingOrder: [],
         inprogressOrder: []
     })
-    const [dataOrder, setDataOrder] = useState<any[]>([])
+    const [pageName, setPageName] = useState<string>('inprogressOrder')
 
+    const userState = useAppSelector(state => state.userState)
     useEffect(() => {
         const fetchData = async () => {
             const res = await appApi.getOrderInprogess()
@@ -32,17 +35,16 @@ const MyOrder = () => {
                     }
                 }
                 setdataFetch({pendingOrder, inprogressOrder})
-                setDataOrder(inprogressOrder)
             }
         }
+        console.log('vcl thật')
         fetchData()
-    }, [])
+    }, [userState.address])
   return (
     <div className='app-myOrder'>      
         <p className="title">Marketplace / My Order</p>
         <Segmented 
-            onChange={(value) => value === 'pendingOrder' ?  
-                setDataOrder(dataFetch['pendingOrder']) : setDataOrder(dataFetch['inprogressOrder'])}
+            onChange={(value) => setPageName(String(value))}
             options={[
             {
                 label: 'In progress Order',
@@ -57,10 +59,15 @@ const MyOrder = () => {
         ]}/>
         <div className='list-order'>
             {
-                dataOrder.map((item, index) => (
-                    <Order data = {item}/>
+                pageName === 'inprogressOrder' ?
+                dataFetch.inprogressOrder.map((item, index) => (
+                    <MyOrderItem data = {item}/>
                 ))
-            }
+                :
+                dataFetch.pendingOrder.map((item, index) => (
+                    <MyOrderItem data={item} isPendingOrder/>
+                ))
+            }    
         </div>
   </div>
   )

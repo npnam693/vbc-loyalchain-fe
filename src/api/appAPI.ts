@@ -53,8 +53,6 @@ class AppAPI {
         return axios.get(url);
     }
 
-
-
     // App State
     createOrder = (data: any) => {
         if (LOYALCHAIN_API === undefined) return;
@@ -67,6 +65,17 @@ class AppAPI {
         const url = LOYALCHAIN_API.concat(`/transactions/${txId}/accept`);
         return axiosClient.patch(url, {hashlock: hashlock});
     }
+    cancelOrder = (txId: string) => {
+        if (LOYALCHAIN_API === undefined) return;
+        const url = LOYALCHAIN_API.concat(`/transactions/${txId}/cancel`);
+        return axiosClient.patch(url);
+    }
+    updateStatusOrder = (txId: string, status: string) => {
+        if (LOYALCHAIN_API === undefined) return;
+        const url = LOYALCHAIN_API.concat(`/transactions/${txId}/progress`);
+        return axiosClient.patch(url, {status: status});
+    }
+    
     createTransfer = (data: any) => {
         if (LOYALCHAIN_API === undefined) return;
         const url = LOYALCHAIN_API.concat("/transactions/create");
@@ -77,6 +86,7 @@ class AppAPI {
             toValue: 0,
         });
     }
+
     
     getOrderInprogess = () => {
         if (LOYALCHAIN_API === undefined) return;

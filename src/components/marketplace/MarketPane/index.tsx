@@ -1,4 +1,4 @@
-import { Button, Popover } from "antd";
+import { Button, Pagination, Popover } from "antd";
 import { AppstoreOutlined, BarsOutlined, ClearOutlined } from "@ant-design/icons";
 import "./MarketPane.scss";
 
@@ -90,7 +90,9 @@ const MarketPane = (props: IMarketPaneProps) => {
 
       </div>
 
-      <div>
+      <div style={{display: 'flex', flexDirection:"row", alignItems:'center'}}>
+        <Pagination current={1} onChange={() => console.log('a')} total={50} style={{marginRight: 20}}/>
+
         <Button
           type="primary"
           size="middle"

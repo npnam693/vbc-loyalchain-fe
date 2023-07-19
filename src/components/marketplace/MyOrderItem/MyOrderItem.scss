@@ -44,6 +44,7 @@
                     font-weight: 600;
                     color: rgba(255, 255, 255, 0.8)
                 }
+                
                 .quantity {
                     font-size: 1.3rem;
                     font-weight: 600;
@@ -51,6 +52,7 @@
             }
         }
     }
+
     &--action {
         display: flex;
         flex-direction: row;
@@ -59,10 +61,16 @@
         padding: 10 40px 0px 10px;
         font-size: 1.2rem;
 
-        &--time_left {
+        &--network {
             background-color: rgba($color: white, $alpha: 0.05);
             padding: 4px 10px;
             border-radius: 4px;
+        }
+        &--time_left {
+            background-color: rgba($color: white, $alpha: 0.05);
+            padding: 6px 10px;
+            font-weight: 600;
+            color: #ccc
         }
         &--btn {
             font-size: 1.6rem;
@@ -70,19 +78,8 @@
             font-weight: 600;
             color: rgba(255, 255, 255, 0.8);
 
-            
             &:hover {
                 color: rgba(21, 191, 253, 0.5);
-            }
-        }
-        &--btn-remove{
-            font-size: 1.6rem;
-            cursor: pointer;    
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
-
-            &:hover {
-                color: #820014;
             }
         }
     }
