@@ -1,6 +1,7 @@
 import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
 import { Divider, Modal, Steps } from "antd";
 import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 
 import "./Order.scss";
@@ -10,8 +11,9 @@ import { useAppSelector } from "../../../state/hooks";
 import { useAppDispatch } from "../../../state/hooks";
 import { saveInfo } from "../../../state/user/userSlice";
 import { IAcceptTask, createTask, updateTask } from "../../../state/task/taskSlice";
-import { getSwapOneContract, getTokenContract } from "../../../services/contract";
-import { getAddressOneChainContract, getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
+import { getSwapOneContract, getTokenContract, getSwapTwoConract } from "../../../services/contract";
+import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
+import { requestChangeNetwork } from "../../../services/metamask";
 
 const Order = (props : any) => {
   const dispatch = useAppDispatch()
@@ -27,8 +29,99 @@ const Order = (props : any) => {
     return taskState.taskList[taskState.taskList.length - 1 - id]
   }
   
+  const confirmTwoChain = async () => {
+    console.log(props.data)
+    const orderId = uuidv4();
+    let acceptTask : IAcceptTask = {
+      id: taskState.taskList.length,
+      type: "TWOCHAIN-CREATE",
+      status: 1,
+      tokenFrom: props.data.fromValue.token,
+      tokenTo: props.data.toValue.token,
+      amountFrom: props.data.fromValue.amount,
+      amountTo: props.data.toValue.amount,
+      orderID: props.data._id,
+      owner: props.data.from.address
+    }
+    const toaster = toast.loading("Approving token...")
+    dispatch(createTask(acceptTask))
+    setIdTask(acceptTask.id)
+    try {
+
+      console.log(orderId,
+        props.data.from.address,
+        props.data.toValue.token.deployedAddress,
+        BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
+        "vcl that",
+        web3State.utils.soliditySha3('vcl that'),
+        BigInt(24))
+
+
+      const exchangeContract = getSwapTwoConract(web3State, userState.network);
+      const tokenContract = getTokenContract(web3State, props.data.toValue.token.deployedAddress)
+      const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
+
+      const approveRecipt = await tokenContract.methods.approve(
+        SWAP_ADDRESS_CONTRACT,
+        BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
+      ).send({from: userState.address})
+      acceptTask = {...acceptTask, status: 2}
+      dispatch(updateTask({
+        task: acceptTask, 
+        id: acceptTask.id
+      }))
+
+
+      toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
   
-  const onConfirmAccept = async () => {
+      const acceptExchangeMethod = exchangeContract.methods.create(
+        orderId,
+        props.data.from.address,
+        props.data.toValue.token.deployedAddress,
+        BigInt(10 ** Number(18) * Number(props.data.toValue.amount)),
+        "vcl that",
+        web3State.utils.soliditySha3('vcl that'),
+        BigInt(24)
+      )
+
+      const acceptRecepit = await web3State.eth.sendTransaction({
+        from: userState.address,
+        gasPrice: "0",
+        gas: await acceptExchangeMethod.estimateGas({
+          from: userState.address,
+          data: acceptExchangeMethod.encodeABI()
+        }),
+        to: SWAP_ADDRESS_CONTRACT,
+        value: "0",
+        data: acceptExchangeMethod.encodeABI(),
+      })
+
+      const orderData = await appApi.acceptOder(props.data._id, web3State.utils.soliditySha3('vcl that'))
+      
+      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
+      
+      toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
+      
+      acceptTask = {...acceptTask, status: 3, transactionHash: acceptRecepit.blockHash}
+      dispatch(updateTask({
+        task: acceptTask, 
+        id: acceptTask.id
+      }))
+
+    } catch (error) {
+      console.log(error);
+      dispatch(updateTask({
+        task: {
+            ...acceptTask, 
+            status: acceptTask.status === 1 ? -1 : -2 ,
+        }, 
+        id: acceptTask.id
+      }))
+      toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
+    }
+  }
+
+  const confirmOneChain = async () => {
     let acceptTask : IAcceptTask = {
       id: taskState.taskList.length,
       type: "ACCEPT",
@@ -100,6 +193,28 @@ const Order = (props : any) => {
     }
   }
 
+
+
+  const onOkModal = () => {
+    if (props.data.toValue.token.network !== userState.network){
+      requestChangeNetwork(props.data.toValue.token.network)
+      return;
+    }
+    
+    if (props.data.fromValue.token.network === props.data.toValue.token.network) {
+      if (idTask === -1) {
+        confirmOneChain()
+      } else {
+        setOpenModal(false) ; setIdTask(-1)
+      }
+    } else {
+      if (idTask === -1) {
+        confirmTwoChain()
+      } else {
+        setOpenModal(false) ; setIdTask(-1)
+      }
+    }
+  }
   return (
     <div className="app-order" style={{marginBottom: 20}}>
       <div className="app-order--info">
@@ -110,7 +225,6 @@ const Order = (props : any) => {
             
           </div>
         </div>
-      
         <div className="icon-container">
           <SwapOutlined rev={""} className="icon" />
         </div>
@@ -126,9 +240,9 @@ const Order = (props : any) => {
         <div style={{display: 'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'flex-end'}}>
           <div>
           <p>ID: <span>#{props.data._id.slice(0,4)}...{props.data._id.slice(-5)}</span></p>
-          <p>MBC Network</p>
+
           </div>
-          <p>Exchange rate: 0.01</p>
+          <p>Exchange rate: {(props.data.toValue.amount / props.data.fromValue.amount).toFixed(2)}</p>
         </div>
       </div>
 
@@ -137,8 +251,14 @@ const Order = (props : any) => {
       
       <div className="app-order--action">
           {
-            props.data.fromValue.network === props.data.toValue.network ? <div></div> :
-            <div className="app-order--action--time_left">3h 50m 2s left</div>
+            // props.data.fromValue.network === props.data.toValue.network ? <div></div> :
+            <div className="app-order--action--time_left">
+              <p style={{ color: props.data.fromValue.token.network === props.data.toValue.token.network ? '#597ef7' : '#9254de' }}>{
+                props.data.fromValue.token.network === props.data.toValue.token.network ?
+                mappingNetwork(props.data.toValue.token.network) : 
+                mappingNetwork(props.data.toValue.token.network)?.slice(0, Number(mappingNetwork(props.data.toValue.token.network)?.length) -  8) + " - " + mappingNetwork(props.data.fromValue.token.network)
+              }</p>
+            </div>
           }
           <div className="app-order--action--btn" onClick={() => setOpenModal(true)}>Buy</div>
       </div>
@@ -147,7 +267,7 @@ const Order = (props : any) => {
           title="Accept Order"
           open={openModal}
           
-          onOk={idTask === -1 ? onConfirmAccept : () => {setOpenModal(false) ; setIdTask(-1)}}
+          onOk={onOkModal}
           okText= {idTask === -1 ? "Confirm" : 'OK'}
 
           cancelText="Cancel"
@@ -170,7 +290,7 @@ const Order = (props : any) => {
                     status: "wait"
                   },
                   {
-                    title: "Send Token",
+                    title: props.data.fromValue.token.network === props.data.toValue.token.network ? "Send Token" : "Deposit Token",
                     status: "wait"
                   },
                   {
@@ -186,7 +306,7 @@ const Order = (props : any) => {
                     icon:  getTask(idTask).status === 1 && <LoadingOutlined  rev={""}/>
                   },
                   {
-                    title: "Send Token",
+                    title: props.data.fromValue.token.network === props.data.toValue.token.network ? "Send Token" : "Deposit Token",
                     status: getTask(idTask).status === -2 ? 'error' : (
                               getTask(idTask).status < 2 ? 'wait' : (
                                 getTask(idTask).status === 3 ? 'finish' : 'process'

@@ -28,7 +28,8 @@ const PopoverUser = ({ onClickLogout }:IPopoverUser ) => {
     },
     {
       icon: <ProfileOutlined rev={""} className="popover-icon" />,
-      title: "Profile",
+      title: "My Order",
+      onClick: () => navigate("/marketplace/my-order"),
     },
     {
       icon: <LogoutOutlined rev={""} className="popover-icon" />,

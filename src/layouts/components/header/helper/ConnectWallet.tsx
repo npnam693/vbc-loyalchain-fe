@@ -19,13 +19,13 @@ const signatureLogin = async (web3: any, userAddress: string) : Promise<string> 
 };
 
 export const hdConnectWallet = async (dispatch : any, appState: any, userState : IUserState) => {
+    const toastify = toast.loading("Connecting to wallet...")
     if (typeof window.ethereum !== "undefined") {
-        const toastify = toast.loading("Connecting to wallet...")
         const myWeb3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const address = (await myWeb3.eth.getAccounts())[0];
-        const signature = await signatureLogin(myWeb3, address);
         try {
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+            const address = (await myWeb3.eth.getAccounts())[0];
+            const signature = await signatureLogin(myWeb3, address);
             const res = await appApi.login({
                 address: address,
                 signature: signature,
@@ -54,8 +54,8 @@ export const hdConnectWallet = async (dispatch : any, appState: any, userState :
             }
             toast.update(toastify, { render: "Connect wallet successful!", type: "success", isLoading: false, autoClose: 1000});
         } catch (error) {
-            toast.update(toastify, { render: "Error", type: "error", isLoading: false, autoClose: 1000});
-            alert(error);
+            toast.update(toastify, { render: "Connect wallet fail, see detail in console.", type: "error", isLoading: false, autoClose: 1000});
+            console.log(error)
         }
     } else {
         alert("MetaMask is not installed");

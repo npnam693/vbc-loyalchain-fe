@@ -13,7 +13,7 @@ import TableOrder from "../../components/marketplace/TableOrder";
 import MarketPane from "../../components/marketplace/MarketPane";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import StatisticItem from "../../components/marketplace/StatisticItem";
-import { CloseCircleOutlined, UploadOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, DatabaseOutlined, UploadOutlined } from "@ant-design/icons";
 import { hdConnectWallet } from "../../layouts/components/header/helper/ConnectWallet";
 interface IFilterData {
   network: number,
@@ -43,13 +43,14 @@ const titleStatistic = [
     note: "now"
   }
 ]
-export const showConfirmConnectWallet = (dispatch : any, appState: any, userState : IUserState) => {
+export const showConfirmConnectWallet = (dispatch : any, appState: any, userState : IUserState, func?: () => void) => {
   Modal.confirm({
     title: 'You need to connect a wallet to create order!',
     okText: 'Connect Wallet',
     cancelText: 'Cancel ',
-    onOk() {
-      hdConnectWallet(dispatch, appState, userState);
+    async onOk() {
+      await hdConnectWallet(dispatch, appState, userState);
+      func && func()
     },
     onCancel() {
       console.log('Cancel');
@@ -83,8 +84,8 @@ const Marketplace = () => {
         toTokenId: filter.filterData.to !== '' ? filter.filterData.to._id : null,
         fromValueUp: filter.filterData.amountFrom[1],
         fromValueDown: filter.filterData.amountFrom[0],
-        toValueUp: filter.filterData.amountFrom[1],
-        toValueDown: filter.filterData.amountFrom[0],
+        toValueUp: filter.filterData.amountTo[1],
+        toValueDown: filter.filterData.amountTo[0],
         network: filter.filterData.network === -1 ? null : filter.filterData.network ,
       }
       const tdata = await appApi.getOrdersWithFilter({...filterData})
@@ -382,11 +383,14 @@ const Marketplace = () => {
         </div>
         
         <div style={{display: 'flex', flexDirection:'column', justifyContent: 'space-between'}}>
-        <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('create') : () => showConfirmConnectWallet(dispatch, appState, userState)}>
+        <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('my-order') 
+            : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('my-order') )}>
+          <DatabaseOutlined rev={""} style={{fontSize:'2.2rem', marginBottom: -6}}/>
           My Order
         </Button>
         <Button className="btn-create" style={{marginTop: 20}}
-          onClick={appState.isConnectedWallet ? () => navigate('create') : () => showConfirmConnectWallet(dispatch, appState, userState)}>
+          onClick={appState.isConnectedWallet ? () => navigate('create') 
+            : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('create') )}>
           <UploadOutlined rev={""} style={{fontSize:'2.2rem'}}/>
           Create Order
         </Button>

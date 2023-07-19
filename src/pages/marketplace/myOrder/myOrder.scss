@@ -1,0 +1,16 @@
+.app-myOrder{
+    min-height: 100vh;
+    .title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--color-text-white);
+        margin-bottom: 20px;
+    }
+    .list-order{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+}

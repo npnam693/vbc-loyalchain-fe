@@ -22,7 +22,7 @@ const StatisticItem = (props: IStatisticItem) => {
         }
       </p>
       <Statistic value={props.value} formatter={formatter} 
-        style={{fontSize: 20}}
+        style={{fontSize: 20}} valueStyle={{fontWeight: 800}}
       />
     </div>
   );

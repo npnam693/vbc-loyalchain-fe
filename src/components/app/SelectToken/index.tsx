@@ -5,6 +5,7 @@ import { CloseCircleOutlined } from "@ant-design/icons";
 import "./SelecToken.scss";
 import { useAppSelector } from "../../../state/hooks";
 import { getTokenInOtherNetwork, mappingNetwork } from "../../../utils/blockchain";
+import { requestChangeNetwork } from "../../../services/metamask";
 
 
 interface ISelectTokenProps {
@@ -85,15 +86,7 @@ const SelectToken = (props: ISelectTokenProps) => {
                   <TokenItem
                     onClickItem={async () => {
                       if(props.isCheckNetwork) {
-                        alert("Switch network to Select Token")
-                        try {
-                          await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x' + item.network.toString(16) }], // chainId must be in hexadecimal numbers
-                          });
-                        } catch (error) {
-                          console.log(error)                        
-                        }
+                        requestChangeNetwork(item.network)
                       } 
                       else {
                          props.onClickSelect && props.onClickSelect({balance: 0, token:item})

@@ -44,6 +44,19 @@ const Layout = ({ children }: LayoutProps) => {
     fetchTokens()
   }, [])    
   
+
+  const getTitleTask = (type: string)  => {
+    switch (type) {
+      case "TRANSFER":
+        return "Transfer Token";
+      case "ACCEPT" || "TWOCHAIN-CREATE":
+        return "Accept Order";
+      case "CREATE":
+        return "Create Order";
+      default:
+        return "Task";
+    }
+  }
   const contentTaskPopover = () => {
     return (
       <div style={{height: 300, minWidth: 400, overflow: 'scroll', cursor: 'pointer'}}>
@@ -73,7 +86,7 @@ const Layout = ({ children }: LayoutProps) => {
                 <div>
                   <p style={{fontSize: '1.4rem', fontWeight: 500}}>
                   {
-                    task.type === "TRANSFER" ? "Transfer Token" : (task.type === "ACCEPT" ? "Accept Order" : "Create Order")
+                   getTitleTask(task.type)
                   }
                   </p>
                   <p style={{fontSize: '1.2rem'}}>Task ID: #0{task.id}

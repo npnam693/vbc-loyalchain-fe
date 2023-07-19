@@ -3,7 +3,7 @@ import tokenData from '../contract/Token/data.json'
 import { IUserState } from "../state/user/userSlice"
 import { fixStringBalance } from "./string"
 import { IToken } from "../state/app/appSlice"
-import { MBC_EXCHANGE_ONE_ADDRESS, AGD_EXCHANGE_ONE_ADDRESS } from '../constants/contracts'
+import { MBC_EXCHANGE_ONE_ADDRESS, AGD_EXCHANGE_ONE_ADDRESS, AGD_EXCHANGE_TWO_ADDRESS, MBC_EXCHANGE_TWO_ADDRESS } from '../constants/contracts'
 
 
 
@@ -36,7 +36,7 @@ export const getTokenInOtherNetwork = (tokenState: IToken[], userState: IUserSta
 // ------------------ Mapping -------------------
 export const mappingNetwork = (chainID: number) => {
     if (chainID === 8888) return "AGD Network"
-    else if (chainID === 4444) return "MBC Testnet"
+    else if (chainID === 4444) return "MBC Network"
 }
 
 export const mappingCurrency = (chainID: number) => {
@@ -47,4 +47,8 @@ export const mappingCurrency = (chainID: number) => {
 export const getAddressOneChainContract = (chainID: number) => {
     if (chainID === 8888) return AGD_EXCHANGE_ONE_ADDRESS
     else if (chainID === 4444) return MBC_EXCHANGE_ONE_ADDRESS
+}
+export const getAddressTwoChainContract = (chainID: number) => {
+    if (chainID === 8888) return AGD_EXCHANGE_TWO_ADDRESS
+    else if (chainID === 4444) return MBC_EXCHANGE_TWO_ADDRESS
 }
