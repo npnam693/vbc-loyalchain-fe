@@ -60,7 +60,6 @@ const Order = ({data} : IOrderItemProps) => {
         web3State.utils.soliditySha3('vcl that'),
         BigInt(24))
 
-
       const exchangeContract = getSwapTwoConract(web3State, userState.network);
       const tokenContract = getTokenContract(web3State, data.toValue.token.deployedAddress)
       const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
@@ -214,9 +213,6 @@ const Order = ({data} : IOrderItemProps) => {
       }
     }
   }
-
-
-
 
   return (
     <div className="app-order" style={{marginBottom: 20}}>
