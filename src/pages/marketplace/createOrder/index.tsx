@@ -12,29 +12,38 @@ import SelectToken from "../../../components/app/SelectToken";
 // import { MBC_EXCHANGE_ADDRESS } from "../../constants/contracts";
 import { useAppDispatch, useAppSelector } from "../../../state/hooks";
 import { getBalanceAccount, getBalanceToken, mappingNetwork } from "../../../utils/blockchain";
-import { ICreateTask, createTask, updateTask,} from "../../../state/task/taskSlice";
+import { ITask, ITaskState, createTask, doneOneTask, updateTask,} from "../../../state/task/taskSlice";
 import { getTokenContract, getSwapOneContract } from "../../../services/contract";
 import { getAddressOneChainContract } from "../../../utils/blockchain";
 
 interface IFormData {
-  from: any;
-  from_amount: number;
-  to: any;
-  to_amount: number;
+  from: {
+    token: any,
+    amount: number,
+    balance: number
+  }
+  to: {
+    token: any,
+    amount: number,
+    balance: number,
+  }
   timelock: number;
 }
 
 export default function CreateOrder() {
-  const web3State = useAppSelector((state) => state.appState.web3);
-  const tokenState = useAppSelector((state) => state.appState.tokens);
-  const userState = useAppSelector((state) => state.userState);
-  const taskState = useAppSelector((state) => state.taskState);
   const dispatch = useAppDispatch();
+  const {appState, userState, taskState}= useAppSelector(state => state);
   const [formData, setFormData] = useState<IFormData>({
-    from: "",
-    from_amount: 0,
-    to: "",
-    to_amount: 0,
+    from: {
+      token: "",
+      amount: 0,
+      balance: 0
+    },
+    to: {
+      token: "",
+      amount: 0,
+      balance: 0
+    },
     timelock: 24,
   });
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -43,12 +52,13 @@ export default function CreateOrder() {
   const [idTask, setIdTask] = useState(-1);
   const [isOneChain, setIsOneChain] = useState<boolean>(true);
   const [rate, setRate] = useState("0.000");
+
+
+
   const hdClickSwap = () => {
     const newData: IFormData = {
       from: formData.to,
-      from_amount: formData.to_amount,
       to: formData.from,
-      to_amount: formData.from_amount,
       timelock: formData.timelock,
     };
     setFormData(newData);
@@ -62,15 +72,15 @@ export default function CreateOrder() {
     setRate(String(res?.data));
   };
   const onClickCreate = async () => {
-    if (formData.from === "" || formData.to === "") {
+    if (formData.from.token === "" || formData.to.token === "") {
       alert("Please select token");
       return;
     }
-    if (formData.from_amount <= 0) {
+    if (formData.from.amount <= 0) {
       alert("Please input amount");
       return;
     }
-    if (formData.from_amount > formData.from.balance) {
+    if (formData.from.amount > formData.from.balance) {
       alert("Insufficient balance");
       return;
     }
@@ -98,31 +108,31 @@ export default function CreateOrder() {
   };
 
 
-
-
-  const createOrderOneChain = async () => {
-    const orderId = uuidv4();
-    let myTask: ICreateTask = {
+  const onClickCreate = () => {
+    let myTask: ITask = {
       id: taskState.taskList.length,
       type: "CREATE",
       status: 1,
-      tokenFrom: formData.from.token,
-      tokenTo: formData.to.token,
-      amountFrom: formData.from_amount,
-      amountTo: formData.to_amount,
+      funcExecute: createOrderOneChain,
+      from: {address: userState.address, token: formData.from.token, amount: formData.from.amount},
     };
+    dispatch(createTask(myTask))
+  }
+  
+  const createOrderOneChain = async (taskState: ITaskState, idTask: number) => {
+    const orderId = uuidv4();
     const toastify = toast.loading("Approving token...");
-    dispatch(createTask(myTask));
-    setIdTask(myTask.id);
+    let task : ITask = {...taskState.taskList[idTask], status: 1}
+    dispatch(updateTask({task, id: idTask}))
     try {
-      const exchangeContract = getSwapOneContract(web3State, userState.network)
-      const tokenContract = getTokenContract(web3State, formData.from.token.deployedAddress)
+      const exchangeContract = getSwapOneContract(appState.web3, userState.network)
+      const tokenContract = getTokenContract(appState.web3, formData.from.token.deployedAddress)
       const SWAP_CONTRACT_ADDRESS = getAddressOneChainContract(userState.network)
 
       const approveRecipt = await tokenContract.methods
         .approve(
           SWAP_CONTRACT_ADDRESS,
-          BigInt(10 ** Number(18) * Number(formData.from_amount))
+          BigInt(10 ** Number(18) * Number(formData.from.amount))
         )
         .send({ from: userState.address });
       toast.update(toastify, {
@@ -131,29 +141,23 @@ export default function CreateOrder() {
         isLoading: false,
         autoClose: 500,
       });
-      myTask = {...myTask, status: 2}
-      dispatch(updateTask({
-        task: myTask,
-        id: myTask.id,
-      }))
-
-
+      task = {...task, status: 2}
+      dispatch(updateTask({task, id: idTask}))
       const createExchangeMethod = exchangeContract.methods.createTx(
         orderId,
         formData.from.token.deployedAddress,
         formData.to.token.deployedAddress,
-        BigInt(10 ** Number(18) * Number(formData.from_amount)),
-        BigInt(10 ** Number(18) * Number(formData.to_amount)),
+        BigInt(10 ** Number(18) * Number(formData.from.amount)),
+        BigInt(10 ** Number(18) * Number(formData.to.amount)),
         BigInt(24)
       )
-
       toast.update(toastify, {
         render: "Sending token...",
         type: "default",
         isLoading: true,
       });
 
-      const reciptExchange = await web3State.eth.sendTransaction({
+      const reciptExchange = await appState.web3.eth.sendTransaction({
         from: userState.address,
         gasPrice: "0",
         gas: await createExchangeMethod.estimateGas({
@@ -165,9 +169,9 @@ export default function CreateOrder() {
         data: createExchangeMethod.encodeABI(),
       });
       const orderData = await appApi.createOrder({
-        fromValue: formData.from_amount,
+        fromValue: formData.from.amount,
         fromTokenId: formData.from.token._id,
-        toValue: formData.to_amount,
+        toValue: formData.to.amount,
         toTokenId: formData.to.token._id,
         timelock: 24,
         txId: orderId,
@@ -175,7 +179,7 @@ export default function CreateOrder() {
 
       dispatch(saveInfo({
         ...userState,
-        wallet: await getBalanceAccount(web3State, userState, tokenState),
+        wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
       }))
       toast.update(toastify, {
         render: "The order was created successfully.",
@@ -183,110 +187,12 @@ export default function CreateOrder() {
         isLoading: false,
         autoClose: 1000,
       });
-
-      myTask = {...myTask,           
+      task = {...task,           
         status: 3,
         transactionHash: reciptExchange.transactionHash,
-        orderID: orderData && orderData.data._id,}
-
-      dispatch( updateTask({
-        task: myTask,
-        id: myTask.id,
-      }))
-    } catch (error) {
-      console.log(myTask, myTask.id)
-      console.log(error);
-      toast.update(toastify, {
-        render: "The order was created fail, see detail in console.",
-        type: "error",
-        isLoading: false,
-        autoClose: 1000,
-      });
-      
-      dispatch(updateTask({
-        task: {
-          ...myTask,
-          status: myTask.status === 1 ? -1 : -2,
-        },
-        id: myTask.id,
-      }));
-    }
-  };
-  const createOrderTwoChain = async () => {
-    const orderId = uuidv4();
-    const transferTask: ICreateTask = {
-      id: taskState.taskList.length,
-      type: "CREATE",
-      status: 1,
-      tokenFrom: formData.from.token,
-      tokenTo: formData.to.token,
-      amountFrom: formData.from_amount,
-      amountTo: formData.to_amount,
-    };
-    
-    const toastify = toast.loading("Check your balance...");
-    dispatch(createTask(transferTask));
-    
-    try {
-      setIdTask(transferTask.id);
-      const balance = await getBalanceToken(web3State, userState, formData.from.token)
-      if (Number(balance) < Number(formData.from_amount)) {
-        toast.update(toastify, {
-          render: "Insufficient balance",
-          type: "error",
-          isLoading: false,
-          autoClose: 1000,
-        });
-        
-        dispatch(updateTask({
-          task: {
-            ...transferTask,
-            status: -1,
-          },
-          id: transferTask.id,
-        }))
-
-        return;
+        orderID: orderData && orderData.data._id
       }
-
-      dispatch(updateTask({
-        task: {
-          ...transferTask,
-          status: 2,
-        },
-        id: transferTask.id,
-      }))
-
-      toast.update(toastify, {
-        render: "Save order...",
-        type: "default",
-        isLoading: true,
-      });
-
-      const orderData = await appApi.createOrder({
-        fromValue: formData.from_amount,
-        fromTokenId: formData.from.token._id,
-        toValue: formData.to_amount,
-        toTokenId: formData.to.token._id,
-        timelock: formData.timelock,
-        txId: orderId,
-      });
-      
-      toast.update(toastify, {
-        render: "The order was created successfully.",
-        type: "success",
-        isLoading: false,
-        autoClose: 1000,
-      });
-
-      dispatch(updateTask({
-        task: {
-          ...transferTask,
-          status: 3,
-        },
-        id: transferTask.id,
-      }))
-    
+      dispatch(updateTask({task, id: idTask}))
     } catch (error) {
       console.log(error);
       toast.update(toastify, {
@@ -297,13 +203,106 @@ export default function CreateOrder() {
       });
       dispatch(updateTask({
         task: {
-          ...transferTask,
-          status: -2,
+          ...task,
+          status: task.status === 1 ? -1 : -2,
         },
-        id: transferTask.id,
+        id: task.id,
       }));
     }
-  }
+    dispatch(doneOneTask())
+  };
+  // const createOrderTwoChain = async () => {
+  //   const orderId = uuidv4();
+  //   const transferTask: ITask = {
+  //     id: taskState.taskList.length,
+  //     type: "CREATE",
+  //     status: 1,
+  //     tokenFrom: formData.from.token,
+  //     tokenTo: formData.to.token,
+  //     amountFrom: formData.from.amount,
+  //     amountTo: formData.to.amount,
+  //   };
+    
+  //   const toastify = toast.loading("Check your balance...");
+  //   dispatch(createTask(transferTask));
+    
+  //   try {
+  //     setIdTask(transferTask.id);
+  //     const balance = await getBalanceToken(appState.web3, userState, formData.from.token)
+  //     if (Number(balance) < Number(formData.from.amount)) {
+  //       toast.update(toastify, {
+  //         render: "Insufficient balance",
+  //         type: "error",
+  //         isLoading: false,
+  //         autoClose: 1000,
+  //       });
+        
+  //       dispatch(updateTask({
+  //         task: {
+  //           ...transferTask,
+  //           status: -1,
+  //         },
+  //         id: transferTask.id,
+  //       }))
+
+  //       return;
+  //     }
+
+  //     dispatch(updateTask({
+  //       task: {
+  //         ...transferTask,
+  //         status: 2,
+  //       },
+  //       id: transferTask.id,
+  //     }))
+
+  //     toast.update(toastify, {
+  //       render: "Save order...",
+  //       type: "default",
+  //       isLoading: true,
+  //     });
+
+  //     const orderData = await appApi.createOrder({
+  //       fromValue: formData.from.amount,
+  //       fromTokenId: formData.from.token._id,
+  //       toValue: formData.to.amount,
+  //       toTokenId: formData.to.token._id,
+  //       timelock: formData.timelock,
+  //       txId: orderId,
+  //     });
+      
+  //     toast.update(toastify, {
+  //       render: "The order was created successfully.",
+  //       type: "success",
+  //       isLoading: false,
+  //       autoClose: 1000,
+  //     });
+
+  //     dispatch(updateTask({
+  //       task: {
+  //         ...transferTask,
+  //         status: 3,
+  //       },
+  //       id: transferTask.id,
+  //     }))
+    
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.update(toastify, {
+  //       render: "The order was created fail, see detail in console.",
+  //       type: "error",
+  //       isLoading: false,
+  //       autoClose: 1000,
+  //     });
+  //     dispatch(updateTask({
+  //       task: {
+  //         ...transferTask,
+  //         status: -2,
+  //       },
+  //       id: transferTask.id,
+  //     }));
+  //   }
+  // }
 
   return (
     <div className="app-create">
@@ -333,7 +332,7 @@ export default function CreateOrder() {
           <div className="form-input">
             <div className="form-input--header">
               <p>From</p>
-              {formData.from !== "" ? (
+              {formData.from.token !== "" ? (
                 <div className="form-input--header--token"
                   onClick={hdClickSelectTokenFrom}
                 >
@@ -367,9 +366,9 @@ export default function CreateOrder() {
                 placeholder="0.0"
                 min={0}
                 precision={2}
-                value={formData.from_amount}
+                value={formData.from.amount}
                 onChange={(e) =>
-                  setFormData({ ...formData, from_amount: Number(e) })
+                  setFormData({ ...formData, from: {...formData.from, amount: Number(e)}})
                 }
                 className="form-input--content--input"
                 style={{ color: "red" }}
@@ -378,10 +377,7 @@ export default function CreateOrder() {
               <div className="form-input--content--amount">
                 <Button
                   onClick={() =>
-                    setFormData({
-                      ...formData,
-                      from_amount: Number(formData.from.balance),
-                    })
+                    setFormData({ ...formData, from: {...formData.from, amount: Number(formData.from.balance)}})
                   }
                 >
                   MAX
@@ -402,7 +398,7 @@ export default function CreateOrder() {
           <div className="form-input">
             <div className="form-input--header">
               <p>To</p>
-              {formData.to !== "" ? (
+              {formData.to.token !== "" ? (
                 <div
                   className="form-input--header--token"
                   onClick={hdClickSelectTokenTo}
@@ -437,9 +433,9 @@ export default function CreateOrder() {
                 placeholder="0.0"
                 min={0}
                 precision={2}
-                value={formData.to_amount}
+                value={formData.to.amount}
                 onChange={(e) =>
-                  setFormData({ ...formData, to_amount: Number(e) })
+                  setFormData({ ...formData, to: {...formData.to, amount: Number(e)}})
                 }
                 className="form-input--content--input"
                 style={{ color: "red" }}
@@ -448,10 +444,7 @@ export default function CreateOrder() {
               <div className="form-input--content--amount">
                 <Button
                   onClick={() =>
-                    setFormData({
-                      ...formData,
-                      to_amount: Number(formData.to.balance),
-                    })
+                  setFormData({ ...formData, to: {...formData.to, amount: Number(formData.to.balance)}})
                   }
                 >
                   MAX
@@ -472,9 +465,9 @@ export default function CreateOrder() {
                 <div className="pair">
                   <PairToken
                     from_img={
-                      formData.from !== "" ? formData.from.token.image : null
+                      formData.from.token !== "" ? formData.from.token.image : null
                     }
-                    to_img={formData.to !== "" ? formData.to.token.image : null}
+                    to_img={formData.to.token !== "" ? formData.to.token.image : null}
                   />
                   <p className="average">{rate}</p>
                 </div>
@@ -489,17 +482,15 @@ export default function CreateOrder() {
                       step={0.1}
                       min={0}
                       precision={3}
-                      value={formData.from_amount / formData.to_amount}
-                      onChange={(e) => e && setFormData({...formData,
-                        to_amount: Number((formData.from_amount / e).toFixed(2)),
-                      })}
+                      value={formData.from.amount / formData.to.amount}
+                      onChange={(e) => e && setFormData({...formData, to: {...formData.to, amount: Number((formData.from.amount / e).toFixed(2))}})}
                     />
                     <span style={{ marginLeft: "1rem" }}>
-                      {formData.from !== "" ? formData.from.token.symbol : ""}
+                      {formData.from.token !== "" ? formData.from.token.symbol : ""}
                     </span>{" "}
                     {"/"}
                     <span>
-                      {formData.to !== "" ? formData.to.token.symbol : ""}
+                      {formData.to.token !== "" ? formData.to.token.symbol : ""}
                     </span>{" "}
                     {""}
                   </p>
@@ -537,17 +528,18 @@ export default function CreateOrder() {
         <SelectToken
           closeFunction={hdClickSelectTokenFrom}
           onClickSelect={(token: any) => {
-            setFormData({ ...formData, from: token });
+            console.log(token)
+            setFormData({ ...formData, from: {...formData.from, token: token.token, balance: token.balance} });
             hdClickSelectTokenFrom();
-            if (formData.to !== "") {
+            if (formData.to.token !== "") {
               countExchangeRateForm();
             }
           }}
           tokenHidden={
-            formData.to !== "" ? formData.to.token.deployedAddress : ""
+            formData.to.token !== "" ? formData.to.token.deployedAddress : ""
           }
           isCheckNetwork={true}
-          hiddenChain={(!isOneChain && formData.to !== '') ? formData.to.token.network : null}
+          hiddenChain={(!isOneChain && formData.to.token !== '') ? formData.to.token.network : null}
         />
       )}
 
@@ -556,17 +548,17 @@ export default function CreateOrder() {
           closeFunction={hdClickSelectTokenTo}
           onClickSelect={(token: any) => {
             hdClickSelectTokenTo();
-            setFormData({ ...formData, to: token });
-            if (formData.from !== "") {
+            setFormData({ ...formData, to: {...formData.to, token: token.token, balance: token.balance}});
+            if (formData.from.token !== "") {
               countExchangeRateForm();
             }
           }}
           isCheckNetwork={isOneChain ? true : false}
           tokenHidden={
-            formData.from !== "" ? formData.from.token.deployedAddress : ""
+            formData.from.token !== "" ? formData.from.token.deployedAddress : ""
           }
           hiddenOtherNetwork={isOneChain ? true : false}
-          hiddenChain={(!isOneChain && formData.from !== '') ? formData.from.token.network : null}
+          hiddenChain={(!isOneChain && formData.from.token !== '') ? formData.from.token.network : null}
         />
       )}
 
@@ -679,7 +671,7 @@ export default function CreateOrder() {
                   color: "var(--color-secondary)",
                 }}
               >
-                {formData.from_amount} {formData.from.token.symbol}
+                {formData.from.amount} {formData.from.token.symbol}
               </p>
             </div>
             <PairToken
@@ -704,7 +696,7 @@ export default function CreateOrder() {
                   color: "var(--color-secondary)",
                 }}
               >
-                {formData.to_amount} {formData.to.token.symbol}
+                {formData.to.amount} {formData.to.token.symbol}
               </p>
             </div>
           </div>
@@ -870,7 +862,7 @@ export default function CreateOrder() {
                   color: "var(--color-secondary)",
                 }}
               >
-                {formData.from_amount} {formData.from.token.symbol}
+                {formData.from.amount} {formData.from.token.symbol}
               </p>
             </div>
             <PairToken
@@ -895,7 +887,7 @@ export default function CreateOrder() {
                   color: "var(--color-secondary)",
                 }}
               >
-                {formData.to_amount} {formData.to.token.symbol}
+                {formData.to.amount} {formData.to.token.symbol}
               </p>
             </div>
           </div>

@@ -30,9 +30,6 @@ const Layout = ({ children }: LayoutProps) => {
   );
 
   const taskState = useAppSelector((state) => state.taskState);
-
-
-  
   const dispatch = useAppDispatch();
     useEffect(() => {
       async function fetchTokens() {
@@ -100,14 +97,14 @@ const Layout = ({ children }: LayoutProps) => {
                   {
                     task.type === "TRANSFER" ? 
                       <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-                        <p style={{fontWeight: 500, marginRight: 10}}>{task.amount} {task.token.symbol}</p>
-                        <img src={task.token ? task.token.image : 'token'} alt={""} style={{height: 30}}/>
+                        <p style={{fontWeight: 500, marginRight: 10}}>{task.from.amount} {task.from.token.symbol}</p>
+                        <img src={task.from.token ? task.from.token.image : 'token'} alt={""} style={{height: 30}}/>
                       </div>
                     :
                       <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-                        <p style={{fontWeight: 500, marginRight: -10}}>{task.amountFrom} {task.tokenFrom.symbol}</p>
-                        <PairToken from_img={task.tokenFrom.image} to_img={task.tokenTo.image} width={30}/>
-                        <p style={{fontWeight: 500, marginLeft: -10}}>{task.amountTo} {task.tokenTo.symbol}</p>
+                        <p style={{fontWeight: 500, marginRight: -10}}>{task.from.amount} {task.from.token.symbol}</p>
+                        <PairToken from_img={task.from.token.image} to_img={task.to.token.image} width={30}/>
+                        <p style={{fontWeight: 500, marginLeft: -10}}>{task.to.amount} {task.to.token.symbol}</p>
                     </div>
                   }
                 </div>
