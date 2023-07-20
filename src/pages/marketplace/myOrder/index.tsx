@@ -7,37 +7,26 @@ import MyOrderItem from '../../../components/marketplace/MyOrderItem';
 import { useAppSelector } from '../../../state/hooks';
 
 interface IDataOrder {
-    pendingOrder: any[],
-    inprogressOrder: any[]
+    pendingOrders: any[],
+    inprogressOrders: any[],
+    completedOrders: any[],
 } 
 const MyOrder = () => {
-
-
     const [dataFetch, setdataFetch] =  useState<IDataOrder>({
-        pendingOrder: [],
-        inprogressOrder: []
+        pendingOrders: [],
+        inprogressOrders: [],
+        completedOrders: []
     })
     const [pageName, setPageName] = useState<string>('inprogressOrder')
 
     const userState = useAppSelector(state => state.userState)
     useEffect(() => {
         const fetchData = async () => {
-            const res = await appApi.getOrderInprogess()
-            console.log(res?.data)
-            if (res){
-                let pendingOrder : any[] = []
-                let inprogressOrder: any[] = [] 
-                for (let i = 0; i < res.data.length; i++){
-                    if (res.data[i].status === "pending")
-                        pendingOrder = [res.data[i], ...pendingOrder]
-                    else {
-                        inprogressOrder = [res.data[i], ...inprogressOrder]
-                    }
-                }
-                setdataFetch({pendingOrder, inprogressOrder})
-            }
+            const pending = await appApi.getUserOrder({status: 0})
+            const inprogress = await appApi.getUserOrder({status: 1})
+            const completed = await appApi.getUserOrder({status: 2})
+            setdataFetch({completedOrders: completed?.data, pendingOrders: pending?.data, inprogressOrders: inprogress?.data})
         }
-        console.log('vcl thật')
         fetchData()
     }, [userState.address])
   return (
@@ -56,16 +45,24 @@ const MyOrder = () => {
                 value: 'pendingOrder',
                 icon: <BarsOutlined rev={""}/>,
             },
+            {
+                label: 'Completed Order',
+                value: 'completedOrder',
+                icon: <BarsOutlined rev={""}/>,
+            },
         ]}/>
         <div className='list-order'>
             {
                 pageName === 'inprogressOrder' ?
-                dataFetch.inprogressOrder.map((item, index) => (
+                dataFetch.inprogressOrders.map((item, index) => (
                     <MyOrderItem data = {item}/>
                 ))
-                :
-                dataFetch.pendingOrder.map((item, index) => (
+                : pageName === 'pendingOrder' ?
+                dataFetch.pendingOrders.map((item, index) => (
                     <MyOrderItem data={item} isPendingOrder/>
+                )) :
+                dataFetch.completedOrders.map((item, index) => (
+                    <MyOrderItem data={item}/>
                 ))
             }    
         </div>

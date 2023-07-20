@@ -11,7 +11,7 @@ import PairToken from "../../../components/app/PairToken";
 import SelectToken from "../../../components/app/SelectToken";
 // import { MBC_EXCHANGE_ADDRESS } from "../../constants/contracts";
 import { useAppDispatch, useAppSelector } from "../../../state/hooks";
-import { getBalanceAccount, getBalanceToken, mappingNetwork } from "../../../utils/blockchain";
+import { getBalanceAccount, getBalanceToken } from "../../../utils/blockchain";
 import { ITask, ITaskState, createTask, doneOneTask, updateTask,} from "../../../state/task/taskSlice";
 import { getTokenContract, getSwapOneContract } from "../../../services/contract";
 import { getAddressOneChainContract } from "../../../utils/blockchain";
@@ -27,7 +27,6 @@ interface IFormData {
     amount: number,
     balance: number,
   }
-  timelock: number;
 }
 
 export default function CreateOrder() {
@@ -44,7 +43,6 @@ export default function CreateOrder() {
       amount: 0,
       balance: 0
     },
-    timelock: 24,
   });
   const [selectingTokenFrom, setSelectingTokenFrom] = useState<boolean>(false);
   const [selectingTokenTo, setSelectingTokenTo] = useState<boolean>(false);
@@ -55,7 +53,6 @@ export default function CreateOrder() {
     const newData: IFormData = {
       from: formData.to,
       to: formData.from,
-      timelock: formData.timelock,
     };
     setFormData(newData);
     countExchangeRateForm();
@@ -146,7 +143,6 @@ export default function CreateOrder() {
         formData.to.token.deployedAddress,
         BigInt(10 ** Number(18) * Number(formData.from.amount)),
         BigInt(10 ** Number(18) * Number(formData.to.amount)),
-        BigInt(24)
       )
       toast.update(toastify, {
         render: "Sending token...",
@@ -454,16 +450,6 @@ export default function CreateOrder() {
               </div>
             </div>
           </div>
-
-          {!isOneChain && (
-            <div className="locktime">
-              <p className="info-title">Time Lock</p>
-              <div className="input-time">
-                <InputNumber min={0} value={24} />
-                <p>hours</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
       

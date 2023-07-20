@@ -1,16 +1,15 @@
-import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
-import { Divider, Modal, Steps } from "antd";
+import { SwapOutlined } from "@ant-design/icons";
+import { Divider,} from "antd";
 import { toast } from "react-toastify";
+import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect, useState } from "react";
 
 import "./Order.scss";
 import appApi from "../../../api/appAPI";
-import PairToken from "../../app/PairToken";
 import { useAppSelector } from "../../../state/hooks";
 import { useAppDispatch } from "../../../state/hooks";
 import { saveInfo } from "../../../state/user/userSlice";
-import { IAcceptTask, createTask, updateTask } from "../../../state/task/taskSlice";
+import { ITask, ITaskState, createTask, updateTask } from "../../../state/task/taskSlice";
 import { getSwapOneContract, getTokenContract, getSwapTwoConract } from "../../../services/contract";
 import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
 import { requestChangeNetwork } from "../../../services/metamask";
@@ -20,73 +19,50 @@ interface IOrderItemProps {
   data: any
 }
 
+const SECRET_HASH = "TROIDATOI"
 const Order = ({data} : IOrderItemProps) => {
   const dispatch = useAppDispatch()
-  const web3State = useAppSelector((state) => state.appState.web3)
-  const tokenState = useAppSelector((state) => state.appState.tokens)
-  const userState = useAppSelector((state) => state.userState)
-  const taskState = useAppSelector((state) => state.taskState)
+  const {appState, userState, taskState} = useAppSelector((state) => state)
 
-  const [idTask, setIdTask] = useState(-1);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-
-
-  const getTask : any = (id : number) => {
-    return taskState.taskList[taskState.taskList.length - 1 - id]
-  }
-  const confirmTwoChain = async () => {
-    console.log(data)
-    const orderId = uuidv4();
-    let acceptTask : IAcceptTask = {
-      id: taskState.taskList.length,
-      type: "TWOCHAIN-CREATE",
-      status: 1,
-      tokenFrom: data.fromValue.token,
-      tokenTo: data.toValue.token,
-      amountFrom: data.fromValue.amount,
-      amountTo: data.toValue.amount,
-      orderID: data._id,
-      owner: data.from.address
-    }
+  const confirmTwoChain = async  (taskState: ITaskState, idTask: number) => {
     const toaster = toast.loading("Approving token...")
-    dispatch(createTask(acceptTask))
-    setIdTask(acceptTask.id)
+    let task : ITask = {...taskState.taskList[idTask], status: 1}
+    dispatch(updateTask({task, id: idTask}))
+    dispatch(createTask(task))
     try {
-      console.log(orderId,
-        data.from.address,
-        data.toValue.token.deployedAddress,
-        BigInt(10 ** Number(18) * Number(data.toValue.amount)),
-        "vcl that",
-        web3State.utils.soliditySha3('vcl that'),
-        BigInt(24))
+      const mySecret = uuidv4();
 
-      const exchangeContract = getSwapTwoConract(web3State, userState.network);
-      const tokenContract = getTokenContract(web3State, data.toValue.token.deployedAddress)
+      var ciphertext = CryptoJS.AES.encrypt(mySecret, SECRET_HASH).toString();
+
+      const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
+      const tokenContract = getTokenContract(appState.web3, data.toValue.token.deployedAddress)
       const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
 
       const approveRecipt = await tokenContract.methods.approve(
         SWAP_ADDRESS_CONTRACT,
         BigInt(10 ** Number(18) * Number(data.toValue.amount)),
       ).send({from: userState.address})
-      acceptTask = {...acceptTask, status: 2}
+      task = {...task, status: 2}
       dispatch(updateTask({
-        task: acceptTask, 
-        id: acceptTask.id
+        task: task, 
+        id: task.id
       }))
 
       toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
-  
       const acceptExchangeMethod = exchangeContract.methods.create(
-        orderId,
+        data.txId,
         data.from.address,
         data.toValue.token.deployedAddress,
         BigInt(10 ** Number(18) * Number(data.toValue.amount)),
-        "vcl that",
-        web3State.utils.soliditySha3('vcl that'),
-        BigInt(24)
+        appState.web3.utils.soliditySha3(mySecret)
       )
 
-      const acceptRecepit = await web3State.eth.sendTransaction({
+      console.log(await acceptExchangeMethod.estimateGas({
+        from: userState.address,
+        data: acceptExchangeMethod.encodeABI()
+      }))
+
+      const acceptRecepit = await appState.web3.eth.sendTransaction({
         from: userState.address,
         gasPrice: "0",
         gas: await acceptExchangeMethod.estimateGas({
@@ -98,48 +74,42 @@ const Order = ({data} : IOrderItemProps) => {
         data: acceptExchangeMethod.encodeABI(),
       })
 
-      const orderData = await appApi.acceptOder(data._id, web3State.utils.soliditySha3('vcl that'))
-      
-      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
+      const orderData = await appApi.acceptOder(
+        data._id,
+        {
+          key: ciphertext,
+          hashlock: appState.web3.utils.soliditySha3(mySecret)
+        }
+      )
+
+      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
       
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
       
-      acceptTask = {...acceptTask, status: 3, transactionHash: acceptRecepit.blockHash}
+      task = {...task, status: 3, transactionHash: acceptRecepit.blockHash}
       dispatch(updateTask({
-        task: acceptTask, 
-        id: acceptTask.id
+        task: task, 
+        id: task.id
       }))
-
     } catch (error) {
       console.log(error);
       dispatch(updateTask({
         task: {
-            ...acceptTask, 
-            status: acceptTask.status === 1 ? -1 : -2 ,
+            ...task, 
+            status: task.status === 1 ? -1 : -2 ,
         }, 
-        id: acceptTask.id
+        id: task.id
       }))
       toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
     }
   }
-  const confirmOneChain = async () => {
-    let acceptTask : IAcceptTask = {
-      id: taskState.taskList.length,
-      type: "ACCEPT",
-      status: 1,
-      tokenFrom: data.fromValue.token,
-      tokenTo: data.toValue.token,
-      amountFrom: data.fromValue.amount,
-      amountTo: data.toValue.amount,
-      orderID: data._id,
-      owner: data.from.address
-    }
+  const confirmOneChain = async  (taskState: ITaskState, idTask: number) => {
     const toaster = toast.loading("Approving token...")
-    dispatch(createTask(acceptTask))
-    setIdTask(acceptTask.id)
+    let task : ITask = {...taskState.taskList[idTask], status: 1}
+    dispatch(updateTask({task, id: idTask}))
     try {
-      const exchangeContract = getSwapOneContract(web3State, userState.network);
-      const tokenContract = getTokenContract(web3State, data.toValue.token.deployedAddress)
+      const exchangeContract = getSwapOneContract(appState.web3, userState.network);
+      const tokenContract = getTokenContract(appState.web3, data.toValue.token.deployedAddress)
       const SWAP_ADDRESS_CONTRACT = getAddressOneChainContract(userState.network)
       
       const approveRecipt = await tokenContract.methods.approve(
@@ -147,17 +117,14 @@ const Order = ({data} : IOrderItemProps) => {
         BigInt(10 ** Number(18) * Number(data.toValue.amount)),
       ).send({from: userState.address})
 
-      acceptTask = {...acceptTask, status: 2}
-      dispatch(updateTask({
-        task: acceptTask, 
-        id: acceptTask.id
-      }))
+      task = {...task, status: 2}
+      dispatch(updateTask({ task, id: task.id}))
 
       toast.update(toaster, { render: "Buying token...", type: "default", isLoading: true});
-      const acceptExchangeMethod = exchangeContract.methods.acceptTx(
-        data.txIdFrom,
-      )
-      const exchangeRecepit = await web3State.eth.sendTransaction({
+      
+      const acceptExchangeMethod = exchangeContract.methods.acceptTx(data.txId)
+
+      const exchangeRecepit = await appState.web3.eth.sendTransaction({
         from: userState.address,
         gasPrice: "0",
         gas: await acceptExchangeMethod.estimateGas({
@@ -169,51 +136,59 @@ const Order = ({data} : IOrderItemProps) => {
         data: acceptExchangeMethod.encodeABI(),
       })
 
-      const orderData = await appApi.acceptOder(data._id, data.txIdFrom )
+      const orderData = await appApi.acceptOder(data._id)
       
-      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(web3State, userState, tokenState)}))
+      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
       
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
       
-      acceptTask = {...acceptTask, status: 3, transactionHash: exchangeRecepit.blockHash}
-      dispatch(updateTask({
-        task: acceptTask, 
-        id: acceptTask.id
+      task = {...task, status: 3, transactionHash: exchangeRecepit.blockHash}
+      dispatch(updateTask({ 
+        task: task, 
+        id: task.id
       }))
 
     } catch (error) {
       console.log(error);
       dispatch(updateTask({
         task: {
-            ...acceptTask, 
-            status: acceptTask.status === 1 ? -1 : -2 ,
+            ...task, 
+            status: task.status === 1 ? -1 : -2 ,
         }, 
-        id: acceptTask.id
+        id: task.id
       }))
       toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
     }
   }
-  const onOkModal = () => {
-    if (data.toValue.token.network !== userState.network){
-      requestChangeNetwork(data.toValue.token.network)
+  const onClickAccept = async () => {
+    if (data.toValue.token.network !== userState.network) {
+      requestChangeNetwork(data.toValue.token.network);
       return;
     }
-    
     if (data.fromValue.token.network === data.toValue.token.network) {
-      if (idTask === -1) {
-        confirmOneChain()
-      } else {
-        setOpenModal(false) ; setIdTask(-1)
-      }
-    } else {
-      if (idTask === -1) {
-        confirmTwoChain()
-      } else {
-        setOpenModal(false) ; setIdTask(-1)
-      }
+      let myTask: ITask = {
+        id: taskState.taskList.length,
+        type: "ACCEPT",
+        status: 0,
+        funcExecute: confirmOneChain,
+        from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+        to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+      };
+      dispatch(createTask(myTask));
+    }
+    else {
+      let myTask: ITask = {
+        id: taskState.taskList.length,
+        type: "ACCEPT",
+        status: 0,
+        funcExecute: confirmTwoChain,
+        from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+        to: {address: data.from.address, token: data.toValue.token, amount: data.toValue.amount}
+      };
+      dispatch(createTask(myTask));
+      console.log(myTask)
     }
   }
-
   return (
     <div className="app-order" style={{marginBottom: 20}}>
       <div className="app-order--info">
@@ -259,13 +234,13 @@ const Order = ({data} : IOrderItemProps) => {
               }</p>
             </div>
           }
-          <div className={`app-order--action--btn`} onClick={() => setOpenModal(true)}
+          <div className={`app-order--action--btn`} onClick={() => onClickAccept()}
           >
             Buy
           </div>
       </div>
 
-      <Modal
+      {/* <Modal
           title="Accept Order"
           open={openModal}
           
@@ -367,7 +342,7 @@ const Order = ({data} : IOrderItemProps) => {
                   }</span>
               </p>
           </div>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };

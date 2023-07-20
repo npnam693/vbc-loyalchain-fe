@@ -1,29 +1,19 @@
-import { Modal, Result, Steps } from 'antd'
-import React from 'react'
 import { useAppDispatch, useAppSelector } from '../../../state/hooks'
-import { clearModal } from '../../../state/modal/modalSlice'
 import { useNavigate } from 'react-router-dom'
 import './ModalPage.scss'
-import { LoadingOutlined, RightSquareTwoTone } from '@ant-design/icons'
-import { mappingNetwork } from '../../../utils/blockchain'
-import { ITask, ITaskState, closeTaskModel, deleteTask } from '../../../state/task/taskSlice'
-import PairToken from '../PairToken'
+import {ITaskState, closeTaskModel, deleteTask } from '../../../state/task/taskSlice'
 import ModalTransfer from './helper/Transfer'
 import ModalCreate from './helper/Create'
 import SellerCreateModal from './helper/SellerCreate'
 import ModalRemove from './helper/Remove'
+import ModalAccept from './helper/Accept'
 
-export const getTask  = (id: number, taskState: ITaskState) => {
-    return 
-}
 const ModalPage = () => {
-    // const modalState = useAppSelector(state => state.modalState
     const taskState = useAppSelector(state => state.taskState)
     const dispatch = useAppDispatch()
-    const navigate = useNavigate()
     if (taskState.openModalTask === -1) return <></>
     const task = taskState.taskList[taskState.openModalTask]
-    
+
     const afterClose = () => {
         dispatch(closeTaskModel())
         if (task.status === 0) {
@@ -44,10 +34,15 @@ const ModalPage = () => {
         return (
             <SellerCreateModal task={task} taskState={taskState} afterClose={afterClose}/>
         )
-    } 
-    else if (task.type === "REMOVE") {
+    }   
+    else if (task.type === "REMOVE" || task.type === "SELLER-REMOVE") {
         return (
             <ModalRemove task={task} taskState={taskState} afterClose={afterClose}/>
+        )
+    } 
+    else if (task.type === "ACCEPT" || task.type === "SELLER-DEPOSIT") {
+        return (
+            <ModalAccept task={task} taskState={taskState} afterClose={afterClose}/>
         )
     }
 

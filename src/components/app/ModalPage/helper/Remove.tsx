@@ -14,7 +14,7 @@ export interface IModalElement {
 
 const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
   return (
-    <Modal
+      <Modal
         title="Remove Order"
         open={true}
         onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : {}}
@@ -33,7 +33,7 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
                 task.status === 0 ? 
                 [
                   {
-                    title: "Widthdraw Token",
+                    title: "Refund Token",
                     status: "process"
                   },
                   {
@@ -47,7 +47,7 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
                 ] : 
                 [
                   {
-                    title: "Widthdraw Token",
+                    title: "Refund Token",
                     status: task.status === -1 ? 'error' : 
                             ((task.status >  1) ? 'finish' : 'process'),
                     icon:  task.status === 1 && <LoadingOutlined  rev={""}/>
@@ -97,7 +97,7 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
           />
     }
 
-<div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 30}}>
+        <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 30}}>
             <div >
               <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{task.from.token.name}</p>
               <p style={{textAlign: "right", fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{task.from.amount} {task.from.token.symbol}</p>
@@ -109,7 +109,7 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
             </div>
         </div>
 
-          <div style={{fontWeight: 500}}>
+        <div style={{fontWeight: 500}}>
               <p>Status: {
                   task.status === 0  ? 
                       <span style={{fontWeight: 400, color: "#333"}}>Pending</span> 
@@ -140,7 +140,7 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
                   }</span>
               </p>
           </div>
-      </Modal>
+    </Modal>
 
   )
 }

@@ -60,10 +60,10 @@ class AppAPI {
         return axiosClient.post(url, {...data, transactionType: 'exchange'});
     }
 
-    acceptOder = (txId: string, hashlock: string ) => {
+    acceptOder = (txId: string, body?: any) => {
         if (LOYALCHAIN_API === undefined) return;
         const url = LOYALCHAIN_API.concat(`/transactions/${txId}/accept`);
-        return axiosClient.patch(url, {hashlock: hashlock});
+        return axiosClient.patch(url, body);
     }
     cancelOrder = (txId: string) => {
         if (LOYALCHAIN_API === undefined) return;
@@ -87,11 +87,10 @@ class AppAPI {
         });
     }
 
-    
-    getOrderInprogess = () => {
+    getUserOrder = (data: any) => {
         if (LOYALCHAIN_API === undefined) return;
         const url = LOYALCHAIN_API.concat("/users/tx");
-        return axiosClient.get(url, {params: {inProgress: true}});
+        return axiosClient.get(url, {params: data});
     }
 }
 

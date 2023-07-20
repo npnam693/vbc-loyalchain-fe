@@ -5,11 +5,15 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
             - Create Order: CREATE
             - Accept Order: ACCEPT
             - Transfer Token: TRANSFER
+            - Remove Order: REMOVE
         2. Two Chain:
+            + SELLER-CREATE
             + BUYER-DEPOSIT
             + SELLER-DEPOSIT
             + BUYER-WITHDRAW
             + SELLER-WITHDRAW
+
+            + SELLER-REMOVE
 
     TASK STATUS:
         - -2: Fail Send
@@ -31,7 +35,7 @@ export interface ITask {
         token: any;
         amount: number;
     };
-    to: {
+    to?: {
         address: string
         token: any;
         amount: number;

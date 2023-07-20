@@ -43,20 +43,29 @@ const Layout = ({ children }: LayoutProps) => {
   
 
   const getTitleTask = (type: string)  => {
+
+    console.log('DCM', type)
+
     switch (type) {
       case "TRANSFER":
         return "Transfer Token";
-      case "ACCEPT" || "TWOCHAIN-CREATE":
+      case "ACCEPT":
         return "Accept Order";
       case "CREATE":
         return "Create Order";
+      case "SELLER-CREATE":
+        return "Create Order";
+      case "REMOVE":
+        return "Remove Order"
+      case  "SELLER-REMOVE":
+        return "Remove Order"
       default:
         return "Task";
     }
   }
   const contentTaskPopover = () => {
     return (
-      <div style={{height: 300, minWidth: 400, overflow: 'scroll', cursor: 'pointer'}}>
+      <div style={{height: 300, minWidth: 500, overflow: 'scroll', cursor: 'pointer'}}>
         {
           taskState.taskList.length === 0 ?
           <Empty /> :
@@ -71,7 +80,7 @@ const Layout = ({ children }: LayoutProps) => {
               >
                 <div style={{margin: "0 16px 0 -10px"}}>
                   {
-                      (task.status === 1 || task.status === 2) ?
+                      (task.status === 1 || task.status === 2 || task.status === 0) ?
                         <LoadingOutlined rev={""} style={{fontSize: '2.5rem', color:"var(--color-secondary)"}}/>
                       :
                       (
@@ -88,7 +97,7 @@ const Layout = ({ children }: LayoutProps) => {
                   </p>
                   <p style={{fontSize: '1.2rem'}}>Task ID: #0{task.id}
                     <span style={{marginLeft: 10}}>Step: {
-                      task.status === 2 ? 'Send Token' : (task.status === 3 ? 'Done' : (task.status === 2 ? 'Approve Token' : 'Fail'))
+                      task.status === 2 ? 'Send Token' : (task.status === 3 ? 'Done' : (task.status < 2 ? 'In Progress' : 'Fail'))
                     }</span>
                   </p>
                 </div>

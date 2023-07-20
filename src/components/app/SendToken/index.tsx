@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
-import { Button, Divider, Input, InputNumber, Modal, Steps } from 'antd'
-import { CloseCircleOutlined, LoadingOutlined, RightSquareTwoTone } from '@ant-design/icons'
+import { Button, Divider, Input, InputNumber} from 'antd'
+import { CloseCircleOutlined} from '@ant-design/icons'
 
 import './SendToken.scss'
 import appApi from '../../../api/appAPI'
@@ -11,7 +11,6 @@ import { showConfirmConnectWallet } from '../../../pages/marketplace'
 import { useAppDispatch, useAppSelector } from '../../../state/hooks'
 import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
 import { ITask, ITaskState, createTask, doneOneTask, updateTask } from '../../../state/task/taskSlice'
-import { getTask } from '../ModalPage'
 interface ISendToken {
     token?: any;
     onCloseBtn: () => void
