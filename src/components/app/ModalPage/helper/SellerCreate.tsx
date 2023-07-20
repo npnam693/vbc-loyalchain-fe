@@ -1,14 +1,20 @@
 import React from 'react'
-import { IModalElement } from './Transfer';
+import { ITask, ITaskState } from '../../../../state/task/taskSlice';
 import { Modal, Steps } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import PairToken from '../../PairToken';
 import { mappingNetwork } from '../../../../utils/blockchain';
 
-const ModalCreate = ({task, taskState, afterClose} : IModalElement) => {
+export interface IModalElement {
+    task: ITask;
+    taskState: ITaskState;
+    afterClose: () => void;
+}
+
+const SellerCreateModal = ({task, taskState, afterClose} : IModalElement) => {
   return (
     <Modal
-      title="Create Order"
+      title="Transfer Token"
       open={true}
       onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : {}}
       okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
@@ -23,53 +29,53 @@ const ModalCreate = ({task, taskState, afterClose} : IModalElement) => {
         size="default"
         style={{ width: 600, margin: "auto", marginTop: 40, marginBottom: 30}}
         items= {
-          task.status === 0 ? 
-          [
-            {
-              title: "Approve Token",
-              status: "process",
-            },
-            {
-              title: "Send Token",
-              status: "wait",
-            },
-            {
-              title: "Done",
-              status: "wait",
-            },
-          ]
-          : [
-              {
-                title: "Approve Token",
-                status:
-                  task.status === -1
-                    ? "error"
-                    : task.status > 1
-                    ? "finish"
-                    : "process",
-                icon: task.status === 1 && (
-                  <LoadingOutlined rev={""} />
-                ),
-              },
-              {
-                title: "Send Token",
-                status:
-                  task.status === -2
-                    ? "error"
-                    : task.status < 2
-                    ? "wait"
-                    : task.status === 3
-                    ? "finish"
-                    : "process",
-                icon: task.status === 2 && (
-                  <LoadingOutlined rev={""} />
-                ),
-              },
-              {
-                title: "Done",
-                status: task.status === 3 ? "finish" : "wait",
-              },
+            task.status === 0 ?
+            [
+                {
+                  title: "Check balance",
+                  status: "process",
+                },
+                {
+                  title: "Save Order",
+                  status: "wait",
+                },
+                {
+                  title: "Done",
+                  status: "wait",
+                },
             ]
+            : [
+                  {
+                    title: "Check balance",
+                    status:
+                      task.status === -1
+                        ? "error"
+                        : task.status > 1
+                        ? "finish"
+                        : "process",
+                    icon: task.status === 1 && (
+                      <LoadingOutlined rev={""} />
+                    ),
+                  },
+                  {
+                    title: "Save Order",
+                    status:
+                      task.status === -2
+                        ? "error"
+                        : task.status < 2
+                        ? "wait"
+                        : task.status === 3
+                        ? "finish"
+                        : "process",
+                    icon: task.status === 2 && (
+                      <LoadingOutlined rev={""} />
+                    ),
+                  },
+                  {
+                    title: "Done",
+                    status: task.status === 3 ? "finish" : "wait",
+                  },
+                ]
         }
       />
 
@@ -184,4 +190,4 @@ const ModalCreate = ({task, taskState, afterClose} : IModalElement) => {
   )
 }
 
-export default ModalCreate
+export default SellerCreateModal

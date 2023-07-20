@@ -103,8 +103,8 @@ const Layout = ({ children }: LayoutProps) => {
                     :
                       <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
                         <p style={{fontWeight: 500, marginRight: -10}}>{task.from.amount} {task.from.token.symbol}</p>
-                        <PairToken from_img={task.from.token.image} to_img={task.to.token.image} width={30}/>
-                        <p style={{fontWeight: 500, marginLeft: -10}}>{task.to.amount} {task.to.token.symbol}</p>
+                        <PairToken from_img={task.from.token.image} to_img={task.to?.token.image} width={30}/>
+                        <p style={{fontWeight: 500, marginLeft: -10}}>{task.to?.amount} {task.to?.token.symbol}</p>
                     </div>
                   }
                 </div>

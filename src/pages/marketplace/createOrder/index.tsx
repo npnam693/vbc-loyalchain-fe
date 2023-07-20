@@ -46,14 +46,10 @@ export default function CreateOrder() {
     },
     timelock: 24,
   });
-  const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectingTokenFrom, setSelectingTokenFrom] = useState<boolean>(false);
   const [selectingTokenTo, setSelectingTokenTo] = useState<boolean>(false);
-  const [idTask, setIdTask] = useState(-1);
   const [isOneChain, setIsOneChain] = useState<boolean>(true);
   const [rate, setRate] = useState("0.000");
-
-
 
   const hdClickSwap = () => {
     const newData: IFormData = {
@@ -84,9 +80,7 @@ export default function CreateOrder() {
       alert("Insufficient balance");
       return;
     }
-    if (
-      formData.from.token.deployedAddress === formData.to.token.deployedAddress
-    ) {
+    if (formData.from.token.deployedAddress === formData.to.token.deployedAddress) {
       alert("Please select different token");
       return;
     }
@@ -94,33 +88,36 @@ export default function CreateOrder() {
       alert("Please select different token");
       return;
     }
-    setOpenModal(true);
+    if (isOneChain){
+      let myTask: ITask = {
+        id: taskState.taskList.length,
+        type: "CREATE",
+        status: 0,
+        funcExecute: createOrderOneChain,
+        from: {address: userState.address, token: formData.from.token, amount: formData.from.amount},
+        to: {address: userState.address, token: formData.to.token, amount: formData.to.amount}
+      };
+      dispatch(createTask(myTask))
+    } else {
+        let myTask: ITask = {
+          id: taskState.taskList.length,
+          type: "SELLER-CREATE",
+          status: 0,
+          funcExecute: createOrderTwoChain,
+          from: {address: userState.address, token: formData.from.token, amount: formData.from.amount},
+          to: {address: userState.address, token: formData.to.token, amount: formData.to.amount}
+        };
+        dispatch(createTask(myTask))
+    }
   };
   const hdClickSelectTokenFrom = () => {
     setSelectingTokenFrom(!selectingTokenFrom);
   };
-
   const hdClickSelectTokenTo = () => {
     setSelectingTokenTo(!selectingTokenTo);
   };
-  const getTask: any = (id: number) => {
-    return taskState.taskList[taskState.taskList.length - 1 - id];
-  };
-
-
-  const onClickCreate = () => {
-    let myTask: ITask = {
-      id: taskState.taskList.length,
-      type: "CREATE",
-      status: 1,
-      funcExecute: createOrderOneChain,
-      from: {address: userState.address, token: formData.from.token, amount: formData.from.amount},
-    };
-    dispatch(createTask(myTask))
-  }
-  
   const createOrderOneChain = async (taskState: ITaskState, idTask: number) => {
-    const orderId = uuidv4();
+    const orderId = appState.web3.utils.soliditySha3(uuidv4());
     const toastify = toast.loading("Approving token...");
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     dispatch(updateTask({task, id: idTask}))
@@ -173,7 +170,6 @@ export default function CreateOrder() {
         fromTokenId: formData.from.token._id,
         toValue: formData.to.amount,
         toTokenId: formData.to.token._id,
-        timelock: 24,
         txId: orderId,
       });
 
@@ -211,99 +207,59 @@ export default function CreateOrder() {
     }
     dispatch(doneOneTask())
   };
-  // const createOrderTwoChain = async () => {
-  //   const orderId = uuidv4();
-  //   const transferTask: ITask = {
-  //     id: taskState.taskList.length,
-  //     type: "CREATE",
-  //     status: 1,
-  //     tokenFrom: formData.from.token,
-  //     tokenTo: formData.to.token,
-  //     amountFrom: formData.from.amount,
-  //     amountTo: formData.to.amount,
-  //   };
-    
-  //   const toastify = toast.loading("Check your balance...");
-  //   dispatch(createTask(transferTask));
-    
-  //   try {
-  //     setIdTask(transferTask.id);
-  //     const balance = await getBalanceToken(appState.web3, userState, formData.from.token)
-  //     if (Number(balance) < Number(formData.from.amount)) {
-  //       toast.update(toastify, {
-  //         render: "Insufficient balance",
-  //         type: "error",
-  //         isLoading: false,
-  //         autoClose: 1000,
-  //       });
-        
-  //       dispatch(updateTask({
-  //         task: {
-  //           ...transferTask,
-  //           status: -1,
-  //         },
-  //         id: transferTask.id,
-  //       }))
+  const createOrderTwoChain = async (taskState: ITaskState, idTask: number) => {
+    const orderId = appState.web3.utils.soliditySha3(uuidv4());
+    let task : ITask = {...taskState.taskList[idTask], status: 1}
+    const toastify = toast.loading("Check your balance...");
+    dispatch(createTask(task));
+    try {
+      const balance = await getBalanceToken(appState.web3, userState, formData.from.token)
+      if (Number(balance) < Number(formData.from.amount)) {
+        toast.update(toastify, {
+          render: "Insufficient balance",
+          type: "error",
+          isLoading: false,
+          autoClose: 1000,
+        });
+        task={...task, status: -1}
+        dispatch(updateTask({task, id: task.id}))
+        return;
+      }
+      dispatch(updateTask({task:{...task, status: 2}, id: task.id}))
+      toast.update(toastify, {
+        render: "Save order...",
+        type: "default",
+        isLoading: true,
+      });
 
-  //       return;
-  //     }
-
-  //     dispatch(updateTask({
-  //       task: {
-  //         ...transferTask,
-  //         status: 2,
-  //       },
-  //       id: transferTask.id,
-  //     }))
-
-  //     toast.update(toastify, {
-  //       render: "Save order...",
-  //       type: "default",
-  //       isLoading: true,
-  //     });
-
-  //     const orderData = await appApi.createOrder({
-  //       fromValue: formData.from.amount,
-  //       fromTokenId: formData.from.token._id,
-  //       toValue: formData.to.amount,
-  //       toTokenId: formData.to.token._id,
-  //       timelock: formData.timelock,
-  //       txId: orderId,
-  //     });
+      const orderData = await appApi.createOrder({
+        fromValue: formData.from.amount,
+        fromTokenId: formData.from.token._id,
+        toValue: formData.to.amount,
+        toTokenId: formData.to.token._id,
+        txId: orderId,
+      });
       
-  //     toast.update(toastify, {
-  //       render: "The order was created successfully.",
-  //       type: "success",
-  //       isLoading: false,
-  //       autoClose: 1000,
-  //     });
+      toast.update(toastify, {
+        render: "The order was created successfully.",
+        type: "success",
+        isLoading: false,
+        autoClose: 1000,
+      });
 
-  //     dispatch(updateTask({
-  //       task: {
-  //         ...transferTask,
-  //         status: 3,
-  //       },
-  //       id: transferTask.id,
-  //     }))
-    
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.update(toastify, {
-  //       render: "The order was created fail, see detail in console.",
-  //       type: "error",
-  //       isLoading: false,
-  //       autoClose: 1000,
-  //     });
-  //     dispatch(updateTask({
-  //       task: {
-  //         ...transferTask,
-  //         status: -2,
-  //       },
-  //       id: transferTask.id,
-  //     }));
-  //   }
-  // }
-
+      dispatch(updateTask({task: {...task, status: 3}, id: task.id}))
+    } catch (error) {
+      console.log(error);
+      toast.update(toastify, {
+        render: "The order was created fail, see detail in console.",
+        type: "error",
+        isLoading: false,
+        autoClose: 1000,
+      });
+      dispatch(updateTask({task: {...task, status: -2}, id: task.id}))
+    }
+    dispatch(doneOneTask())
+  }
   return (
     <div className="app-create">
 
@@ -560,389 +516,6 @@ export default function CreateOrder() {
           hiddenOtherNetwork={isOneChain ? true : false}
           hiddenChain={(!isOneChain && formData.from.token !== '') ? formData.from.token.network : null}
         />
-      )}
-
-      {openModal && isOneChain && (
-        <Modal
-          title="Create Order"
-          open={openModal}
-          onOk={
-            idTask === -1
-              ? createOrderOneChain
-              : () => {
-                  setOpenModal(false);
-                  setIdTask(-1);
-                }
-          }
-          okText={idTask === -1 ? "Confirm" : "OK"}
-          cancelText="Cancel"
-          onCancel={() => {
-            setOpenModal(false);
-            setIdTask(-1);
-          }}
-          width={700}
-          style={{ top: 200 }}
-          closable={true}
-        >
-          <Steps
-            size="default"
-            style={{
-              width: 600,
-              margin: "auto",
-              marginTop: 40,
-              marginBottom: 30,
-            }}
-            items=
-            {
-              idTask === -1 ? 
-              [
-                {
-                  title: "Approve Token",
-                  status: "wait",
-                },
-                {
-                  title: "Send Token",
-                  status: "wait",
-                },
-                {
-                  title: "Done",
-                  status: "wait",
-                },
-              ]
-              : [
-                  {
-                    title: "Approve Token",
-                    status:
-                      getTask(idTask).status === -1
-                        ? "error"
-                        : getTask(idTask).status > 1
-                        ? "finish"
-                        : "process",
-                    icon: getTask(idTask).status === 1 && (
-                      <LoadingOutlined rev={""} />
-                    ),
-                  },
-                  {
-                    title: "Send Token",
-                    status:
-                      getTask(idTask).status === -2
-                        ? "error"
-                        : getTask(idTask).status < 2
-                        ? "wait"
-                        : getTask(idTask).status === 3
-                        ? "finish"
-                        : "process",
-                    icon: getTask(idTask).status === 2 && (
-                      <LoadingOutlined rev={""} />
-                    ),
-                  },
-                  {
-                    title: "Done",
-                    status: getTask(idTask).status === 3 ? "finish" : "wait",
-                  },
-                ]
-            }
-          />
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 30,
-            }}
-          >
-            <div>
-              <p
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 500,
-                  lineHeight: "1.6rem",
-                }}
-              >
-                {formData.from.token.name}
-              </p>
-              <p
-                style={{
-                  textAlign: "right",
-                  fontSize: "1.6rem",
-                  fontWeight: 600,
-                  color: "var(--color-secondary)",
-                }}
-              >
-                {formData.from.amount} {formData.from.token.symbol}
-              </p>
-            </div>
-            <PairToken
-              from_img={formData.from.token.image}
-              to_img={formData.to.token.image}
-              width={60}
-            />
-            <div>
-              <p
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 500,
-                  lineHeight: "1.6rem",
-                }}
-              >
-                {formData.to.token.name}
-              </p>
-              <p
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 600,
-                  color: "var(--color-secondary)",
-                }}
-              >
-                {formData.to.amount} {formData.to.token.symbol}
-              </p>
-            </div>
-          </div>
-
-          <div style={{ fontWeight: 500 }}>
-            <p>
-              Status:{" "}
-              {idTask === -1 ? (
-                <span style={{ fontWeight: 400, color: "#333" }}>Pending</span>
-              ) : getTask(idTask).status === 3 ? (
-                <span style={{ fontWeight: 400, color: "#52c41a" }}>
-                  Success
-                </span>
-              ) : (
-                <span style={{ fontWeight: 400, color: "#1677ff" }}>
-                  In Progress
-                </span>
-              )}
-            </p>
-
-            <p>
-              Network:
-              <span style={{ fontWeight: 400 }}>
-                {" "}
-                {formData.from.token.network === formData.to.token.network
-                  ? mappingNetwork(formData.from.token.network)
-                  : mappingNetwork(formData.from.token.network) +
-                    " - " +
-                    mappingNetwork(formData.to.token.network)}
-              </span>
-            </p>
-            <p>
-              Transaction Hash:
-              <span style={{ fontWeight: 400 }}>
-                {" "}
-                {idTask === -1
-                  ? "..."
-                  : getTask(idTask).status === 3
-                  ? getTask(idTask).transactionHash
-                  : "..."}
-              </span>
-            </p>
-            <p>
-              Order ID:
-              <span style={{ fontWeight: 400 }}>
-                {" "}
-                {idTask === -1
-                  ? "..."
-                  : getTask(idTask).status === 3
-                  ? getTask(idTask).orderID
-                  : "..."}
-              </span>
-            </p>
-          </div>
-        </Modal>
-      )}
-      {openModal && !isOneChain && (
-        <Modal
-          title="Create Order"
-          open={openModal}
-          onOk={
-            idTask === -1
-              ? createOrderTwoChain
-              : () => {
-                  setOpenModal(false);
-                  setIdTask(-1);
-                }
-          }
-          okText={idTask === -1 ? "Confirm" : "OK"}
-          cancelText="Cancel"
-          onCancel={() => {
-            setOpenModal(false);
-            setIdTask(-1);
-          }}
-          width={700}
-          style={{ top: 200 }}
-          closable={true}
-        >
-          <Steps
-            size="default"
-            style={{
-              width: 600,
-              margin: "auto",
-              marginTop: 40,
-              marginBottom: 30,
-            }}
-            items=
-            {
-              idTask === -1 ? 
-              [
-                {
-                  title: "Check balance",
-                  status: "wait",
-                },
-                {
-                  title: "Save Order",
-                  status: "wait",
-                },
-                {
-                  title: "Done",
-                  status: "wait",
-                },
-              ]
-              : [
-                  {
-                    title: "Check balance",
-                    status:
-                      getTask(idTask).status === -1
-                        ? "error"
-                        : getTask(idTask).status > 1
-                        ? "finish"
-                        : "process",
-                    icon: getTask(idTask).status === 1 && (
-                      <LoadingOutlined rev={""} />
-                    ),
-                  },
-                  {
-                    title: "Save Order",
-                    status:
-                      getTask(idTask).status === -2
-                        ? "error"
-                        : getTask(idTask).status < 2
-                        ? "wait"
-                        : getTask(idTask).status === 3
-                        ? "finish"
-                        : "process",
-                    icon: getTask(idTask).status === 2 && (
-                      <LoadingOutlined rev={""} />
-                    ),
-                  },
-                  {
-                    title: "Done",
-                    status: getTask(idTask).status === 3 ? "finish" : "wait",
-                  },
-                ]
-            }
-          />
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 30,
-            }}
-          >
-            <div>
-              <p
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 500,
-                  lineHeight: "1.6rem",
-                }}
-              >
-                {formData.from.token.name}
-              </p>
-              <p
-                style={{
-                  textAlign: "right",
-                  fontSize: "1.6rem",
-                  fontWeight: 600,
-                  color: "var(--color-secondary)",
-                }}
-              >
-                {formData.from.amount} {formData.from.token.symbol}
-              </p>
-            </div>
-            <PairToken
-              from_img={formData.from.token.image}
-              to_img={formData.to.token.image}
-              width={60}
-            />
-            <div>
-              <p
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 500,
-                  lineHeight: "1.6rem",
-                }}
-              >
-                {formData.to.token.name}
-              </p>
-              <p
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 600,
-                  color: "var(--color-secondary)",
-                }}
-              >
-                {formData.to.amount} {formData.to.token.symbol}
-              </p>
-            </div>
-          </div>
-
-          <div style={{ fontWeight: 500 }}>
-            <p>
-              Status:{" "}
-              {idTask === -1 ? (
-                <span style={{ fontWeight: 400, color: "#333" }}>Pending</span>
-              ) : getTask(idTask).status === 3 ? (
-                <span style={{ fontWeight: 400, color: "#52c41a" }}>
-                  Success
-                </span>
-              ) : (
-                <span style={{ fontWeight: 400, color: "#1677ff" }}>
-                  In Progress
-                </span>
-              )}
-            </p>
-
-            <p>
-              Network:
-              <span style={{ fontWeight: 400 }}>
-                {" "}
-                {formData.from.token.network === formData.to.token.network
-                  ? mappingNetwork(formData.from.token.network)
-                  : mappingNetwork(formData.from.token.network) +
-                    " - " +
-                    mappingNetwork(formData.to.token.network)}
-              </span>
-            </p>
-            <p>
-              Transaction Hash:
-              <span style={{ fontWeight: 400 }}>
-                {" "}
-                {idTask === -1
-                  ? "..."
-                  : getTask(idTask).status === 3
-                  ? getTask(idTask).transactionHash
-                  : "..."}
-              </span>
-            </p>
-            <p>
-              Order ID:
-              <span style={{ fontWeight: 400 }}>
-                {" "}
-                {idTask === -1
-                  ? "..."
-                  : getTask(idTask).status === 3
-                  ? getTask(idTask).orderID
-                  : "..."}
-              </span>
-            </p>
-          </div>
-        </Modal>
       )}
     </div>
   );

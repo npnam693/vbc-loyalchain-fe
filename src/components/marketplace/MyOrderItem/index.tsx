@@ -10,12 +10,11 @@ import PairToken from "../../app/PairToken";
 import { useAppSelector } from "../../../state/hooks";
 import { useAppDispatch } from "../../../state/hooks";
 import { saveInfo } from "../../../state/user/userSlice";
-import { IAcceptTask, createTask, updateTask } from "../../../state/task/taskSlice";
+import {  ITask, ITaskState, createTask, doneOneTask, updateTask } from "../../../state/task/taskSlice";
 import { getSwapOneContract, getTokenContract, getSwapTwoConract } from "../../../services/contract";
 import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
 import { requestChangeNetwork } from "../../../services/metamask";
 import Countdown from "antd/es/statistic/Countdown";
-
 
 interface IMyOrderItem {
   data: any
@@ -23,130 +22,140 @@ interface IMyOrderItem {
 }
 
 
-
 const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
+  console.log('data', data)
   const dispatch = useAppDispatch()
   const { appState, userState, taskState } = useAppSelector((state) => state)
   const [dataOrder, setDataOrder] = useState<any>(userState.address === data.from.address ? data : {...data, fromValue: data.toValue, toValue: data.fromValue});
   useEffect(() =>     
     userState.address === data.from.address ? setDataOrder(data) : 
       setDataOrder({...data, fromValue: data.toValue, toValue: data.fromValue})
-  , [userState.address])
+  , [userState])
   
-  const [idTask, setIdTask] = useState(-1);
-  // -1:Hidden - 1: Remove Modal  - 2. Detail modal 
-  const [openModal, setOpenModal] = useState<number>(-1);
-  const getTask : any = (id : number) => {
-    return taskState.taskList[taskState.taskList.length - 1 - id]
+  const onClickRemove = () => {
+    if (data.fromValue.token.network === data.toValue.token.network) {
+      let myTask: ITask = {
+        id: taskState.taskList.length,
+        type: "REMOVE",
+        status: 0,
+        funcExecute: removeOrder1Chain,
+        from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
+        to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+      };
+      dispatch(createTask(myTask));
+      console.log('task', myTask)
+    }
+    else {
+      let myTask: ITask = {
+        id: taskState.taskList.length,
+        type: "SELLER-REMOVE",
+        status: 0,
+        funcExecute: removeOrder2Chain,
+        from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
+        to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+      };
+      dispatch(createTask(myTask));
+    }
+
   }
-  
-  const sellerDeposit = async () => {
-    if (data.fromValue.token.network !== userState.network) {
-      requestChangeNetwork(data.fromValue.token.network)
-      return
-    }
 
-    let depositTask : IAcceptTask = {
-      id: taskState.taskList.length,
-      type: "SELLER_DEPOSIT",
-      status: 1,
-      tokenFrom: data.fromValue.token,
-      tokenTo: data.toValue.token,
-      amountFrom: data.fromValue.amount,
-      amountTo: data.toValue.amount,
-      orderID: data._id,
-      owner: data.from.address
-    }
+  // const sellerDeposit = async () => {
+  //   if (data.fromValue.token.network !== userState.network) {
+  //     requestChangeNetwork(data.fromValue.token.network)
+  //     return
+  //   }
 
-    const toaster = toast.loading("Approving token...")
-    dispatch(createTask(depositTask))
-    setIdTask(depositTask.id)
+  //   let depositTask : ITask = {
+  //     id: taskState.taskList.length,
+  //     type: "SELLER_DEPOSIT",
+  //     status: 0,
+  //     from: {address: userState.address, }
+
+  //     tokenFrom: data.fromValue.token,
+  //     tokenTo: data.toValue.token,
+  //     amountFrom: data.fromValue.amount,
+  //     amountTo: data.toValue.amount,
+  //     orderID: data._id,
+  //     owner: data.from.address
+  //   }
+
+  //   const toaster = toast.loading("Approving token...")
+  //   dispatch(createTask(depositTask))
+  //   setIdTask(depositTask.id)
     
-    try {
-      const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
-      const tokenContract = getTokenContract(appState.web3, dataOrder.fromValue.token.deployedAddress)
-      const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
+  //   try {
+  //     const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
+  //     const tokenContract = getTokenContract(appState.web3, dataOrder.fromValue.token.deployedAddress)
+  //     const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
       
-      const approveRecipt = await tokenContract.methods.approve(
-        SWAP_ADDRESS_CONTRACT,
-        BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
-      ).send({from: userState.address})
+  //     const approveRecipt = await tokenContract.methods.approve(
+  //       SWAP_ADDRESS_CONTRACT,
+  //       BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
+  //     ).send({from: userState.address})
       
 
-      depositTask = {...depositTask, status: 2}
-      dispatch(updateTask({
-        task: depositTask, 
-        id: depositTask.id
-      }))
-      toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
+  //     depositTask = {...depositTask, status: 2}
+  //     dispatch(updateTask({
+  //       task: depositTask, 
+  //       id: depositTask.id
+  //     }))
+  //     toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
       
-      const depositMethod = exchangeContract.methods.create(
-        data.txId,
-        data.to.address,
-        data.fromValue.token.deployedAddress,
-        BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
-        "vcl that",
-        appState.web3.utils.soliditySha3('vcl that'),
-        BigInt(24)
-      )
+  //     const depositMethod = exchangeContract.methods.create(
+  //       data.txId,
+  //       data.to.address,
+  //       data.fromValue.token.deployedAddress,
+  //       BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
+  //       "vcl that",
+  //       appState.web3.utils.soliditySha3('vcl that'),
+  //       BigInt(24)
+  //     )
 
-      const acceptRecepit = await appState.web3.eth.sendTransaction({
-        from: userState.address,
-        gasPrice: "0",
-        gas: await depositMethod.estimateGas({
-          from: userState.address,
-          data: depositMethod.encodeABI()
-        }),
-        to: SWAP_ADDRESS_CONTRACT,
-        value: "0",
-        data: depositMethod.encodeABI(),
-      })
+  //     const acceptRecepit = await appState.web3.eth.sendTransaction({
+  //       from: userState.address,
+  //       gasPrice: "0",
+  //       gas: await depositMethod.estimateGas({
+  //         from: userState.address,
+  //         data: depositMethod.encodeABI()
+  //       }),
+  //       to: SWAP_ADDRESS_CONTRACT,
+  //       value: "0",
+  //       data: depositMethod.encodeABI(),
+  //     })
 
-      const orderData = await appApi.updateStatusOrder(data._id, "sender accepted")
+  //     const orderData = await appApi.updateStatusOrder(data._id, "sender accepted")
       
-      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
+  //     dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
       
-      toast.update(toaster, { render: "Deposit token successfully.", type: "success", isLoading: false, autoClose: 1000});
+  //     toast.update(toaster, { render: "Deposit token successfully.", type: "success", isLoading: false, autoClose: 1000});
       
-      depositTask = {...depositTask, status: 3, transactionHash: acceptRecepit.blockHash}
-      dispatch(updateTask({
-        task: depositTask, 
-        id: depositTask.id
-      }))
+  //     depositTask = {...depositTask, status: 3, transactionHash: acceptRecepit.blockHash}
+  //     dispatch(updateTask({
+  //       task: depositTask, 
+  //       id: depositTask.id
+  //     }))
 
-    } catch (error) {
-      console.log(error);
-      dispatch(updateTask({
-        task: {
-            ...depositTask, 
-            status: depositTask.status === 1 ? -1 : -2 ,
-        }, 
-        id: depositTask.id
-      }))
-      toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
-    }
-  }
+  //   } catch (error) {
+  //     console.log(error);
+  //     dispatch(updateTask({
+  //       task: {
+  //           ...depositTask, 
+  //           status: depositTask.status === 1 ? -1 : -2 ,
+  //       }, 
+  //       id: depositTask.id
+  //     }))
+  //     toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
+  //   }
+  // }
 
-
-  const removeOrder1Chain = async () => {
+  const removeOrder1Chain = async (taskState: ITaskState, idTask: number) => {
     if (data.fromValue.token.network !== userState.network) {
       requestChangeNetwork(data.fromValue.token.network);
       return;
     }
     const toaster = toast.loading("Remove Order..")
-    let cancelTask : IAcceptTask = {
-      id: taskState.taskList.length,
-      type: "ONECHAIN-CANCEL",
-      status: 1,
-      tokenFrom: data.fromValue.token,
-      tokenTo: data.toValue.token,
-      amountFrom: data.fromValue.amount,
-      amountTo: data.toValue.amount,
-      orderID: data._id,
-      owner: data.from.address
-    }
-    dispatch(createTask(cancelTask))
-    setIdTask(cancelTask.id)
+    let task : ITask = {...taskState.taskList[idTask], status: 1}
+    dispatch(updateTask({task, id: idTask}))
     try {
       const exchangeContract = getSwapOneContract(appState.web3, userState.network);
       const SWAP_ADDRESS_CONTRACT = getAddressOneChainContract(userState.network)
@@ -166,53 +175,43 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         data: refundMethod.encodeABI(),
       })
       
-      cancelTask = {...cancelTask, status: 2, transactionHash: refundRecepit.blockHash}
+      task = {...task, status: 2, transactionHash: refundRecepit.blockHash}
       dispatch(updateTask({
-        task: cancelTask, 
-        id: cancelTask.id
+        task,
+        id: task.id
       }))
       
       await appApi.cancelOrder(data._id)
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
-      cancelTask = {...cancelTask, status: 3}
+      task = {...task, status: 3}
       dispatch(updateTask({
-        task: cancelTask, 
-        id: cancelTask.id
+        task: task, 
+        id: task.id
       }))
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
     } catch (error) {
       dispatch(updateTask({
         task: {
-            ...cancelTask, 
-            status: cancelTask.status === 1 ? -1 : -2 ,
+            ...task, 
+            status: task.status === 1 ? -1 : -2 ,
         }, 
-        id: cancelTask.id
+        id: task.id
       }))
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
     }
+    dispatch(doneOneTask())
   }
 
-  const removeOrder2Chain = async () => {
+  const removeOrder2Chain = async (taskState: ITaskState, idTask: number) => {
     const toaster = toast.loading("Remove Order..")
-    let cancelTask : IAcceptTask = {
-      id: taskState.taskList.length,
-      type: "TWOCHAIN-CANCEL",
-      status: 1,
-      tokenFrom: data.fromValue.token,
-      tokenTo: data.toValue.token,
-      amountFrom: data.fromValue.amount,
-      amountTo: data.toValue.amount,
-      orderID: data._id,
-      owner: data.from.address
-    }
-    dispatch(createTask(cancelTask))
-    setIdTask(cancelTask.id)
+    let task : ITask = {...taskState.taskList[idTask], status: 1}
+    dispatch(updateTask({task, id: idTask}))
     try {
       await appApi.cancelOrder(data._id)
-      cancelTask = {...cancelTask, status: 3}
+      task = {...task, status: 3}
       dispatch(updateTask({
-        task: cancelTask, 
-        id: cancelTask.id
+        task: task, 
+        id: task.id
       }))
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
     } catch (error) {
@@ -220,35 +219,19 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
       dispatch(updateTask({
         task: {
-            ...cancelTask, 
-            status: cancelTask.status === 1 ? -1 : -2 ,
+            ...task, 
+            status: task.status === 1 ? -1 : -2 ,
         }, 
-        id: cancelTask.id
+        id: task.id
       }))
     }
+    dispatch(doneOneTask())
   }
 
   const buyerWithdraw = async () => {
-
   }
   const sellerWithdraw = async () => {}
 
-
-  const onOkModal = () => {
-    if (data.fromValue.token.network === data.toValue.token.network) {
-      if (idTask === -1) {
-        removeOrder1Chain()
-      } else {
-        setOpenModal(-1) ; setIdTask(-1)
-      }
-    } else {
-      if (idTask === -1) {
-        removeOrder2Chain()
-      } else {
-        setOpenModal(-1) ; setIdTask(-1)
-      }
-    }
-  }
 
   return (
     <div className="app-order" style={{marginBottom: 20}}>
@@ -266,7 +249,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           <img src={dataOrder.toValue.token.image} alt="StarBuck" width={60} />
           <div>
             <p className="quantity">{dataOrder.toValue.amount} <span className="symbol">{dataOrder.toValue.token.symbol}</span></p>
-            
           </div>
         </div>
       </div>
@@ -309,14 +291,14 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
               }</p>
             </div>
           }
-          <div className="app-order--action--btn" onClick={() => {isPendingOrder ? setOpenModal(1) : setOpenModal(2)}}>
+          <div className="app-order--action--btn" onClick={onClickRemove}>
             {
               isPendingOrder ? "Remove" : "Detail"
             }
           </div>
       </div>
 
-      <Modal
+      {/* <Modal
           title="Remove Order"
           open={openModal === 1}
           
@@ -331,18 +313,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           
           closable={true}
       >
-        <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 30}}>
-          <div >
-            <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{dataOrder.fromValue.token.name}</p>
-            <p style={{textAlign: "right", fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{dataOrder.fromValue.amount} {dataOrder.fromValue.token.symbol}</p>
-          </div>
-          <PairToken from_img={dataOrder.toValue.token.image} to_img={dataOrder.fromValue.token.image} width={60}/>
-          <div>
-              <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{dataOrder.toValue.token.name}</p>
-              <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{dataOrder.toValue.amount} {dataOrder.toValue.token.symbol}</p>
-          </div>
-        </div>
-
           {
             dataOrder.toValue.token.network === dataOrder.fromValue.token.network ?
             <Steps size="default" style={{width: 600, margin: 'auto', marginTop: 40, marginBottom: 30}}
@@ -413,6 +383,18 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
               ]}
           />
           }
+          <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 30}}>
+            <div >
+              <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{dataOrder.fromValue.token.name}</p>
+              <p style={{textAlign: "right", fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{dataOrder.fromValue.amount} {dataOrder.fromValue.token.symbol}</p>
+            </div>
+            <PairToken from_img={dataOrder.toValue.token.image} to_img={dataOrder.fromValue.token.image} width={60}/>
+            <div>
+                <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{dataOrder.toValue.token.name}</p>
+                <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{dataOrder.toValue.amount} {dataOrder.toValue.token.symbol}</p>
+            </div>
+        </div>
+
           <div style={{fontWeight: 500}}>
               <p>Status: {
                   idTask === -1  ? 
@@ -595,7 +577,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
                   }</span>
               </p>
           </div>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };

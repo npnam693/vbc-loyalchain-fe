@@ -9,12 +9,13 @@ import { mappingNetwork } from '../../../utils/blockchain'
 import { ITask, ITaskState, closeTaskModel, deleteTask } from '../../../state/task/taskSlice'
 import PairToken from '../PairToken'
 import ModalTransfer from './helper/Transfer'
+import ModalCreate from './helper/Create'
+import SellerCreateModal from './helper/SellerCreate'
+import ModalRemove from './helper/Remove'
 
 export const getTask  = (id: number, taskState: ITaskState) => {
     return 
 }
-    
-
 const ModalPage = () => {
     // const modalState = useAppSelector(state => state.modalState
     const taskState = useAppSelector(state => state.taskState)
@@ -22,7 +23,7 @@ const ModalPage = () => {
     const navigate = useNavigate()
     if (taskState.openModalTask === -1) return <></>
     const task = taskState.taskList[taskState.openModalTask]
-
+    
     const afterClose = () => {
         dispatch(closeTaskModel())
         if (task.status === 0) {
@@ -34,6 +35,22 @@ const ModalPage = () => {
             <ModalTransfer task={task} taskState={taskState} afterClose={afterClose}/>
         )
     }
+    else if (task.type === "CREATE"){
+        return (
+            <ModalCreate task={task} taskState={taskState} afterClose={afterClose}/>
+        )
+    }   
+    else if (task.type === "SELLER-CREATE") {
+        return (
+            <SellerCreateModal task={task} taskState={taskState} afterClose={afterClose}/>
+        )
+    } 
+    else if (task.type === "REMOVE") {
+        return (
+            <ModalRemove task={task} taskState={taskState} afterClose={afterClose}/>
+        )
+    }
+
     // } else if (task.type === "CREATE"){
     //     return <Modal
     //       title="Create Order"
