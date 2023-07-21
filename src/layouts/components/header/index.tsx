@@ -45,7 +45,7 @@ const Header = () => {
             <img
               src={Logo}
               alt="loyalChain"
-              style={{ height: 42, marginRight: 10, cursor: "pointer" }}
+              style={{ height: 32, marginRight: 10, cursor: "pointer" }}
               onClick={() => navigate("/")}
             />
             <div className="app-header--option">

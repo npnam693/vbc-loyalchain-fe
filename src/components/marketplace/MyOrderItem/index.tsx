@@ -14,6 +14,7 @@ import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccou
 import { requestChangeNetwork } from "../../../services/metamask";
 import Countdown from "antd/es/statistic/Countdown";
 import PairToken from "../../app/PairToken";
+import CryptoJS from "crypto-js";
 
 interface IMyOrderItem {
   data: any
@@ -33,131 +34,31 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       setDataOrder({...data, fromValue: data.toValue, toValue: data.fromValue})
   , [userState])
 
-
-
-  
   const onClickRemove = () => {
     if (data.fromValue.token.network !== userState.network) {
       requestChangeNetwork(data.fromValue.token.network);
       return;
     }
+    let task: ITask = {
+      id: taskState.taskList.length,
+      status: 0,
+      type: "",
+      funcExecute: () => {},
+      from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+    }
+    // Check whether the order is swap one chain or two chain.
     if (data.fromValue.token.network === data.toValue.token.network) {
-      let myTask: ITask = {
-        id: taskState.taskList.length,
-        type: "REMOVE",
-        status: 0,
-        funcExecute: removeOrder1Chain,
-        from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-        to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
-      };
-      dispatch(createTask(myTask));
-      console.log('task', myTask)
+      task = {...task, type: "REMOVE", funcExecute: removeOrder1Chain}
+      dispatch(createTask(task));
     }
     else {
-      let myTask: ITask = {
-        id: taskState.taskList.length,
-        type: "SELLER-REMOVE",
-        status: 0,
-        funcExecute: removeOrder2Chain,
-        from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-        to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
-      };
-      dispatch(createTask(myTask));
-      console.log(myTask)
+      task = {...task, type: "SELLER-REMOVE", funcExecute: removeOrder2Chain}
+      dispatch(createTask(task));
     }
   }
 
-  // const sellerDeposit = async () => {
-  //   if (data.fromValue.token.network !== userState.network) {
-  //     requestChangeNetwork(data.fromValue.token.network)
-  //     return
-  //   }
-
-  //   let depositTask : ITask = {
-  //     id: taskState.taskList.length,
-  //     type: "SELLER_DEPOSIT",
-  //     status: 0,
-  //     from: {address: userState.address, }
-
-  //     tokenFrom: data.fromValue.token,
-  //     tokenTo: data.toValue.token,
-  //     amountFrom: data.fromValue.amount,
-  //     amountTo: data.toValue.amount,
-  //     orderID: data._id,
-  //     owner: data.from.address
-  //   }
-
-  //   const toaster = toast.loading("Approving token...")
-  //   dispatch(createTask(depositTask))
-  //   setIdTask(depositTask.id)
-    
-  //   try {
-  //     const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
-  //     const tokenContract = getTokenContract(appState.web3, dataOrder.fromValue.token.deployedAddress)
-  //     const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
-      
-  //     const approveRecipt = await tokenContract.methods.approve(
-  //       SWAP_ADDRESS_CONTRACT,
-  //       BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
-  //     ).send({from: userState.address})
-      
-
-  //     depositTask = {...depositTask, status: 2}
-  //     dispatch(updateTask({
-  //       task: depositTask, 
-  //       id: depositTask.id
-  //     }))
-  //     toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
-      
-  //     const depositMethod = exchangeContract.methods.create(
-  //       data.txId,
-  //       data.to.address,
-  //       data.fromValue.token.deployedAddress,
-  //       BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
-  //       "vcl that",
-  //       appState.web3.utils.soliditySha3('vcl that'),
-  //       BigInt(24)
-  //     )
-
-  //     const acceptRecepit = await appState.web3.eth.sendTransaction({
-  //       from: userState.address,
-  //       gasPrice: "0",
-  //       gas: await depositMethod.estimateGas({
-  //         from: userState.address,
-  //         data: depositMethod.encodeABI()
-  //       }),
-  //       to: SWAP_ADDRESS_CONTRACT,
-  //       value: "0",
-  //       data: depositMethod.encodeABI(),
-  //     })
-
-  //     const orderData = await appApi.updateStatusOrder(data._id, "sender accepted")
-      
-  //     dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
-      
-  //     toast.update(toaster, { render: "Deposit token successfully.", type: "success", isLoading: false, autoClose: 1000});
-      
-  //     depositTask = {...depositTask, status: 3, transactionHash: acceptRecepit.blockHash}
-  //     dispatch(updateTask({
-  //       task: depositTask, 
-  //       id: depositTask.id
-  //     }))
-
-  //   } catch (error) {
-  //     console.log(error);
-  //     dispatch(updateTask({
-  //       task: {
-  //           ...depositTask, 
-  //           status: depositTask.status === 1 ? -1 : -2 ,
-  //       }, 
-  //       id: depositTask.id
-  //     }))
-  //     toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
-  //   }
-  // }
-
   const removeOrder1Chain = async (taskState: ITaskState, idTask: number) => {
-    console.log(data)
     const toaster = toast.loading("Remove Order..")
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     dispatch(updateTask({task, id: idTask}))
@@ -165,9 +66,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       const exchangeContract = getSwapOneContract(appState.web3, userState.network);
       const SWAP_ADDRESS_CONTRACT = getAddressOneChainContract(userState.network)
       
-      const refundMethod = exchangeContract.methods.refund(
-        data.txId,
-      )
+      const refundMethod = exchangeContract.methods.refund( data.txId )
       const refundRecepit = await appState.web3.eth.sendTransaction({
         from: userState.address,
         gasPrice: "0",
@@ -181,34 +80,23 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       })
       
       task = {...task, status: 2, transactionHash: refundRecepit.blockHash}
-      dispatch(updateTask({
-        task,
-        id: task.id
-      }))
+      dispatch(updateTask({ task, id: task.id }))
       
       await appApi.cancelOrder(data._id)
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
+      
       task = {...task, status: 3}
-      dispatch(updateTask({
-        task: task, 
-        id: task.id
-      }))
+      dispatch(updateTask({ task: task, id: task.id}))
+      
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
     } catch (error) {
-      dispatch(updateTask({
-        task: {
-            ...task, 
-            status: task.status === 1 ? -1 : -2 ,
-        }, 
-        id: task.id
-      }))
+      dispatch(updateTask({ task: { ...task, status: -1 }, id: task.id}))
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
     }
     dispatch(doneOneTask())
   }
-
   const removeOrder2Chain = async (taskState: ITaskState, idTask: number) => {
-    const toaster = toast.loading("Remove Order..")
+    const toaster = toast.loading("Remove Order...")
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     dispatch(updateTask({task, id: idTask}))
     try {
@@ -223,22 +111,17 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       console.log(error)
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
       dispatch(updateTask({
-        task: {
-            ...task, 
-            status: task.status === 1 ? -1 : -2 ,
-        }, 
+        task: { ...task, status: -1}, 
         id: task.id
       }))
     }
     dispatch(doneOneTask())
   }
-
   const onSellerClickWithdraw = () => {
     const sellerWithdraw = async  (taskState: ITaskState, idTask: number) => {
       const toaster = toast.loading("Withdraw token...")
-      let task : ITask = {...taskState.taskList[idTask], status: 1}
+      let task : ITask = {...taskState.taskList[idTask], status: 2}
       dispatch(updateTask({task, id: idTask}))
-      
       try {
         // decode secret key
         const bytesDecrypt = CryptoJS.AES.decrypt(data.key, SECRET_HASH);
@@ -262,7 +145,9 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           value: "0",
           data: withdrawToken.encodeABI(),
         })
-        const updateOrder = await appApi.updateStatusOrder(data._id, "receiver withdrawn");
+        dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
+
+        const updateOrder = await appApi.updateStatusOrder(data._id, "completed");
         task = {...task, status: 3}
         dispatch(updateTask({ task: task, id: task.id}))
       } catch (error) {
@@ -278,8 +163,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       }
     }
 
-    if (data.fromValue.token.network !== userState.network) {
-      requestChangeNetwork(data.fromValue.token.network);
+    if (data.toValue.token.network !== userState.network) {
+      requestChangeNetwork(data.toValue.token.network);
       return;
     }
     let task: ITask = {
@@ -292,37 +177,38 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     };
     dispatch(createTask(task));
   }
-
   const onBuyerClickWithdraw = () => {
+    console.log(data)
     const buyerWithdraw = async (taskState: ITaskState, idTask: number) => {
       const toaster = toast.loading("Withdraw token...")
-      let task : ITask = {...taskState.taskList[idTask], status: 1}
+      let task : ITask = {...taskState.taskList[idTask], status: 2}
       dispatch(updateTask({task, id: idTask}))
       
       try {
-        // decode secret key
-        const bytesDecrypt = CryptoJS.AES.decrypt(data.key, SECRET_HASH);
-        const secretKey = bytesDecrypt.toString(CryptoJS.enc.Utf8);
+        // // decode secret key
+        // const bytesDecrypt = CryptoJS.AES.decrypt(data.key, SECRET_HASH);
+        // const secretKey = bytesDecrypt.toString(CryptoJS.enc.Utf8);
         
-        const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
-        const tokenContract = getTokenContract(appState.web3, data.fromValue.token.deployedAddress)
-        const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
+        // const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
+        // const tokenContract = getTokenContract(appState.web3, data.fromValue.token.deployedAddress)
+        // const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
 
-        const withdrawToken = exchangeContract.methods.withdraw(
-          data.txId,
-          secretKey
-        )
-        const acceptRecepit = await appState.web3.eth.sendTransaction({
-          from: userState.address,
-          gasPrice: "0",
-          gas: await withdrawToken.estimateGas({
-            from: userState.address,
-            data: withdrawToken.encodeABI()
-          }),
-          to: SWAP_ADDRESS_CONTRACT,
-          value: "0",
-          data: withdrawToken.encodeABI(),
-        })
+        // const withdrawToken = exchangeContract.methods.withdraw(
+        //   data.txId,
+        //   secretKey
+        // )
+        // const acceptRecepit = await appState.web3.eth.sendTransaction({
+        //   from: userState.address,
+        //   gasPrice: "0",
+        //   gas: await withdrawToken.estimateGas({
+        //     from: userState.address,
+        //     data: withdrawToken.encodeABI()
+        //   }),
+        //   to: SWAP_ADDRESS_CONTRACT,
+        //   value: "0",
+        //   data: withdrawToken.encodeABI(),
+        // })
+        dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
         const updateOrder = await appApi.updateStatusOrder(data._id, "receiver withdrawn");
         task = {...task, status: 3}
         dispatch(updateTask({ task: task, id: task.id}))
@@ -354,16 +240,12 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     };
     dispatch(createTask(task));
   }
-  
   const onSellerClickDeposit = () => {
     const sellerDeposit = async (taskState: ITaskState, idTask: number) => {
       const toaster = toast.loading("Approving token...")
       let task : ITask = {...taskState.taskList[idTask], status: 1}
       dispatch(updateTask({task, id: idTask}))
       try {
-        // decode secret key
-        // var bytes  = CryptoJS.AES.decrypt(data.key, SECRET_HASH);
-        // var secretKey = bytes.toString(CryptoJS.enc.Utf8);
         const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
         const tokenContract = getTokenContract(appState.web3, data.fromValue.token.deployedAddress)
         const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
@@ -373,6 +255,10 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
         ).send({from: userState.address})
         
+
+
+
+
         task = {...task, status: 2}
         dispatch(updateTask({ task: task, id: task.id}))
 
@@ -430,7 +316,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     };
     dispatch(createTask(task));
   }
-
   const hdOnOk = (status: string) => {
     if (isSeller) {
       if (status === "receiver accepted") {
@@ -452,7 +337,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
   const textOkBtn = (status: string) => {
     if (isSeller && status === "receiver accepted") {
       return <p>Deposit</p>
-    } else if ((!isSeller && status === "receiver withdrawn") || (isSeller && status === "sender accepted")) {
+    } else if ((isSeller && status === "receiver withdrawn") || (!isSeller && status === "sender accepted")) {
       return <p>Withdraw</p>
     } else {
       return <LoadingOutlined rev={""}/>
@@ -461,7 +346,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
 
   return (
     <div className="app-order" style={{marginBottom: 20}}>
-      <div className="app-order--info">
+      <div className="app-Rorder--info">
         <div className="app-order--info--token">
           <img src={dataOrder.fromValue.token.image} alt="Token" width={60} />
           <div>
@@ -565,16 +450,17 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
               },
               {
                 title: "Wait Recipient",
-                status: dataOrder.status === "receive accepted" ? "process" : "finish",
-                icon: dataOrder.status === "receive accepted" && <LoadingOutlined  rev={""}/>
+                status: data.status === "receiver accepted" ? "process" : "finish",
+                icon: data.status === "receiver accepted" && <LoadingOutlined  rev={""}/>
               },
               {
                 title: "Withdraw",
-                // status: dataOrder.status === "sender accepted" ? "proc" : "wait"
+                status: data.status === "sender accepted" ? "process" : (
+                  (data.status === "receiver withdrawn" || data.status === "completed") ? "finish" : "wait")
               },
               {
                 title: "Done",
-                status: dataOrder.status === "completed" ? "finish" : "wait"
+                status: (data.status === "completed" || data.status === "receiver withdrawn") ? "finish" : "wait"
               },
             ]}/>
 

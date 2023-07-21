@@ -5,7 +5,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import PairToken from '../../PairToken';
 import { mappingNetwork } from '../../../../utils/blockchain';
 
-const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
+const ModalBuyerAccept = ({task, taskState, afterClose} : IModalElement) => {
   return (
     <Modal
       title="Accept Order"
@@ -19,46 +19,50 @@ const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
       closable={true}
       cancelButtonProps={{ style: { display: 'none' } }}
     >
-      <Steps
-              size="default"
-              style={{width: 600, margin: 'auto', marginTop: 40, marginBottom: 30}}
-              items={
-                task.status === 0 ? 
-                [
-                  {
-                    title: "Approve Token",
-                    status: "wait"
-                  },
-                  {
-                    title: task.from.token.network === task.to?.token.network ? "Send Token" : "Deposit Token",
-                    status: "wait"
-                  },
-                  {
-                    title: "Done",
-                    status: "wait"
-                  }
-                ] : 
-                [
-                  {
-                    title: "Approve Token",
-                    status: task.status === -1 ? 'error' : 
-                            ((task.status >  1) ? 'finish' : 'process'),
-                    icon:  task.status === 1 && <LoadingOutlined  rev={""}/>
-                  },
-                  {
-                    title: task.from.token.network === task.to?.token.network ? "Send Token" : "Deposit Token",
-                    status: task.status === -2 ? 'error' : (
-                              task.status < 2 ? 'wait' : (
-                                task.status === 3 ? 'finish' : 'process'
-                              )
-                            ),
-                    icon:  task.status === 2 && <LoadingOutlined  rev={""}/>                  
-                  },
-                  {
-                    title: 'Done',
-                    status: task.status === 3 ? 'finish' : 'wait'
-                  }
-                ]}
+    <Steps
+      size="default"
+      style={{width: 600, margin: 'auto', marginTop: 40, marginBottom: 30}}
+      items={
+        task.status === 0 ? 
+        [
+          {
+            title: "Create key",
+            status: "wait"
+          },
+          {
+            title: "Approve Token",
+            status: "wait"
+          },
+          {
+            title: task.from.token.network === task.to?.token.network ? "Send Token" : "Deposit Token",
+            status: "wait"
+          },
+          {
+            title: "Done",
+            status: "wait"
+          }
+        ] : 
+        [
+          {
+            title: "Approve Token",
+            status: task.status === -1 ? 'error' : 
+                    ((task.status >  1) ? 'finish' : 'process'),
+            icon:  task.status === 1 && <LoadingOutlined  rev={""}/>
+          },
+          {
+            title: task.from.token.network === task.to?.token.network ? "Send Token" : "Deposit Token",
+            status: task.status === -2 ? 'error' : (
+                      task.status < 2 ? 'wait' : (
+                        task.status === 3 ? 'finish' : 'process'
+                      )
+                    ),
+            icon:  task.status === 2 && <LoadingOutlined  rev={""}/>                  
+          },
+          {
+            title: 'Done',
+            status: task.status === 3 ? 'finish' : 'wait'
+          }
+        ]}
           />
 
       <div
@@ -179,4 +183,4 @@ const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
   )
 }
 
-export default ModalAccept
+export default ModalBuyerAccept

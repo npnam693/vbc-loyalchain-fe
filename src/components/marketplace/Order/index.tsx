@@ -42,6 +42,7 @@ const Order = ({data} : IOrderItemProps) => {
         SWAP_ADDRESS_CONTRACT,
         BigInt(10 ** Number(18) * Number(data.toValue.amount)),
       ).send({from: userState.address})
+      
       task = {...task, status: 2}
       dispatch(updateTask({
         task: task, 
@@ -147,7 +148,6 @@ const Order = ({data} : IOrderItemProps) => {
         task: task, 
         id: task.id
       }))
-
     } catch (error) {
       console.log(error);
       dispatch(updateTask({
@@ -179,7 +179,7 @@ const Order = ({data} : IOrderItemProps) => {
     else {
       let myTask: ITask = {
         id: taskState.taskList.length,
-        type: "ACCEPT",
+        type: "BUYER-DEPOSIT",
         status: 0,
         funcExecute: confirmTwoChain,
         from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},

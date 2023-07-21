@@ -22,13 +22,20 @@ const MyOrder = () => {
     const userState = useAppSelector(state => state.userState)
     useEffect(() => {
         const fetchData = async () => {
-            const pending = await appApi.getUserOrder({status: 0})
-            const inprogress = await appApi.getUserOrder({status: 1})
-            const completed = await appApi.getUserOrder({status: 2})
-            setdataFetch({completedOrders: completed?.data, pendingOrders: pending?.data, inprogressOrders: inprogress?.data})
+            Promise.all([appApi.getUserOrder({status: 0}), appApi.getUserOrder({status: 1}), await appApi.getUserOrder({status: 2})]) 
+            .then(res => {
+                setdataFetch({
+                    pendingOrders: res[0]?.data, 
+                    inprogressOrders: res[1]?.data,
+                    completedOrders: res[2]?.data, 
+                })
+            })
+            .catch(err => console.log(err))
         }
         fetchData()
-    }, [userState.address])
+    }, [userState])
+
+    console.log(dataFetch)
   return (
     <div className='app-myOrder'>      
         <p className="title">Marketplace / My Order</p>
@@ -53,16 +60,23 @@ const MyOrder = () => {
         ]}/>
         <div className='list-order'>
             {
-                pageName === 'inprogressOrder' ?
-                dataFetch.inprogressOrders.map((item, index) => (
-                    <MyOrderItem data = {item}/>
-                ))
-                : pageName === 'pendingOrder' ?
+                pageName === 'inprogressOrder' &&
+                    dataFetch.inprogressOrders.map((item, index) => (
+                        <MyOrderItem data = {item}/>
+                    ))
+            }
+
+            {
+                pageName === 'pendingOrder' &&
                 dataFetch.pendingOrders.map((item, index) => (
-                    <MyOrderItem data={item} isPendingOrder/>
-                )) :
+                   <MyOrderItem data={item} isPendingOrder/>
+               ))
+            }
+
+            {
+                pageName === 'completedOrder' &&
                 dataFetch.completedOrders.map((item, index) => (
-                    <MyOrderItem data={item}/>
+                    <MyOrderItem data={item} />
                 ))
             }    
         </div>
