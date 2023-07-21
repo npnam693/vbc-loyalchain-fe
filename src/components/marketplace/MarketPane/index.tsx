@@ -1,21 +1,21 @@
-import { Button, Pagination, Popover } from "antd";
-import { AppstoreOutlined, BarsOutlined, ClearOutlined } from "@ant-design/icons";
+import { Button, Pagination, Popover, Tooltip } from "antd";
+import { AppstoreOutlined, BarsOutlined, ClearOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "./MarketPane.scss";
+import { IFilterData } from "../../../pages/marketplace";
 
 interface IMarketPaneProps {
   isListMode: boolean;
   openFilter: () => void;
-  dataFilter: any;  
+  dataFilter: IFilterData;  
   toggleModeView: () => void;
   funcNetwork: (network: number) => void;
   funcSwapTo?: () => void;
   funcSwapFrom?: () => void;
   funcClearFilter?: () => void;
+  funcChangePage: (page: number) => void;
 }
 
 const MarketPane = (props: IMarketPaneProps) => {
-  console.log('vcl', props.dataFilter)
-
   return (
     <div className="app-market--pane">
       <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
@@ -27,8 +27,6 @@ const MarketPane = (props: IMarketPaneProps) => {
         >
           All Filters
         </Button>
-        
-
         <div>
           <Button style={{margin: 0, borderRadius: 0, borderTopLeftRadius: 6, borderBottomLeftRadius: 6, 
             backgroundColor: props.dataFilter.network === 4444 ? 'rgba(21, 191, 253, 0.5)' : '#ccc' }}
@@ -91,37 +89,47 @@ const MarketPane = (props: IMarketPaneProps) => {
       </div>
 
       <div style={{display: 'flex', flexDirection:"row", alignItems:'center'}}>
-        <Pagination current={1} onChange={() => console.log('a')} total={50} style={{marginRight: 20}}/>
+        <div className="pagination-container">
+          <LeftOutlined rev={""} className="pagination-btn"  style= {{fontSize: '1.8rem'}} 
+          onClick={() => props.dataFilter.page > 1 && props.funcChangePage(Number(props.dataFilter.page - 1))}
+          />
+          <div className="pagination-current"> {props.dataFilter.page} </div>
+          <RightOutlined rev={""} className="pagination-btn" style= {{fontSize: '1.8rem'}} onClick={() => props.funcChangePage(Number(props.dataFilter.page + 1))}/>
+        </div>
+        <Tooltip placement="bottom" title={"View list"}>
+          <Button
+            type="primary"
+            size="middle"
+            onClick={() => {
+              if (props.isListMode) props.toggleModeView();
+            }}
+            style={{
+              backgroundColor: !props.isListMode
+                ? "var(--color-secondary)"
+                : "#ccc",
+            }}
+          >
+            <AppstoreOutlined rev={""} />
+          </Button>
+        </Tooltip>
+        <Tooltip placement="bottom" title={"View grid"}>
+          <Button
+            type="primary"
+            size="middle"
+            onClick={() => {
+              if (!props.isListMode) props.toggleModeView();
+            }}
+            style={{
+              backgroundColor: props.isListMode
+                ? "var(--color-secondary)"
+                : "#ccc",
+            }}
+          >
+            <BarsOutlined rev={""} />
+          </Button>
+        </Tooltip>
+        
 
-        <Button
-          type="primary"
-          size="middle"
-          onClick={() => {
-            if (props.isListMode) props.toggleModeView();
-          }}
-          style={{
-            backgroundColor: !props.isListMode
-              ? "var(--color-secondary)"
-              : "#ccc",
-          }}
-        >
-          <AppstoreOutlined rev={""} />
-        </Button>
-
-        <Button
-          type="primary"
-          size="middle"
-          onClick={() => {
-            if (!props.isListMode) props.toggleModeView();
-          }}
-          style={{
-            backgroundColor: props.isListMode
-              ? "var(--color-secondary)"
-              : "#ccc",
-          }}
-        >
-          <BarsOutlined rev={""} />
-        </Button>
 
       </div>
     </div>

@@ -11,7 +11,7 @@ export interface IModalElement {
     afterClose: () => void;
 }
 
-const ModalWithdraw = ({task, taskState, afterClose} : IModalElement) => {
+const ModalSellerWithdraw = ({task, taskState, afterClose} : IModalElement) => {
   return (
     <Modal
         title="Withdraw Token"
@@ -82,4 +82,4 @@ const ModalWithdraw = ({task, taskState, afterClose} : IModalElement) => {
   )
 }
 
-export default ModalWithdraw
+export default ModalSellerWithdraw

@@ -86,7 +86,6 @@ const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
               fontWeight: 600,
               color: "var(--color-secondary)",
               textAlign: "right",
-
             }}
           >
             {task.to?.amount} {task.to?.token.symbol}
@@ -97,7 +96,6 @@ const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
           to_img={task.from?.token.image}
           width={60}
         />
-        
         <div>
           <p
             style={{

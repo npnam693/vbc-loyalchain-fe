@@ -15,12 +15,13 @@ import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import StatisticItem from "../../components/marketplace/StatisticItem";
 import { CloseCircleOutlined, DatabaseOutlined, ProfileOutlined, UploadOutlined } from "@ant-design/icons";
 import { hdConnectWallet } from "../../layouts/components/header/helper/ConnectWallet";
-interface IFilterData {
+export interface IFilterData {
   network: number,
   from: any,
   to: any,
   amountFrom:  [number, number],
   amountTo:  [number, number],
+  page: number;
 } 
 const filterRawData : IFilterData = {
   network: -1,
@@ -28,6 +29,7 @@ const filterRawData : IFilterData = {
   to: "",
   amountFrom: [0, 10000],
   amountTo: [0, 10000],
+  page: 1
 };
 const titleStatistic = [
   {
@@ -87,9 +89,17 @@ const Marketplace = () => {
         toValueUp: filter.filterData.amountTo[1],
         toValueDown: filter.filterData.amountTo[0],
         network: filter.filterData.network === -1 ? null : filter.filterData.network ,
+        page: filter.filterData.page
       }
       const tdata = await appApi.getOrdersWithFilter({...filterData})
-      if(tdata) setData(tdata.data)
+      if(tdata) {
+        if (tdata.data.length === 0) {
+          setFilter({ ...filter, filterData: {...filter.filterData, page: filter.filterData.page - 1}})
+        }
+        else {
+          setData(tdata.data)
+        }
+      }
       console.log(filter.filterData)
     } 
 
@@ -406,6 +416,7 @@ const Marketplace = () => {
         funcSwapFrom={() => setSelectState({selectFrom: true, selectTo: false})}
         funcClearFilter={hdClickClearFilter}
         funcNetwork={setFilterNetwork}
+        funcChangePage={(page : number) => setFilter({ ...filter, filterData: {...filter.filterData, page}})}
         dataFilter={filter.filterData}
       />
       

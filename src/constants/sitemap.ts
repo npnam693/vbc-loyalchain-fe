@@ -12,8 +12,8 @@ const SITEMAP = [
         key: 'nav.rewards',
       },
       {
-        path: "/blog",
-        key: 'nav.blog',
+        path: "/faucet",
+        key: 'nav.faucet',
       },
       {
         path: "/about",

@@ -1,0 +1,56 @@
+.app-faucet{
+    height: 100vh;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-text-white)
+}   
+.desc {
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: var(--color-text-white);
+    margin-bottom: 24px;
+}
+.input-address {
+    width: 400px;
+    margin: 10px 0;
+}
+
+.select-btn {
+    width: 130px;
+    margin: 10px 0;
+}
+.app-faucet-content {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0;
+}
+.faucet-amount {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 10px 0;
+    
+    div {
+        cursor: pointer;
+        padding: 6px 10px;
+        margin: 10px 20px 0px 0;
+        border-radius: 2px;
+        background-color: white;
+    }
+}
+
+.faucet-btn {
+    background-color: rgba($color: #15BFFD, $alpha: 0.3);
+    width: 130px;
+    border: 2px solid rgba($color: #15BFFD, $alpha: 0.5);
+    padding: 4px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin: 10px 0;
+}

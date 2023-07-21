@@ -19,21 +19,16 @@ interface IOrderItemProps {
   data: any
 }
 
-const SECRET_HASH = "TROIDATOI"
 const Order = ({data} : IOrderItemProps) => {
   const dispatch = useAppDispatch()
   const {appState, userState, taskState} = useAppSelector((state) => state)
 
-  const confirmTwoChain = async  (taskState: ITaskState, idTask: number) => {
+  const buyerAccept = async  (taskState: ITaskState, idTask: number, secretKey: string | undefined) => {
     const toaster = toast.loading("Approving token...")
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     dispatch(updateTask({task, id: idTask}))
     dispatch(createTask(task))
     try {
-      const mySecret = uuidv4();
-
-      var ciphertext = CryptoJS.AES.encrypt(mySecret, SECRET_HASH).toString();
-
       const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
       const tokenContract = getTokenContract(appState.web3, data.toValue.token.deployedAddress)
       const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
@@ -55,7 +50,7 @@ const Order = ({data} : IOrderItemProps) => {
         data.from.address,
         data.toValue.token.deployedAddress,
         BigInt(10 ** Number(18) * Number(data.toValue.amount)),
-        appState.web3.utils.soliditySha3(mySecret)
+        appState.web3.utils.soliditySha3(secretKey)
       )
 
       console.log(await acceptExchangeMethod.estimateGas({
@@ -75,13 +70,13 @@ const Order = ({data} : IOrderItemProps) => {
         data: acceptExchangeMethod.encodeABI(),
       })
 
-      const orderData = await appApi.acceptOder(
-        data._id,
-        {
-          key: ciphertext,
-          hashlock: appState.web3.utils.soliditySha3(mySecret)
-        }
-      )
+      // const orderData = await appApi.acceptOder(
+      //   data._id,
+      //   {
+      //     key: ciphertext,
+      //     hashlock: appState.web3.utils.soliditySha3(mySecret)
+      //   }
+      // )
 
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
       
@@ -181,9 +176,10 @@ const Order = ({data} : IOrderItemProps) => {
         id: taskState.taskList.length,
         type: "BUYER-DEPOSIT",
         status: 0,
-        funcExecute: confirmTwoChain,
+        funcExecute: buyerAccept,
         from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
-        to: {address: data.from.address, token: data.toValue.token, amount: data.toValue.amount}
+        to: {address: data.from.address, token: data.toValue.token, amount: data.toValue.amount},
+        orderID: data._id
       };
       dispatch(createTask(myTask));
       console.log(myTask)

@@ -14,14 +14,11 @@ import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccou
 import { requestChangeNetwork } from "../../../services/metamask";
 import Countdown from "antd/es/statistic/Countdown";
 import PairToken from "../../app/PairToken";
-import CryptoJS from "crypto-js";
 
 interface IMyOrderItem {
   data: any
   isPendingOrder?: boolean;
 }
-
-const SECRET_HASH = "TROIDATOI"
 
 const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
   const dispatch = useAppDispatch()
@@ -57,7 +54,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       dispatch(createTask(task));
     }
   }
-
   const removeOrder1Chain = async (taskState: ITaskState, idTask: number) => {
     const toaster = toast.loading("Remove Order..")
     let task : ITask = {...taskState.taskList[idTask], status: 1}
@@ -124,16 +120,17 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       dispatch(updateTask({task, id: idTask}))
       try {
         // decode secret key
-        const bytesDecrypt = CryptoJS.AES.decrypt(data.key, SECRET_HASH);
-        const secretKey = bytesDecrypt.toString(CryptoJS.enc.Utf8);
-        
+        // const bytesDecrypt = CryptoJS.AES.decrypt(data.key, SECRET_HASH);
+        // const secretKey = bytesDecrypt.toString(CryptoJS.enc.Utf8);
         const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
         const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
 
+
         const withdrawToken = exchangeContract.methods.withdraw(
           data.txId,
-          secretKey
+          // secretKey
         )
+
         const acceptRecepit = await appState.web3.eth.sendTransaction({
           from: userState.address,
           gasPrice: "0",
@@ -178,36 +175,41 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     dispatch(createTask(task));
   }
   const onBuyerClickWithdraw = () => {
-    console.log(data)
-    const buyerWithdraw = async (taskState: ITaskState, idTask: number) => {
+    const buyerWithdraw = async (taskState: ITaskState, idTask: number, secretKey: string | undefined) => {
       const toaster = toast.loading("Withdraw token...")
       let task : ITask = {...taskState.taskList[idTask], status: 2}
       dispatch(updateTask({task, id: idTask}))
       
       try {
-        // // decode secret key
-        // const bytesDecrypt = CryptoJS.AES.decrypt(data.key, SECRET_HASH);
-        // const secretKey = bytesDecrypt.toString(CryptoJS.enc.Utf8);
-        
-        // const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
-        // const tokenContract = getTokenContract(appState.web3, data.fromValue.token.deployedAddress)
-        // const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
+        // decode secret key
+        const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
+        const tokenContract = getTokenContract(appState.web3, data.fromValue.token.deployedAddress)
+        const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
 
-        // const withdrawToken = exchangeContract.methods.withdraw(
-        //   data.txId,
-        //   secretKey
-        // )
-        // const acceptRecepit = await appState.web3.eth.sendTransaction({
-        //   from: userState.address,
-        //   gasPrice: "0",
-        //   gas: await withdrawToken.estimateGas({
-        //     from: userState.address,
-        //     data: withdrawToken.encodeABI()
-        //   }),
-        //   to: SWAP_ADDRESS_CONTRACT,
-        //   value: "0",
-        //   data: withdrawToken.encodeABI(),
-        // })
+
+        const contractID = appState.web3.utils.soliditySha3(
+          { type: "bytes32", value: "31323334" },
+          { type: "address", value: data.from.address},
+          { type: "address", value: data.to.address}
+        ) 
+
+
+        const withdrawToken = exchangeContract.methods.withdraw(
+          contractID,
+          secretKey
+        )
+        
+        const acceptRecepit = await appState.web3.eth.sendTransaction({
+          from: userState.address,
+          gasPrice: "0",
+          gas: await withdrawToken.estimateGas({
+            from: userState.address,
+            data: withdrawToken.encodeABI()
+          }),
+          to: SWAP_ADDRESS_CONTRACT,
+          value: "0",
+          data: withdrawToken.encodeABI(),
+        })
         dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
         const updateOrder = await appApi.updateStatusOrder(data._id, "receiver withdrawn");
         task = {...task, status: 3}
@@ -236,7 +238,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       status: 0,
       funcExecute: buyerWithdraw,
       from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
     };
     dispatch(createTask(task));
   }
@@ -254,11 +257,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           SWAP_ADDRESS_CONTRACT,
           BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
         ).send({from: userState.address})
-        
-
-
-
-
         task = {...task, status: 2}
         dispatch(updateTask({ task: task, id: task.id}))
 
@@ -346,7 +344,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
 
   return (
     <div className="app-order" style={{marginBottom: 20}}>
-      <div className="app-Rorder--info">
+      <div className="app-order--info">
         <div className="app-order--info--token">
           <img src={dataOrder.fromValue.token.image} alt="Token" width={60} />
           <div>

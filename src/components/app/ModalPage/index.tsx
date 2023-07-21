@@ -6,8 +6,9 @@ import ModalCreate from './helper/Create'
 import SellerCreateModal from './helper/SellerCreate'
 import ModalRemove from './helper/Remove'
 import ModalAccept from './helper/Accept'
-import ModalWithdraw from './helper/Withdraw'
 import ModalBuyerAccept from './helper/BuyerAccept'
+import ModalSellerWithdraw from './helper/SellerWithdraw'
+import ModalBuyerWithdraw from './helper/BuyerWithdraw'
 
 const ModalPage = () => {
     const taskState = useAppSelector(state => state.taskState)
@@ -51,13 +52,17 @@ const ModalPage = () => {
             <ModalBuyerAccept task={task} taskState={taskState} afterClose={afterClose}/>
         )
     }
-    else if (task.type === "BUYER-WITHDRAW" || task.type === "SELLER-WITHDRAW") {
+    else if (task.type === "BUYER-WITHDRAW") {
         return (
-            <ModalWithdraw task={task} taskState={taskState} afterClose={afterClose}/>
+            <ModalBuyerWithdraw task={task} taskState={taskState} afterClose={afterClose}/>
+        )
+    } 
+    else if (task.type === "SELLER-WITHDRAW") {
+        return (
+            <ModalSellerWithdraw task={task} taskState={taskState} afterClose={afterClose}/>
         )
     }
     else return <></>
-
 }
 
 export default ModalPage

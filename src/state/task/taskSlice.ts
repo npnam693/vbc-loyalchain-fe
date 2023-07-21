@@ -29,7 +29,7 @@ export interface ITask {
     id: number;
     type: string;
     status: number;
-    funcExecute: (taskState : ITaskState, idTask: number) => void;
+    funcExecute: (taskState : ITaskState, idTask: number, secret?: string) => void;
     from: {
         address: string;
         token: any;
