@@ -20,7 +20,6 @@ class AppAPI {
         });
     }
 
-
     // App
     getTokens = () => {
         console.log(LOYALCHAIN_API)
@@ -75,7 +74,13 @@ class AppAPI {
         const url = LOYALCHAIN_API.concat(`/transactions/${txId}/progress`);
         return axiosClient.patch(url, {status: status});
     }
-    
+    getScretKey = (txId: string) => {
+        if (LOYALCHAIN_API === undefined) return;
+        const url = LOYALCHAIN_API.concat(`/transactions/${txId}/secretKey`);
+        return axiosClient.get(url);
+    }
+
+
     createTransfer = (data: any) => {
         if (LOYALCHAIN_API === undefined) return;
         const url = LOYALCHAIN_API.concat("/transactions/create");

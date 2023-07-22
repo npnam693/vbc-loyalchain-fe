@@ -4,7 +4,7 @@ import { Divider, Input, Modal, Steps } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import { mappingNetwork } from '../../../../utils/blockchain'
 import PairToken from '../../PairToken'
-
+import { useAppSelector } from '../../../../state/hooks'
 
 export interface IModalElement {
     task: ITask;
@@ -13,12 +13,12 @@ export interface IModalElement {
 }
 
 const ModalBuyerWithdraw = ({task, taskState, afterClose} : IModalElement) => {
-    const [secret, setSecret] = useState('');
+  const [secret, setSecret] = useState('');
   return (
     <Modal
         title="Withdraw Token"
         open={true}
-        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : {}}
+        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id, secret) : {}}
         okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
         afterClose={afterClose}
         onCancel={afterClose}
@@ -62,22 +62,36 @@ const ModalBuyerWithdraw = ({task, taskState, afterClose} : IModalElement) => {
                     status: "wait"
                 } 
             ]
-            : 
+            : (
+            task.status === 3 ?
             [
-                {
-                    title: "Enter key", 
-                    status: "finish"
-                },
-                {
-                    title: "Withdraw Token",
-                    status: "finish",
-                },
-                {
-                    title: "Done",
-                    status: "finish"
-                } 
-            ]
-            )
+              {
+                  title: "Enter key", 
+                  status: "finish"
+              },
+              {
+                  title: "Withdraw Token",
+                  status: "finish",
+              },
+              {
+                  title: "Done",
+                  status: "finish"
+              } 
+            ] : 
+            [
+              {
+                title: "Enter key", 
+                status: "finish"
+              },
+              {
+                  title: "Withdraw Token",
+                  status: "error",
+              },
+              {
+                  title: "Done",
+                  status: "wait"
+              } 
+            ]))
         }
     />
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>

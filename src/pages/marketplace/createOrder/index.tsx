@@ -57,6 +57,7 @@ export default function CreateOrder() {
     setFormData(newData);
     countExchangeRateForm();
   };
+  
   const countExchangeRateForm = async () => {
     const res = await appApi.getExchangeRate({
       tokenId1: formData.from.token._id,
@@ -119,69 +120,59 @@ export default function CreateOrder() {
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     dispatch(updateTask({task, id: idTask}))
     try {
-      const exchangeContract = getSwapOneContract(appState.web3, userState.network)
-      const tokenContract = getTokenContract(appState.web3, formData.from.token.deployedAddress)
       const SWAP_CONTRACT_ADDRESS = getAddressOneChainContract(userState.network)
+      const swapContract = getSwapOneContract(appState.web3, userState.network)
+      const tokenContract = getTokenContract(appState.web3, formData.from.token.deployedAddress)
 
-      const approveRecipt = await tokenContract.methods
-        .approve(
-          SWAP_CONTRACT_ADDRESS,
-          BigInt(10 ** Number(18) * Number(formData.from.amount))
-        )
-        .send({ from: userState.address });
-      toast.update(toastify, {
-        render: "Successfully approve token",
-        type: "success",
-        isLoading: false,
-        autoClose: 500,
-      });
+      // Approve token
+      await tokenContract.methods.approve(
+        SWAP_CONTRACT_ADDRESS,
+        BigInt(10 ** Number(18) * Number(formData.from.amount))
+      )
+      .send({ from: userState.address });
+      toast.update(toastify, { render: "Successfully approve token", type: "success", isLoading: false, autoClose: 500});
       task = {...task, status: 2}
       dispatch(updateTask({task, id: idTask}))
-      const createExchangeMethod = exchangeContract.methods.createTx(
+
+      toast.update(toastify, {
+        render: "Sending token...",
+        type: "default", isLoading: true,
+      });
+
+      // Create order in smart contract 
+      const createRecipt = await swapContract.methods.createTx(
         orderId,
         formData.from.token.deployedAddress,
         formData.to.token.deployedAddress,
         BigInt(10 ** Number(18) * Number(formData.from.amount)),
         BigInt(10 ** Number(18) * Number(formData.to.amount)),
-      )
-      toast.update(toastify, {
-        render: "Sending token...",
-        type: "default",
-        isLoading: true,
-      });
+      ).send({from: userState.address})
+          
 
-      const reciptExchange = await appState.web3.eth.sendTransaction({
-        from: userState.address,
-        gasPrice: "0",
-        gas: await createExchangeMethod.estimateGas({
-          from: userState.address,
-          data: createExchangeMethod.encodeABI(),
-        }),
-        to: SWAP_CONTRACT_ADDRESS,
-        value: "0",
-        data: createExchangeMethod.encodeABI(),
-      });
+      
+      // Save order to database
       const orderData = await appApi.createOrder({
         fromValue: formData.from.amount,
         fromTokenId: formData.from.token._id,
         toValue: formData.to.amount,
         toTokenId: formData.to.token._id,
-        txId: orderId,
+        contractId: orderId,
       });
 
+      
       dispatch(saveInfo({
         ...userState,
         wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
       }))
+
       toast.update(toastify, {
         render: "The order was created successfully.",
-        type: "success",
-        isLoading: false,
-        autoClose: 1000,
+        type: "success", isLoading: false, autoClose: 1000,
       });
+      
       task = {...task,           
         status: 3,
-        transactionHash: reciptExchange.transactionHash,
+        transactionHash: createRecipt.transactionHash,
         orderID: orderData && orderData.data._id
       }
       dispatch(updateTask({task, id: idTask}))
@@ -189,9 +180,7 @@ export default function CreateOrder() {
       console.log(error);
       toast.update(toastify, {
         render: "The order was created fail, see detail in console.",
-        type: "error",
-        isLoading: false,
-        autoClose: 1000,
+        type: "error", isLoading: false, autoClose: 1000,
       });
       dispatch(updateTask({
         task: {
@@ -203,8 +192,8 @@ export default function CreateOrder() {
     }
     dispatch(doneOneTask())
   };
+  
   const createOrderTwoChain = async (taskState: ITaskState, idTask: number) => {
-    const orderId = appState.web3.utils.soliditySha3(uuidv4());
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     const toastify = toast.loading("Check your balance...");
     dispatch(createTask(task));
@@ -221,6 +210,7 @@ export default function CreateOrder() {
         dispatch(updateTask({task, id: task.id}))
         return;
       }
+
       dispatch(updateTask({task:{...task, status: 2}, id: task.id}))
       toast.update(toastify, {
         render: "Save order...",
@@ -228,12 +218,11 @@ export default function CreateOrder() {
         isLoading: true,
       });
 
-      const orderData = await appApi.createOrder({
+      await appApi.createOrder({
         fromValue: formData.from.amount,
         fromTokenId: formData.from.token._id,
         toValue: formData.to.amount,
         toTokenId: formData.to.token._id,
-        txId: orderId,
       });
       
       toast.update(toastify, {

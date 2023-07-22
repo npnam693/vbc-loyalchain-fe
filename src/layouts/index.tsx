@@ -13,8 +13,10 @@ import { Empty, FloatButton, Popover } from 'antd';
 
 import appApi from "../api/appAPI";
 import { CheckCircleTwoTone, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
-import { openTaskModel } from "../state/task/taskSlice";
+import { closeTaskModel, openTaskModel } from "../state/task/taskSlice";
 import PairToken from "../components/app/PairToken";
+import { hdConnectWallet } from "./components/header/helper/ConnectWallet";
+import store from "../state";
 const Layout = ({ children }: LayoutProps) => {
   const particlesInit = useCallback(async (engine: Engine) => {
     // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
@@ -30,22 +32,33 @@ const Layout = ({ children }: LayoutProps) => {
   );
 
   const taskState = useAppSelector((state) => state.taskState);
+  const userState = useAppSelector((state) => state.userState);
   const dispatch = useAppDispatch();
-    useEffect(() => {
-      async function fetchTokens() {
-        const tokens = await appApi.getTokens();
-        if (tokens){
-          dispatch(saveTokens(tokens.data));
-        }
+
+  useEffect(() => {
+    // Get info about all tokens in system.
+    async function fetchTokens() {
+      const tokens = await appApi.getTokens();
+      if (tokens){
+        dispatch(saveTokens(tokens.data));
       }
+    }
+    // Clear modal in application
+    dispatch(closeTaskModel())
+    let storeData = store.getState();
+
+    if (new Date(storeData.userState.expiredTime) > new Date()) {
+      if (window.ethereum) {
+        window.ethereum._metamask.isUnlocked().then(async (res: any) => {
+            res && await hdConnectWallet()
+        })
+      }
+    }
     fetchTokens()
   }, [])    
   
 
   const getTitleTask = (type: string)  => {
-
-    console.log('DCM', type)
-
     switch (type) {
       case "TRANSFER":
         return "Transfer Token";

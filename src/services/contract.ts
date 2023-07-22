@@ -22,7 +22,7 @@ export const getSwapOneContract = (web3 : any, chainID : number) => {
     }
 }
 
-export const getSwapTwoConract = (web3 : any, chainID: number) => {
+export const getSwapTwoContract = (web3 : any, chainID: number) => {
     if (chainID === 8888) {
         return new web3.eth.Contract(
             SwapTwoChainData.abi, AGD_EXCHANGE_TWO_ADDRESS

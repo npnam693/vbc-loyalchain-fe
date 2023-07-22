@@ -45,6 +45,7 @@ export interface ITask {
     twoChain?: {
         orderStatus ? : string;
     }
+    dataOrder?: any
 }   
 
 

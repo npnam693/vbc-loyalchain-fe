@@ -6,9 +6,12 @@ import ModalCreate from './helper/Create'
 import SellerCreateModal from './helper/SellerCreate'
 import ModalRemove from './helper/Remove'
 import ModalAccept from './helper/Accept'
-import ModalBuyerAccept from './helper/BuyerAccept'
 import ModalSellerWithdraw from './helper/SellerWithdraw'
 import ModalBuyerWithdraw from './helper/BuyerWithdraw'
+import ModalBuyerDeposit from './helper/BuyerDeposit'
+import ModalSellerDeposit from './helper/SellerDeposit'
+
+
 
 const ModalPage = () => {
     const taskState = useAppSelector(state => state.taskState)
@@ -22,47 +25,32 @@ const ModalPage = () => {
             dispatch(deleteTask(task.id))
         }
     }
-    if (task.type === "TRANSFER"){
-        return (
-            <ModalTransfer task={task} taskState={taskState} afterClose={afterClose}/>
-        )
+    switch (task.type) {
+        case "TRANSFER":
+            return <ModalTransfer task={task} taskState={taskState} afterClose={afterClose}/>
+        case "CREATE":
+            return <ModalCreate task={task} taskState={taskState} afterClose={afterClose}/>
+        case "ACCEPT":
+            return <ModalAccept task={task} taskState={taskState} afterClose={afterClose}/>
+        case "REMOVE":
+            return <ModalRemove task={task} taskState={taskState} afterClose={afterClose}/>
+    
+        case "SELLER-CREATE":
+            return <SellerCreateModal task={task} taskState={taskState} afterClose={afterClose}/>
+        case "BUYER-DEPOSIT":
+            return <ModalBuyerDeposit task={task} taskState={taskState} afterClose={afterClose}/>
+        case "SELLER-DEPOSIT":
+            return <ModalSellerDeposit task={task} taskState={taskState} afterClose={afterClose}/>
+        case "SELLER-WITHDRAW":
+            return <ModalSellerWithdraw task={task} taskState={taskState} afterClose={afterClose}/>
+        case "BUYER-WITHDRAW":
+            return <ModalBuyerWithdraw task={task} taskState={taskState} afterClose={afterClose}/>
+        case "SELLER-REMOVE":
+            return <ModalRemove task={task} taskState={taskState} afterClose={afterClose}/>
+        default:
+            return <></>
     }
-    else if (task.type === "CREATE"){
-        return (
-            <ModalCreate task={task} taskState={taskState} afterClose={afterClose}/>
-        )
-    }   
-    else if (task.type === "SELLER-CREATE") {
-        return (
-            <SellerCreateModal task={task} taskState={taskState} afterClose={afterClose}/>
-        )
-    }   
-    else if (task.type === "REMOVE" || task.type === "SELLER-REMOVE") {
-        return (
-            <ModalRemove task={task} taskState={taskState} afterClose={afterClose}/>
-        )
-    } 
-    else if (task.type === "ACCEPT" || task.type === "SELLER-DEPOSIT")  {
-        return (
-            <ModalAccept task={task} taskState={taskState} afterClose={afterClose}/>
-        )
-    }
-    else if (task.type === "BUYER-DEPOSIT") {
-        return (
-            <ModalBuyerAccept task={task} taskState={taskState} afterClose={afterClose}/>
-        )
-    }
-    else if (task.type === "BUYER-WITHDRAW") {
-        return (
-            <ModalBuyerWithdraw task={task} taskState={taskState} afterClose={afterClose}/>
-        )
-    } 
-    else if (task.type === "SELLER-WITHDRAW") {
-        return (
-            <ModalSellerWithdraw task={task} taskState={taskState} afterClose={afterClose}/>
-        )
-    }
-    else return <></>
+
 }
 
 export default ModalPage

@@ -13,7 +13,6 @@ const getToken = async () => {
     if (storeData.userState.expiredTime < currentTime) {
       try {
         const res = await appApi.getNewToken()
-        console.log("DCM", res)
         const token_decode : any = (jwt_decode(res?.data))
         store.dispatch(
           updateToken({
@@ -21,7 +20,6 @@ const getToken = async () => {
             expiredTime: new Date(token_decode.exp * 1000)
           })
         )
-        console.log('VCL', res?.data)
         return res?.data
       } catch (error) {
 
@@ -51,6 +49,7 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(async (config) => {
   let token = await getToken();
+  console.log('TOKEN', token)
   if (token) {
     config.headers = {
       Authorization: `Bearer ${token}`,

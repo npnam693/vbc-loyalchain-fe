@@ -1,84 +1,58 @@
-import React from 'react'
-import { ITask, ITaskState } from '../../../../state/task/taskSlice';
-import { Modal, Steps } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import { IModalElement } from './Transfer';
+import { Input, Modal, Steps } from 'antd';
+import {  LoadingOutlined } from '@ant-design/icons';
 import PairToken from '../../PairToken';
 import { mappingNetwork } from '../../../../utils/blockchain';
 
-export interface IModalElement {
-    task: ITask;
-    taskState: ITaskState;
-    afterClose: () => void;
-}
 
-const ModalSellerCreate = ({task, taskState, afterClose} : IModalElement) => {
+
+
+const ModalSellerDeposit
+ = ({task, taskState, afterClose} : IModalElement) => {
+
+
   return (
     <Modal
-      title="Transfer Token"
+      title="Deposit Token"
       open={true}
       onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : {}}
       okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
       afterClose={afterClose}
       onCancel={afterClose}
-      width={700}
+      width={800}
       style={{top: 200}}
       closable={true}
       cancelButtonProps={{ style: { display: 'none' } }}
     >
       <Steps
         size="default"
-        style={{ width: 600, margin: "auto", marginTop: 40, marginBottom: 30}}
-        items= {
-            task.status === 0 ?
-            [
-                {
-                  title: "Check balance",
-                  status: "process",
-                },
-                {
-                  title: "Save Order",
-                  status: "wait",
-                },
-                {
-                  title: "Done",
-                  status: "wait",
-                },
-            ]
-            : [
-                  {
-                    title: "Check balance",
-                    status:
-                      task.status === -1
-                        ? "error"
-                        : task.status > 1
-                        ? "finish"
-                        : "process",
-                    icon: task.status === 1 && (
-                      <LoadingOutlined rev={""} />
-                    ),
-                  },
-                  {
-                    title: "Save Order",
-                    status:
-                      task.status === -2
-                        ? "error"
-                        : task.status < 2
-                        ? "wait"
-                        : task.status === 3
-                        ? "finish"
-                        : "process",
-                    icon: task.status === 2 && (
-                      <LoadingOutlined rev={""} />
-                    ),
-                  },
-                  {
-                    title: "Done",
-                    status: task.status === 3 ? "finish" : "wait",
-                  },
-                ]
-        }
+        style={{width: 700, margin: 'auto', marginTop: 40, marginBottom: 30}}
+        items={
+          task.status === 0 ? 
+          [
+            { title: "Approve Token", status: "process"},
+            { title: "Deposit Token", status: "wait"},
+            { title: "Done", status: "wait" }
+          ] : (
+          task.status === 1 ? 
+          [
+            { title: "Approve Token", status: "process", icon: <LoadingOutlined  rev={""}/>},
+            { title: "Deposit Token", status: "wait"},
+            { title: "Done", status: "wait" }
+          ] : (
+          task.status === 2 ? 
+          [
+            { title: "Approve Token", status: "finish"},
+            { title: "Deposit Token", status: "process", icon: <LoadingOutlined  rev={""} />},
+            { title: "Done", status: "wait" }
+          ] : 
+          [
+            { title: "Approve Token", status: "finish"},
+            { title: "Deposit Token", status: "finish"},
+            { title: "Done", status: "finish" }
+          ]))
+        } 
       />
-
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
         <div>
           <p style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem"}}>
@@ -90,8 +64,8 @@ const ModalSellerCreate = ({task, taskState, afterClose} : IModalElement) => {
           </p>
         </div>
         <PairToken
-          from_img={task.to?.token.image}
-          to_img={task.from?.token.image}
+          from_img={task.from?.token.image}
+          to_img={task.to?.token.image}
           width={60}
         />
         <div>
@@ -142,9 +116,12 @@ const ModalSellerCreate = ({task, taskState, afterClose} : IModalElement) => {
           Order ID: 
           <span style={{ fontWeight: 400 }}> {task.orderID}</span>
         </p>
+        <p>Recipient: 
+          <span style={{fontWeight: 400}}> {task.from.address}</span>
+        </p>
       </div>
     </Modal>
   )
 }
 
-export default ModalSellerCreate
+export default ModalSellerDeposit

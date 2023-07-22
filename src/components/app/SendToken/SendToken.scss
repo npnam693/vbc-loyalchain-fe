@@ -21,22 +21,23 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-
             .title {
-                font-size: 2rem;
-                line-height: 2rem;
+                font-size: 1.8rem;
+                line-height: 1.8rem;
                 font-weight: 600;
                 color: black;
-                margin-bottom: 6px;
+                margin-bottom: 4px;
             }
             .desc {
                 color: #9CA3AF;
+                font-size: 1.4rem;
+                margin-bottom: 10px;
             }
         } 
         .divider {
             border-color: rgba($color: #000000, $alpha: 0.2);
             border-width: 1px;
-            margin: 5px 0px;
+            margin: 0px 0px;
         }
         .token {
             display: flex;

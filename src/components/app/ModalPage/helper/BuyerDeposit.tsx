@@ -8,24 +8,30 @@ import { mappingNetwork } from '../../../../utils/blockchain';
 
 
 
-const ModalBuyerAccept = ({task, taskState, afterClose} : IModalElement) => {
-  const [secret, setSecret] = useState(Array(5).fill(0).map(() => Math.floor(Math.random() * 10)).join("") )
+const ModalBuyerDeposit = ({task, taskState, afterClose} : IModalElement) => {
+  const [secret, setSecret] = useState(Array(6).fill(0).map(() => Math.floor(Math.random() * 10)).join("") )
   const generateSecret = () => {
     setSecret(Array(6).fill(0).map(() => Math.floor(Math.random() * 10)).join(""))
   }
   const [showPassWord, setShowPassword] = useState(true)
 
   useEffect(() => {
-    if(status !== 0) {
+    if(task.status !== 0) {
       showPassWord && setShowPassword(false)
     }
   }, [])
-  let status : Number = 0;
+
+
+  const onOkModal = () => {
+    if(task.status === 0 && secret.length >= 6) {
+      task.funcExecute(taskState, task.id, secret)
+    }
+  }
   return (
     <Modal
       title="Accept Order"
       open={true}
-      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id, secret) : {}}
+      onOk={onOkModal}
       okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
       afterClose={afterClose}
       onCancel={afterClose}
@@ -40,44 +46,32 @@ const ModalBuyerAccept = ({task, taskState, afterClose} : IModalElement) => {
         items={
           task.status === 0 ? 
           [
-            {
-              title: "Create key", 
-              status: "process"
-            },
-            {
-              title: "Approve Token",
-              status: "wait"
-            },
-            {
-              title: "Deposit Token",
-              status: "wait"
-            },
-            {
-              title: "Done",
-              status: "wait"
-            }
+            { title: "Create key",  status: "process"},
+            { title: "Approve Token", status: "wait"},
+            { title: "Deposit Token", status: "wait"},
+            { title: "Done", status: "wait" }
+          ] : (
+          task.status === 1 ? 
+          [
+            { title: "Create key",  status: "finish"},
+            { title: "Approve Token", status: "process", icon: <LoadingOutlined  rev={""}/>},
+            { title: "Deposit Token", status: "wait"},
+            { title: "Done", status: "wait" }
+          ] : (
+          task.status === 2 ? 
+          [
+            { title: "Create key",  status: "finish"},
+            { title: "Approve Token", status: "finish"},
+            { title: "Deposit Token", status: "process", icon: <LoadingOutlined  rev={""} />},
+            { title: "Done", status: "wait" }
           ] : 
           [
-            {
-              title: "Approve Token",
-              status: task.status === -1 ? 'error' : 
-                      ((task.status >  1) ? 'finish' : 'process'),
-              icon:  task.status === 1 && <LoadingOutlined  rev={""}/>
-            },
-            {
-              title: "Deposit Token",
-              status: task.status === -2 ? 'error' : (
-                        task.status < 2 ? 'wait' : (
-                          task.status === 3 ? 'finish' : 'process'
-                        )
-                      ),
-              icon:  task.status === 2 && <LoadingOutlined  rev={""}/>                  
-            },
-            {
-              title: 'Done',
-              status: task.status === 3 ? 'finish' : 'wait'
-            }
-        ]}
+            { title: "Create key",  status: "finish"},
+            { title: "Approve Token", status: "finish"},
+            { title: "Deposit Token", status: "finish"},
+            { title: "Done", status: "finish" }
+          ]))
+        } 
       />
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
         <div>
@@ -118,7 +112,7 @@ const ModalBuyerAccept = ({task, taskState, afterClose} : IModalElement) => {
           minLength={6} status={secret.length < 6 ? 'error' : ''}
           onChange={(e) => setSecret(e.target.value)}
           visibilityToggle={
-            status === 0 ?
+            task.status === 0 ?
             { visible:  showPassWord , onVisibleChange: setShowPassword }
             : false
           }
@@ -130,9 +124,9 @@ const ModalBuyerAccept = ({task, taskState, afterClose} : IModalElement) => {
       </div>
         {
           secret.length < 6 &&
-          <span style={{fontSize: '1.0rem'}}>Minimum 6 characters required for the Secret Key</span>
+          <span style={{fontSize: '1.2rem'}}>Minimum 6 characters required for the Secret Key</span>
         }
-      <p style={{width:'80%', fontSize:'1.2rem'}}><span style={{color: "orange"}}>Note:</span> Please note that the password you create will be used to secure the contract.
+      <p style={{width:'80%', fontSize:'1.3rem'}}><span style={{color: "orange"}}>Note:</span> Please note that the password you create will be used to secure the contract.
         Kindly remember it carefully to avoid any potential loss of assets.</p>
       <Divider style={{margin: '10px'}} />
 
@@ -174,4 +168,4 @@ const ModalBuyerAccept = ({task, taskState, afterClose} : IModalElement) => {
   )
 }
 
-export default ModalBuyerAccept
+export default ModalBuyerDeposit

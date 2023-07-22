@@ -30,7 +30,7 @@ function shortenAddress(address : string) {
 
 function fixStringBalance(balance:string, decimal: number){
   console.log(balance.length)
-  if (balance.length < 5) return balance;
+  if (balance.length < 15) return '0';
 
   for (let i = balance.length - 1; i >= 0; i--){
     if (balance[i] === '0' && decimal > 0) {

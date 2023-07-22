@@ -75,7 +75,6 @@ const SendToken = (props : ISendToken) => {
             toast.update(toaster, { render: "Transfer Token fail!", type: "error", isLoading: false, autoClose: 1000});
         }
     }
-     
     return (
     <div className='app-sendToken'>
         <div className='container'>

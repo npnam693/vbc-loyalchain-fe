@@ -13,7 +13,7 @@ import TableOrder from "../../components/marketplace/TableOrder";
 import MarketPane from "../../components/marketplace/MarketPane";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import StatisticItem from "../../components/marketplace/StatisticItem";
-import { CloseCircleOutlined, DatabaseOutlined, ProfileOutlined, UploadOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, ProfileOutlined, UploadOutlined } from "@ant-design/icons";
 import { hdConnectWallet } from "../../layouts/components/header/helper/ConnectWallet";
 export interface IFilterData {
   network: number,
@@ -51,7 +51,7 @@ export const showConfirmConnectWallet = (dispatch : any, appState: any, userStat
     okText: 'Connect Wallet',
     cancelText: 'Cancel ',
     async onOk() {
-      await hdConnectWallet(dispatch, appState, userState);
+      await hdConnectWallet();
       func && func()
     },
     onCancel() {
@@ -81,7 +81,6 @@ const Marketplace = () => {
   useEffect(() => {
     const fetchFilterOrder = async () => {
       const filterData = {
-        // network: filter.filterData.network,
         fromTokenId: filter.filterData.from !== '' ? filter.filterData.from._id : null,
         toTokenId: filter.filterData.to !== '' ? filter.filterData.to._id : null,
         fromValueUp: filter.filterData.amountFrom[1],
@@ -98,6 +97,7 @@ const Marketplace = () => {
         }
         else {
           setData(tdata.data)
+          
         }
       }
       console.log(filter.filterData)
