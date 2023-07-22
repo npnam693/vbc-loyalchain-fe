@@ -1,4 +1,4 @@
-import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, LoadingOutlined, SwapOutlined } from "@ant-design/icons";
 import { Button, Collapse, Divider, Modal, Steps, Tooltip } from "antd";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
@@ -31,24 +31,34 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     buyer: <div></div>,
     seller: <div></div>
   });
-
-
-
-
-
+  const [dataOnChain, setDataOnChain] = useState<any>(null)
   const IS_SELLER : boolean = userState.address === data.from.address;
+  const getDataOnChain = async () => {
+    const sellerLock = await getTxTwoOnchain(
+      generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
+      data.fromValue.token.network
+    )
+    const buyerLock = await getTxTwoOnchain(
+      generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
+      data.toValue.token.network
+    )
+
+    setDataOnChain({
+      seller: sellerLock,
+      buyer: buyerLock
+    })
+    
+    IS_SELLER ? getRemoveBtn(sellerLock.timelock) : getRemoveBtn(buyerLock.timelock)
+    
+    setContentOnchain({
+      seller: makecontentOnChain(true, sellerLock),
+      buyer: makecontentOnChain(false, buyerLock)
+    })
+  }
+
   useEffect(() =>     {
-    const getContent = async () => {
-      setContentOnchain({
-        buyer: await contentOnChain(false),
-        seller: await contentOnChain(true)
-      })
-    }
     userState.address === data.from.address ? setDataOrder(data) : 
     setDataOrder({...data, fromValue: data.toValue, toValue: data.fromValue})
-      
-    getRemoveBtn()
-    getContent()
   }, [userState])
 
 
@@ -146,7 +156,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
 
         const withdrawMethod = await exchangeContract.methods.withdraw(
           generateContractID(appState.web3, data._id, data.from.address, data.to.address),
-          secretKey
+          secretKey?.data
         ).send({from: userState.address})
 
         dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
@@ -188,16 +198,18 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       dispatch(updateTask({task, id: idTask}))
       try {
         const exchangeContract = getSwapTwoContract(appState.web3, data.fromValue.token.network);
-      
+        console.log(secretKey)
         await exchangeContract.methods.withdraw(
           generateContractID(appState.web3, data._id, data.from.address, data.to.address),
           secretKey
         ).estimateGas({from: userState.address})
 
+
         const withdrawReceipt = await exchangeContract.methods.withdraw(
           generateContractID(appState.web3, data._id, data.from.address, data.to.address),
-          secretKey
+          secretKey?.toString()
         ).send({from: userState.address})
+
 
         dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
         await appApi.updateStatusOrder(data._id, "receiver withdrawn");
@@ -232,22 +244,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       orderID: data._id,
     };
     dispatch(createTask(task));
-  }
-  const getTimeLockOrder = async () => {
-    if (IS_SELLER) {
-      const lockOrder = await getTxTwoOnchain(
-        generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
-        data.fromValue.token.network
-      )
-      if (lockOrder) return Number(lockOrder.timelock)
-    } else {
-      const lockOrder = await getTxTwoOnchain(
-        generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
-        data.toValue.token.network
-      )
-      if (lockOrder) return Number(lockOrder.timelock)
-    }
-
   }
   const onSellerClickDeposit = () => {
     const sellerDeposit = async (taskState: ITaskState, idTask: number) => {
@@ -316,8 +312,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       return <LoadingOutlined rev={""}/>
     }
   }
-  const getRemoveBtn = async () => {
-    const timeLock = await getTimeLockOrder()
+  const getRemoveBtn = async (timeLock: number) => {
+    console.log(timeLock)
     let myBtn = <div></div>
     if (IS_SELLER) {
       if (data.status === "receiver accepted") {
@@ -351,8 +347,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     setRemoveBtn(myBtn)
   }
   const hdOnOk = async (status: string) => {
-    console.log('vcl')
-      console.log(await getTxTwoOnchain(
+    console.log(await getTxTwoOnchain(
     generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
     data.fromValue.token.network)
   )
@@ -380,25 +375,23 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       }
     }
   }
-  const contentOnChain = async (isSeller: boolean) => {
-    const txData : any = await getTxTwoOnchain(
-      generateContractID(appState.web3, dataOrder._id, data.from.address, data.to.address), 
-      !isSeller ? data.toValue.token.nework : data.fromValue.token.network
-    )
-    if (data.timelock === '0') {
+
+  const makecontentOnChain = (isSeller: boolean, txData: any) => {
+    console.log(txData)
+    if (txData.timelock.toString() !== '0') {
       return (
         <div>
           <p style={{fontSize: '1.3rem'}}>Network:
-            <span>{mappingNetwork(!isSeller ? data.toValue.token.nework : data.fromValue.token.network)}</span>
+            <span style={{fontWeight: 400}}>{' '}{mappingNetwork(!isSeller ? data.toValue.token.network : data.fromValue.token.network)}</span>
           </p>
           <p style={{fontSize: '1.3rem'}}>Token address:
-            <span>{txData.tokenContract}</span>
+            <span style={{fontWeight: 400}}>{' '}{txData.tokenContract.toString()}</span>
           </p>
           <p style={{fontSize: '1.3rem'}}>Receiver:
-            <span>{txData.receiver}</span>
+            <span style={{fontWeight: 400}}>{' '}{txData.receiver.toString()}</span>
           </p>
           <p style={{fontSize: '1.3rem'}}>Amount:
-            <span>{txData.amount}</span>
+            <span style={{fontWeight: 400}}>{' '}{txData.amount.toString()}</span>
           </p>
         </div>
         )
@@ -408,7 +401,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         <div>There is currently no on-chain information available for this lock contract.</div>
       )
     }
-
   }
   return (
     <div className="app-order" style={{marginBottom: 20}}>
@@ -444,7 +436,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
                 <p>Exchange rate: {(dataOrder.fromValue.amount/dataOrder.toValue.amount).toFixed(2)}</p>
               </div>
               <div className="app-order--action--time_left">
-                  <Countdown value={ Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30} valueStyle={{fontSize: '1.4rem', fontWeight:700, color:'#ccc'}}/>
+                {data.status}
               </div>
             </>
           }
@@ -461,7 +453,10 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
               }</p>
             </div>
           }
-          <div className="app-order--action--btn" onClick={(data.status === "pending") ? onClickRemove : () => setOpenModal(true)}>
+          <div className="app-order--action--btn" onClick={(data.status === "pending") ? onClickRemove : async () => {
+            setOpenModal(true)
+            await getDataOnChain()
+          }}>
             {
               isPendingOrder ? "Remove" : "Detail"
             }
@@ -471,7 +466,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           title="Detail Order"
           open={openModel}
           onCancel={() => {setOpenModal(false)}}
-          width={800}
+          width={900}
           style={{top: 170}}
           closable={true}
           footer={<>
@@ -557,38 +552,64 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
                 color: "var(--color-secondary)",
               }}
             >
-              {dataOrder.fromValue.amount} {dataOrder.toValue.token.symbol}
+              {dataOrder.toValue.amount} {dataOrder.toValue.token.symbol}
             </p>
           </div>
         </div>
 
-          <div style={{fontWeight: 500, padding: "0 20px"}}>
+          <div style={{fontWeight: 500}}>
               <p>Recipient: <span style={{fontWeight: 400}}>{dataOrder.from.address}</span></p>
               <p>Order ID:  
                   <span style={{fontWeight: 400}}> {
                       dataOrder._id
                   }</span>
               </p>
-              <p>Lock contract ID:  
+              {
+                dataOrder.status !== "pending" &&
+                <>
+                <p>Lock contract ID:  
                   <span style={{fontWeight: 400}}> {
                       generateContractID(appState.web3, dataOrder._id, dataOrder.from.address, dataOrder.to.address)
                   }</span>
               </p>
               <p>Onchain data:</p>
               <div style={{display: "flex", flexDirection:"row", alignItems:'flex-start', flex: 1}}>
-                <Collapse
-                  size="small"
-                  style={{flex: 0.48, marginRight: 20}}
-                  items={[{ key: '1', label: 'Buyer lock contract', children: contentOnchain.buyer}]}
-                  bordered={false}
-                />
-                <Collapse
-                  size="small"
-                  style={{flex: 0.48}}
-                  items={[{ key: '1', label: 'Seller lock contract', children: contentOnchain.seller}]}
-                  bordered={false}
-                />
+                  <Collapse
+                    size="small"
+                    style={{flex: 0.5, marginRight: 20}}
+                    items={[{label: <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                      <p>Buyer lock contract</p>
+                      {
+                        (IS_SELLER && dataOnChain != null && dataOnChain.buyer.timelock !== "0")  &&
+                        <Tooltip title="On-chain data confirmed accurate.">
+                          <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                        </Tooltip>
+                      }
+                    </div>, 
+                    children: contentOnchain.buyer ? contentOnchain.buyer : <></>}]}
+                    bordered={false}
+                  />
+                  <Collapse
+                    size="small"
+                    style={{flex: 0.5}}
+                    items={[{label: 
+                    <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                      <p>Seller lock contract</p>
+                      {
+                        (!IS_SELLER && dataOnChain != null && dataOnChain.seller.timelock !== "0")  &&
+                        <Tooltip title="On-chain data confirmed accurate.">
+                          <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                        </Tooltip>
+                      }
+                    </div>
+                  , children: contentOnchain.seller ? contentOnchain.seller : <></>}]}
+                    bordered={false}
+                  />
               </div>
+                </>
+                
+              }
+              
           </div>
       </Modal>
     </div>

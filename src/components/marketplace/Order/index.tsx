@@ -44,20 +44,18 @@ const Order = ({data} : IOrderItemProps) => {
       toast.update(toaster, { render: "Depositing token...", type: "default", isLoading: true});
       
       const createRecepit = await swapContract.methods.create(
-        appState.web3.utils.soliditySha3({type: "string", value: data._id}),
+        appState.web3.utils.keccak256(data._id),
         data.from.address,
         data.toValue.token.deployedAddress,
         BigInt(10 ** Number(18) * Number(data.toValue.amount)),
-        appState.web3.utils.soliditySha3({type: "string", value: secretKey}),
+        appState.web3.utils.keccak256(secretKey),
         false,
       ).send({from: userState.address})
-
-      console.log(createRecepit)
 
       // Save order to database
       await appApi.acceptOder(
         data._id,
-        { hashlock: appState.web3.utils.soliditySha3(secretKey)}
+        { hashlock: appState.web3.utils.keccak256(secretKey)}
       )
 
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))

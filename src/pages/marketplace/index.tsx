@@ -100,13 +100,11 @@ const Marketplace = () => {
           
         }
       }
-      console.log(filter.filterData)
     } 
 
     const fetchStatic = async () => {
       const res = await appApi.getStatisApp()
       if(res) setStatic([res.data.total, res.data.total24h, res.data.totalNow])
-      console.log(res)
     }
 
     fetchStatic()
