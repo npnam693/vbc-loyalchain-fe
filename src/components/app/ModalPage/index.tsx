@@ -10,6 +10,7 @@ import ModalSellerWithdraw from './helper/SellerWithdraw'
 import ModalBuyerWithdraw from './helper/BuyerWithdraw'
 import ModalBuyerDeposit from './helper/BuyerDeposit'
 import ModalSellerDeposit from './helper/SellerDeposit'
+import ModalRefund from './helper/Refund'
 
 
 
@@ -47,6 +48,8 @@ const ModalPage = () => {
             return <ModalBuyerWithdraw task={task} taskState={taskState} afterClose={afterClose}/>
         case "SELLER-REMOVE":
             return <ModalRemove task={task} taskState={taskState} afterClose={afterClose}/>
+        case "REFUND":
+            return <ModalRefund task={task} taskState={taskState} afterClose={afterClose}/>
         default:
             return <></>
     }

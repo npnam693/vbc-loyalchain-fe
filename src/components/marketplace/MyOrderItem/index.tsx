@@ -15,7 +15,7 @@ import { requestChangeNetwork } from "../../../services/metamask";
 import Countdown from "antd/es/statistic/Countdown";
 import PairToken from "../../app/PairToken";
 import { generateContractID, getTxTwoOnchain } from "../../../services/blockchain";
-
+import store from "../../../state";
 interface IMyOrderItem {
   data: any
   isPendingOrder?: boolean;
@@ -204,7 +204,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           secretKey
         ).estimateGas({from: userState.address})
 
-
         const withdrawReceipt = await exchangeContract.methods.withdraw(
           generateContractID(appState.web3, data._id, data.from.address, data.to.address),
           secretKey?.toString()
@@ -303,6 +302,80 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     };
     dispatch(createTask(task));
   }
+  const onClickRefund = async () => {
+    const storeData = store.getState()  
+    const refundToken = async (taskState: ITaskState, idTask: number) => {
+      const toaster = toast.loading("Refunding token...")
+      let myTask : ITask = {...taskState.taskList[idTask], status: 1}
+      dispatch(updateTask({task: myTask, id: idTask}))
+      try {
+          const nonce = await appState.web3.eth.getTransactionCount(storeData.userState.address)
+          const signatureAdmin = await appApi.getSignatureAdmin(
+            data._id,
+            nonce
+          )
+
+          myTask = {...taskState.taskList[idTask], status: 2}
+          dispatch(updateTask({task: myTask, id: idTask}))
+          
+          const swapContract = getSwapTwoContract(appState.web3, data.fromValue.token.network)
+          const refundMethod = swapContract.methods.refund(
+            generateContractID(appState.web3, data._id, data.from.address, data.to.address),
+            Number(nonce),
+            signatureAdmin.data,
+          )
+          await refundMethod.estimateGas({from: storeData.userState.address})
+          const refundRecipt = await refundMethod.send({from: storeData.userState.address})
+          
+          
+          myTask = {...taskState.taskList[idTask], status: 3, transactionHash: refundRecipt.transactionHash}
+          dispatch(updateTask({task: myTask, id: idTask}))
+          dispatch(saveInfo({...storeData.userState, wallet: await getBalanceAccount(appState.web3, storeData.userState, appState.tokens)}))
+          toast.update(toaster, { render: "Token was refund successfully.", type: "success", isLoading: false, autoClose: 1000});
+      } catch (error) {
+        dispatch(updateTask({ 
+          task: { ...task, status: task.status === 1 ? -1 : -2 }, 
+          id: task.id})
+        )
+        toast.update(toaster, { render: "Refund token fail.", type: "error", isLoading: false, autoClose: 1000});
+      }
+    }
+    
+    let netwokAction = IS_SELLER ? data.fromValue.token.network : data.toValue.token.network;
+    if (storeData.userState.network !== netwokAction) {
+      await requestChangeNetwork(data.fromValue.token.network)
+      return;
+    }
+    let task: ITask = {
+      id: taskState.taskList.length,
+      type: "REFUND",
+      status: 0,
+      funcExecute: refundToken,
+      from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
+    };
+    dispatch(createTask(task));
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // ----------------------------------------------- //
   const textOkBtn = (status: string) => {
     if (IS_SELLER && status === "receiver accepted") {
       return <p>Deposit</p>
@@ -328,7 +401,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
             </Button>
           </Tooltip>
         }
-        else myBtn = <Button>Refund</Button>
+        else myBtn = <Button onClick={onClickRefund}>Refund</Button>
       }
       else myBtn = <div></div>
     } else {
@@ -341,16 +414,12 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
               </Button>
             </Tooltip>          
         }
-        else myBtn = <Button>Refund</Button>
+        else myBtn = <Button onClick={onClickRefund}>Refund</Button>
       }
     }
     setRemoveBtn(myBtn)
   }
   const hdOnOk = async (status: string) => {
-    console.log(await getTxTwoOnchain(
-    generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
-    data.fromValue.token.network)
-  )
     if (IS_SELLER) {
       if (status === "receiver accepted") {
         if (data.fromValue.token.network !== userState.network) {
@@ -375,9 +444,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       }
     }
   }
-
   const makecontentOnChain = (isSeller: boolean, txData: any) => {
-    console.log(txData)
     if (txData.timelock.toString() !== '0') {
       return (
         <div>
@@ -558,7 +625,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         </div>
 
           <div style={{fontWeight: 500}}>
-              <p>Recipient: <span style={{fontWeight: 400}}>{dataOrder.from.address}</span></p>
+              <p>Recipient: <span style={{fontWeight: 400}}>{IS_SELLER ? data.to.address : data.from.address}</span></p>
               <p>Order ID:  
                   <span style={{fontWeight: 400}}> {
                       dataOrder._id
