@@ -60,7 +60,7 @@ const Order = ({data} : IOrderItemProps) => {
 
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
-      task = {...task, status: 3, transactionHash: createRecepit.blockHash}
+      task = {...task, status: 3, transactionHash: createRecepit.transactionHash}
       dispatch(updateTask({ task: task,  id: task.id }))
     } catch (error) {
       console.log(error);
@@ -104,7 +104,7 @@ const Order = ({data} : IOrderItemProps) => {
       
       dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
-      task = {...task, status: 3, transactionHash: acceptRecepit.blockHash}
+      task = {...task, status: 3, transactionHash: acceptRecepit.transactionHash}
       dispatch(updateTask({ 
         task: task, 
         id: task.id
@@ -138,7 +138,8 @@ const Order = ({data} : IOrderItemProps) => {
       status: 0,
       funcExecute: () => {},
       from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id
     }
     if (data.fromValue.token.network === data.toValue.token.network) {
       task = {...task, type: "ACCEPT", funcExecute: confirmOneChain}
@@ -147,8 +148,6 @@ const Order = ({data} : IOrderItemProps) => {
     }
     dispatch(createTask(task));
   }
-
-
 
   return (
     <div className="app-order" style={{marginBottom: 20}}>

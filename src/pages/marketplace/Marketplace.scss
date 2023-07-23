@@ -14,15 +14,19 @@
         justify-content: space-between;
         margin-bottom: 20px;
         .btn-create {
-            background-color: rgba($color: #15BFFD, $alpha: 0.3);
-            border: 2px solid rgba($color: #15BFFD, $alpha: 0.5);
-            color: var(--color-text-white);
+            background-color: rgba($color: #15BFFD, $alpha: 0.5);
+            border: 2px solid white;
+            color: white;
             font-size: 1.6rem;
             font-weight: 600;
-            height: 46px;
+            height: 40px;
             display: flex;
             justify-content: flex-start;
             align-items: center;
+            &:hover {
+                background-color: rgba($color: #15BFFD, $alpha: 0.8);
+
+            }
         }
         .statistic-list{
             display: flex;

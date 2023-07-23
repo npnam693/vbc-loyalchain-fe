@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { IModalElement } from './Transfer';
-import { Button, Divider, Input, Modal, Steps } from 'antd';
+import { Button, Divider, Input, Modal, Steps, Tooltip } from 'antd';
 import { EyeInvisibleOutlined, EyeOutlined, LoadingOutlined } from '@ant-design/icons';
 import PairToken from '../../PairToken';
-import { mappingNetwork } from '../../../../utils/blockchain';
+import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain';
 
 
 
@@ -16,10 +16,10 @@ const ModalBuyerDeposit = ({task, taskState, afterClose} : IModalElement) => {
   const [showPassWord, setShowPassword] = useState(true)
 
   useEffect(() => {
-    if(task.status !== 0) {
+    if(task.status === 1) {
       showPassWord && setShowPassword(false)
     }
-  }, [])
+  }, [task])
 
 
   const onOkModal = () => {
@@ -112,9 +112,7 @@ const ModalBuyerDeposit = ({task, taskState, afterClose} : IModalElement) => {
           minLength={6} status={secret.length < 6 ? 'error' : ''}
           onChange={(e) => setSecret(e.target.value)}
           visibilityToggle={
-            task.status === 0 ?
             { visible:  showPassWord , onVisibleChange: setShowPassword }
-            : false
           }
           
         />
@@ -145,23 +143,23 @@ const ModalBuyerDeposit = ({task, taskState, afterClose} : IModalElement) => {
             </span>
           )}
         </p>
-        <p>
-          Transaction Hash:
-          <span style={{ fontWeight: 400 }}>
-            {" "}
-            {task.status === 0
-              ? "..."
-              : task.status === 3
-              ? task.transactionHash
-              : "..."}
-          </span>
+        <p>Recipient: 
+          <span style={{fontWeight: 400}}> {task.from.address}</span>
         </p>
         <p>
           Order ID: 
           <span style={{ fontWeight: 400 }}> {task.orderID}</span>
         </p>
-        <p>Recipient: 
-          <span style={{fontWeight: 400}}> {task.from.address}</span>
+        <p>
+          Transaction Hash: {" "}
+          {
+            task.transactionHash && 
+            <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.to?.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>
+            <span style={{ fontWeight: 400 }}>
+            { task.transactionHash }
+            </span>
+          </Tooltip>
+          }
         </p>
       </div>
     </Modal>

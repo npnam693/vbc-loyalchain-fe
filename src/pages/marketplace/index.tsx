@@ -109,7 +109,7 @@ const Marketplace = () => {
 
     fetchStatic()
     fetchFilterOrder()
-  }, [filter.filterData])
+  }, [filter.filterData, userState])
 
   const toggleModeView = () => { setIsListMode(!isListMode) };
   const openFilter = () => {
@@ -391,18 +391,20 @@ const Marketplace = () => {
         </div>
         
         <div style={{display: 'flex', flexDirection:'column', justifyContent: 'flex-start'}}>
+          <Button className="btn-create" style={{marginTop: 10}}
+            onClick={appState.isConnectedWallet ? () => navigate('create') 
+              : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('create') )}>
+            <UploadOutlined rev={""} style={{marginRight: 2, fontSize:'2.2rem'}}/>
+            Create Order
+          </Button>
           <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('my-order') 
-              : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('my-order') )}>
-            <ProfileOutlined rev={""} style={{fontSize:'2.2rem', position:'relative', bottom: -2}}/>
+              : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('my-order') )}
+            style={{marginTop: 10}}
+          >
+            <ProfileOutlined rev={""} style={{marginRight: 2, fontSize:'2.2rem', position:'relative', bottom: -1}}/>
             My Order 
           </Button>
         
-        <Button className="btn-create" style={{marginTop: 20}}
-          onClick={appState.isConnectedWallet ? () => navigate('create') 
-            : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('create') )}>
-          <UploadOutlined rev={""} style={{fontSize:'2.2rem'}}/>
-          Create Order
-        </Button>
         </div>
       </div>
       

@@ -1,17 +1,17 @@
 import React from 'react'
 import { IModalElement } from './Transfer';
-import { Modal, Steps } from 'antd';
+import { Modal, Steps, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import PairToken from '../../PairToken';
-import { mappingNetwork } from '../../../../utils/blockchain';
+import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain';
 
 const ModalCreate = ({task, taskState, afterClose} : IModalElement) => {
   return (
     <Modal
       title="Create Order"
       open={true}
-      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : {}}
-      okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
+      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : (task.status === 3 ? afterClose() : {})}
+      okText= {(task.status === 0) ? "Confirm" : (task.status === 3 ? "OK" : <LoadingOutlined  rev={""}/>)}
       afterClose={afterClose}
       onCancel={afterClose}
       width={700}
@@ -158,17 +158,6 @@ const ModalCreate = ({task, taskState, afterClose} : IModalElement) => {
           </span>
         </p>
         <p>
-          Transaction Hash:
-          <span style={{ fontWeight: 400 }}>
-            {" "}
-            {task.status === 0
-              ? "..."
-              : task.status === 3
-              ? task.transactionHash
-              : "..."}
-          </span>
-        </p>
-        <p>
           Order ID:
           <span style={{ fontWeight: 400 }}>
             {" "}
@@ -179,6 +168,18 @@ const ModalCreate = ({task, taskState, afterClose} : IModalElement) => {
               : "..."}
           </span>
         </p>
+        <p>
+          Transaction Hash:
+          {
+            task.transactionHash && 
+            <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.from.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>
+            <span style={{ fontWeight: 400 }}>
+            { task.transactionHash }
+            </span>
+          </Tooltip>
+          }
+        </p>
+
       </div>
     </Modal>
   )

@@ -20,6 +20,7 @@ const MyOrder = () => {
     const [pageName, setPageName] = useState<string>('inprogressOrder')
 
     const userState = useAppSelector(state => state.userState)
+
     useEffect(() => {
         const fetchData = async () => {
             Promise.all([appApi.getUserOrder({status: 0}), appApi.getUserOrder({status: 1}), await appApi.getUserOrder({status: 2})]) 
@@ -33,6 +34,7 @@ const MyOrder = () => {
             .catch(err => console.log(err))
         }
         fetchData()
+    
     }, [userState])
 
     console.log(dataFetch)

@@ -1,17 +1,18 @@
  import React from 'react'
 import { IModalElement } from './Transfer';
-import { Modal, Steps } from 'antd';
+import { Modal, Steps, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import PairToken from '../../PairToken';
-import { mappingNetwork } from '../../../../utils/blockchain';
+import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain';
 
 const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
+  console.log(task)
   return (
     <Modal
       title="Accept Order"
       open={true}
-      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : {}}
-      okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
+      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : ( task.status === 3 ? afterClose() : {})}
+      okText= {task.status === 0 ? "Confirm" : ( task.status === 0 ? "OK" : <LoadingOutlined  rev={""}/>)}
       afterClose={afterClose}
       onCancel={afterClose}
       width={700}
@@ -148,29 +149,24 @@ const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
           </span>
         </p>
         <p>
-          Transaction Hash:
-          <span style={{ fontWeight: 400 }}>
-            {" "}
-            {task.status === 0
-              ? "..."
-              : task.status === 3
-              ? task.transactionHash
-              : "..."}
-          </span>
+          Order ID:
+            <span style={{ fontWeight: 400 }}>
+            { task.orderID }
+            </span>
+        </p>
+        <p>Recipient: 
+          <span style={{fontWeight: 400}}> {task.from.address}</span>
         </p>
         <p>
-          Order ID:
-          <span style={{ fontWeight: 400 }}>
-            {" "}
-            {task.status === 0  
-              ? "..."
-              : task.status === 3
-              ? task.orderID
-              : "..."}
-          </span>
-        </p>
-        <p>Owner
-          <span style={{fontWeight: 400}}> {task.from.address}</span>
+          Transaction Hash: {" "}
+          {
+            task.transactionHash && 
+            <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.to?.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>
+            <span style={{ fontWeight: 400 }}>
+            { task.transactionHash }
+            </span>
+          </Tooltip>
+          }
         </p>
       </div>
     </Modal>

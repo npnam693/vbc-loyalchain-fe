@@ -13,7 +13,7 @@
     
         position: fixed;
         padding: 30px;
-        top: calc((100vh - 600px) / 2 );
+        top: calc((100vh - 600px) / 2 - 50px);
         right: 37vw;
         left: 37vw;
 
@@ -25,11 +25,13 @@
             .title {
                 font-size: 2.0rem;
                 font-weight: 600;
-                color: black
+                color: black;
+                margin: 0
             }
             .desc {
                 color: #9CA3AF;
                 font-size: 1.4rem;
+                margin: 0
             }
         }
         .divider {

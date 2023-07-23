@@ -73,7 +73,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       type: "",
       funcExecute: () => {},
       from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
     }
 
     // Check whether the order is swap one chain or two chain.
@@ -106,7 +107,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         data: refundMethod.encodeABI(),
       })
       
-      task = {...task, status: 2, transactionHash: refundRecepit.blockHash}
+      task = {...task, status: 2, transactionHash: refundRecepit.transactionHash}
       dispatch(updateTask({ task, id: task.id }))
       
       await appApi.cancelOrder(data._id)
@@ -176,10 +177,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         toast.update(toaster, { render: "Accept order fail, check your secret key", type: "error", isLoading: false, autoClose: 1000});
       }
     }
-    if (data.toValue.token.network !== userState.network) {
-      requestChangeNetwork(data.toValue.token.network);
-      return;
-    }
     let task: ITask = {
       id: taskState.taskList.length,
       type: "SELLER-WITHDRAW",
@@ -228,11 +225,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       }
       dispatch(doneOneTask())
     }
-
-    if (data.fromValue.token.network !== userState.network) {
-      requestChangeNetwork(data.fromValue.token.network);
-      return;
-    }
     let task: ITask = {
       id: taskState.taskList.length,
       type: "BUYER-WITHDRAW",
@@ -277,7 +269,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         
         dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
         toast.update(toaster, { render: "Deposit token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
-        task = {...task, status: 3, transactionHash: createRecipt.blockHash}
+        task = {...task, status: 3, transactionHash: createRecipt.transactionHash}
         dispatch(updateTask({ task: task, id: task.id}))
       } catch (error) {
         console.log(error);
@@ -340,7 +332,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         toast.update(toaster, { render: "Refund token fail.", type: "error", isLoading: false, autoClose: 1000});
       }
     }
-    
+
     let netwokAction = IS_SELLER ? data.fromValue.token.network : data.toValue.token.network;
     if (storeData.userState.network !== netwokAction) {
       await requestChangeNetwork(data.fromValue.token.network)
@@ -357,19 +349,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     };
     dispatch(createTask(task));
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -424,6 +403,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       if (status === "receiver accepted") {
         if (data.fromValue.token.network !== userState.network) {
           await requestChangeNetwork(data.fromValue.token.network);
+          return;
         }
         return onSellerClickDeposit()
       } else if (status === "receiver withdrawn") {
@@ -434,9 +414,9 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     }
     else {
       if (status === "sender accepted") {
-        console.log(data);
         if (data.fromValue.token.network !== userState.network) {
           await requestChangeNetwork(data.fromValue.token.network);
+          return;
         }
         return onBuyerClickWithdraw()
       } else {
@@ -544,7 +524,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         {
           userState.address === dataOrder.from.address ?
           // Step of seller (first create order)
-          <Steps size="default" style={{width: 700, margin: 'auto', marginTop: 20, marginBottom: 30}} 
+          <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
           items={
             [
               { title: "Deposit",
@@ -566,7 +546,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
             ]}/>
           :
           // Step of buyer (create contract first)
-          <Steps size="default" style={{width: 620, margin: 'auto', marginTop: 40, marginBottom: 30}} 
+          <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
           items={
             [
               {
@@ -625,7 +605,10 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         </div>
 
           <div style={{fontWeight: 500}}>
-              <p>Recipient: <span style={{fontWeight: 400}}>{IS_SELLER ? data.to.address : data.from.address}</span></p>
+              {
+                dataOrder.status !== "pending" &&
+                <p>Recipient: <span style={{fontWeight: 400}}>{IS_SELLER ? data.to.address : data.from.address}</span></p>
+              }
               <p>Order ID:  
                   <span style={{fontWeight: 400}}> {
                       dataOrder._id
