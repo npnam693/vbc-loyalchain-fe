@@ -9,11 +9,11 @@ import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { saveTokens } from "../state/app/appSlice";
-import { Empty, FloatButton, Popconfirm, Popover } from 'antd';
+import { Empty, FloatButton, Popconfirm, Popover, Tooltip } from 'antd';
 
 import appApi from "../api/appAPI";
-import { CheckCircleTwoTone, ClearOutlined, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
-import { clearTask, closeTaskModel, openTaskModel } from "../state/task/taskSlice";
+import { AimOutlined, CheckCircleTwoTone, ClearOutlined, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
+import { ITask, clearTask, closeTaskModel, openTaskModel } from "../state/task/taskSlice";
 import PairToken from "../components/app/PairToken";
 import { hdConnectWallet } from "./components/header/helper/ConnectWallet";
 import store from "../state";
@@ -44,7 +44,7 @@ const Layout = ({ children }: LayoutProps) => {
       }
     }
     // Clear modal in application
-    dispatch(closeTaskModel())
+    
     let storeData = store.getState();
 
     if (new Date(storeData.userState.expiredTime) > new Date()) {
@@ -70,12 +70,52 @@ const Layout = ({ children }: LayoutProps) => {
         return "Create Order";
       case "REMOVE":
         return "Remove Order"
-      case  "SELLER-REMOVE":
-        return "Remove Order"
+      case "SELLER-REMOVE":
+        return "Remove Order";
+      case "BUYER-DEPOSIT":
+          return "Deposit Token"
+      case "SELLER-DEPOSIT":
+          return "Deposit Token"
+      case "SELLER-WITHDRAW":
+          return "Withdraw Token"
+      case "BUYER-WITHDRAW":
+          return "Withdraw Token"
+      case "REFUND":
+          return "Refund Token"
       default:
         return "Task";
     }
   }
+
+  const getAddress = (task: ITask, type: string) => {
+        switch (type) {
+      case "TRANSFER":
+        return task.from.address
+      case "ACCEPT":
+        return task.to?.address
+      case "CREATE":
+        return task.from.address
+      case "SELLER-CREATE":
+        return task.to?.address
+      case "REMOVE":
+        return task.from.address
+      case "SELLER-REMOVE":
+        return task.from.address
+      case "BUYER-DEPOSIT":
+          return task.to?.address
+      case "SELLER-DEPOSIT":
+          return task.from.address
+      case "SELLER-WITHDRAW":
+          return  task.from.address
+      case "BUYER-WITHDRAW":
+          return task.to?.address
+      case "REFUND":
+          return task.from.address || task.to?.address
+      default:
+        return 
+    }
+  }
+
   const contentTaskPopover = () => {
     return (
       <div style={{height: 300, minWidth: 500, overflow: 'scroll', cursor: 'pointer'}}>
@@ -108,8 +148,8 @@ const Layout = ({ children }: LayoutProps) => {
                   }
                   </p>
                   <p style={{fontSize: '1.2rem'}}>Task ID: #0{task.id}
-                    <span style={{marginLeft: 10}}>Step: {
-                      task.status === 2 ? 'Send Token' : (task.status === 3 ? 'Done' : (task.status < 2 ? 'In Progress' : 'Fail'))
+                    <span style={{marginLeft: 10}}>Address: {
+                      getAddress(task, task.type)?.slice(0, 5) +'...' + getAddress(task, task.type)?.slice(-10)
                     }</span>
                   </p>
                 </div>
@@ -129,7 +169,6 @@ const Layout = ({ children }: LayoutProps) => {
                     </div>
                   }
                 </div>
-
               </div>
             )
           })

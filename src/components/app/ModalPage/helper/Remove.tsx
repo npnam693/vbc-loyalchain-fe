@@ -17,8 +17,8 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
       <Modal
         title="Remove Order"
         open={true}
-        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : {}}
-        okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
+        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : ( task.status === 3 ? afterClose() : {})}
+        okText= {task.status === 0 ? "Confirm" : ( task.status === 0 ? "OK" : <LoadingOutlined  rev={""}/>)}
         afterClose={afterClose}
         onCancel={afterClose}
         width={700}
@@ -73,7 +73,7 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
                 task.status === 0 ? 
                 [
                     {
-                    title: "Save Data",
+                    title: "Remove Order",
                     status: "process"
                     },
                     {
@@ -83,7 +83,7 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
                 ] : 
               [
                 {
-                  title: "Save Data",
+                  title: "Remove Order",
                   status: task.status === -1 ? 'error' : (
                             task.status > 1 ? 'finish' : 'process'
                           ),
@@ -133,16 +133,19 @@ const ModalRemove = ({task, taskState, afterClose} : IModalElement) => {
                       task.orderID
                   }</span>
               </p>
-              <p>Transaction Hash:  
-                {
-                  task.transactionHash && 
-                  <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.to?.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>
-                  <span style={{ fontWeight: 400 }}> {' '}
-                  { task.transactionHash }
-                  </span>
-                  </Tooltip>
-                }
-              </p>
+              {
+                task.from.token.network === task.to?.token.network &&
+                <p>Transaction Hash:  
+                  {
+                    task.transactionHash && 
+                    <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.to?.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>
+                    <span style={{ fontWeight: 400 }}> {' '}
+                    { task.transactionHash }
+                    </span>
+                    </Tooltip>
+                  }
+                </p>
+              }
           </div>
     </Modal>
 

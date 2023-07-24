@@ -82,6 +82,7 @@ const Marketplace = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
+    
     const fetchFilterOrder = async () => {
       setLoading(true)
       const filterData = {
@@ -113,7 +114,7 @@ const Marketplace = () => {
 
     fetchStatic()
     fetchFilterOrder()
-  }, [filter.filterData, userState.wallet])
+  }, [filter.filterData, userState.wallet, userState.balance])
 
 
   console.log(filter.filterData)

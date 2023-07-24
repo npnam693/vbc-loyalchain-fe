@@ -195,7 +195,7 @@ export default function CreateOrder() {
   const createOrderTwoChain = async (taskState: ITaskState, idTask: number) => {
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     const toastify = toast.loading("Check your balance...");
-    dispatch(createTask(task));
+    dispatch(updateTask({task, id: idTask}))
     try {
       const balance = await getBalanceToken(appState.web3, userState, formData.from.token)
       if (Number(balance) < Number(formData.from.amount)) {
@@ -244,10 +244,6 @@ export default function CreateOrder() {
     }
     dispatch(doneOneTask())
   }
-
-
-
-
 
   const hdClickSelectTokenFrom = () => {
     setSelectingTokenFrom(!selectingTokenFrom);

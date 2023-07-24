@@ -11,6 +11,7 @@ import { ITask, ITaskState, createTask, doneOneTask, updateTask } from "../../..
 import { getSwapOneContract, getTokenContract, getSwapTwoContract } from "../../../services/contract";
 import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
 import { requestChangeNetwork } from "../../../services/metamask";
+import { fixStringBalance } from "../../../utils/string";
 
 
 interface IOrderItemProps {
@@ -58,8 +59,13 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
         data._id,
         { hashlock: appState.web3.utils.keccak256(secretKey)}
       )
+      dispatch(saveInfo({...userState, 
+        wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+        balance:fixStringBalance(String(
+            await appState.web3.eth.getBalance(userState.address)
+        ), 18)})
+    )
 
-      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
       task = {...task, status: 3, transactionHash: createRecepit.transactionHash}
       dispatch(updateTask({ task: task,  id: task.id }))
@@ -102,8 +108,12 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
       const acceptRecepit = await swapMethod.send({from: userState.address})
 
       await appApi.acceptOder(data._id)
-      
-      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
+      dispatch(saveInfo({...userState, 
+        wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+        balance:fixStringBalance(String(
+            await appState.web3.eth.getBalance(userState.address)
+        ), 18)})
+      )      
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
       task = {...task, status: 3, transactionHash: acceptRecepit.transactionHash}
       dispatch(updateTask({ 
@@ -150,9 +160,13 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
     dispatch(createTask(task));
   }
 
+
+
+
+
+  
   if (!skeleton ) {
     return (
-  
       <div className="app-order">
         <div className="app-order--info">
           <div className="app-order--info--token">
@@ -193,14 +207,17 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
                 <p style={{ color: data.fromValue.token.network === data.toValue.token.network ? '#597ef7' : '#9254de' }}>{
                   data.fromValue.token.network === data.toValue.token.network ?
                   mappingNetwork(data.toValue.token.network) : 
-                  mappingNetwork(data.toValue.token.network)?.slice(0, Number(mappingNetwork(data.fromValue.token.network)?.length) -  8) + " - " + mappingNetwork(data.toValue.token.network)
+                  mappingNetwork(data.toValue.token.network)?.slice(0, Number(mappingNetwork(data.fromValue.token.network)?.length) -  8) + " - " + mappingNetwork(data.fromValue.token.network)
                 }</p>
               </div>
             }
-            <div className={`app-order--action--btn`} onClick={() => onClickAccept()}
-            >
-              Buy
-            </div>
+            {
+              data.from.address !== userState.address &&
+              <div className={`app-order--action--btn`} onClick={() => onClickAccept()}
+              >
+                Buy
+              </div>
+            }
         </div>
       </div>
     );
@@ -246,9 +263,12 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
           <div className="app-order--action--time_left" style={{height: 26, width:80}}>
           </div>
         }
-        <div className={`app-order--action--btn`}>
-          Buy
-        </div>
+        {
+         
+          <div className={`app-order--action--btn`}>
+            Buy
+          </div>
+        }
     </div>
   </div>
     )

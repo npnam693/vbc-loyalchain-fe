@@ -150,7 +150,7 @@ const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
           </span>
         </p>
         <p>
-          Order ID:
+          Order ID: {" "}
             <span style={{ fontWeight: 400 }}>
             { task.orderID }
             </span>

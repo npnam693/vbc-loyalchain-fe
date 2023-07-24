@@ -24,6 +24,13 @@ const MyOrder = () => {
     useEffect(() => {
         console.log("UE MYORDER CHẠY ROI")
         const fetchData = async () => {
+            if (pageName === 'inprogressOrder') {
+                    
+            }
+
+
+
+           
             Promise.all([appApi.getUserOrder({status: 0}), appApi.getUserOrder({status: 1}), await appApi.getUserOrder({status: 2})]) 
             .then(res => {
                 setdataFetch({
@@ -35,7 +42,6 @@ const MyOrder = () => {
             .catch(err => console.log(err))
         }
         fetchData()
-     
     }, [userState, userState.balance, userState.wallet])
 
     console.log(dataFetch)

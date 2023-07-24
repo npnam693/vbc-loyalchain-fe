@@ -96,6 +96,7 @@ const taskSlice = createSlice({
             state.openModalTask = -1;
         },
         clearTask: (state, action: PayloadAction<undefined>) => {
+            state.openModalTask = -1;
             state.taskList = [];
             state.tasksInProgress = 0;
             return state
