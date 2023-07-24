@@ -14,15 +14,19 @@
         justify-content: space-between;
         margin-bottom: 20px;
         .btn-create {
-            background-color: rgba($color: #15BFFD, $alpha: 0.3);
-            border: 2px solid rgba($color: #15BFFD, $alpha: 0.5);
-            color: var(--color-text-white);
+            background-color: var(--color-secondary);
+            border: 2px solid #ccc;
+            color: black;
             font-size: 1.6rem;
             font-weight: 600;
             height: 46px;
             display: flex;
             justify-content: flex-start;
             align-items: center;
+            &:hover {
+                background-color: rgba($color: #15BFFD, $alpha: 0.5);
+
+            }
         }
         .statistic-list{
             display: flex;
@@ -122,6 +126,12 @@
     }
 }
 
+.grid-order {
+    display: grid; /* 1 */
+    grid-template-columns: repeat(auto-fill, 320px); /* 2 */
+    grid-gap: 30px; /* 3 */
+    justify-content: space-between; /* 4 */
+}
     
 
 :where(.css-dev-only-do-not-override-1wazalj).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {

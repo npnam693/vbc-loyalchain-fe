@@ -13,14 +13,15 @@ import TableOrder from "../../components/marketplace/TableOrder";
 import MarketPane from "../../components/marketplace/MarketPane";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import StatisticItem from "../../components/marketplace/StatisticItem";
-import { CloseCircleOutlined, DatabaseOutlined, ProfileOutlined, UploadOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, ProfileOutlined, UploadOutlined } from "@ant-design/icons";
 import { hdConnectWallet } from "../../layouts/components/header/helper/ConnectWallet";
-interface IFilterData {
+export interface IFilterData {
   network: number,
   from: any,
   to: any,
   amountFrom:  [number, number],
   amountTo:  [number, number],
+  page: number;
 } 
 const filterRawData : IFilterData = {
   network: -1,
@@ -28,6 +29,7 @@ const filterRawData : IFilterData = {
   to: "",
   amountFrom: [0, 10000],
   amountTo: [0, 10000],
+  page: 1,
 };
 const titleStatistic = [
   {
@@ -49,7 +51,7 @@ export const showConfirmConnectWallet = (dispatch : any, appState: any, userStat
     okText: 'Connect Wallet',
     cancelText: 'Cancel ',
     async onOk() {
-      await hdConnectWallet(dispatch, appState, userState);
+      await hdConnectWallet();
       func && func()
     },
     onCancel() {
@@ -71,15 +73,19 @@ const Marketplace = () => {
     isFilterMode: true,
     filterData: filterRawData,
   });
+  const [loading, setLoading] = useState(true);
+  const [nextPage, setNextPage] = useState(true)
+
   const appState = useAppSelector((state) => state.appState)
   const userState = useAppSelector((state) => state.userState)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
   useEffect(() => {
+    
     const fetchFilterOrder = async () => {
+      setLoading(true)
       const filterData = {
-        // network: filter.filterData.network,
         fromTokenId: filter.filterData.from !== '' ? filter.filterData.from._id : null,
         toTokenId: filter.filterData.to !== '' ? filter.filterData.to._id : null,
         fromValueUp: filter.filterData.amountFrom[1],
@@ -87,22 +93,32 @@ const Marketplace = () => {
         toValueUp: filter.filterData.amountTo[1],
         toValueDown: filter.filterData.amountTo[0],
         network: filter.filterData.network === -1 ? null : filter.filterData.network ,
+        page: filter.filterData.page,
       }
       const tdata = await appApi.getOrdersWithFilter({...filterData})
-      if(tdata) setData(tdata.data)
-      console.log(filter.filterData)
+      if(tdata) {
+        setData(tdata.data)
+        setLoading(false)
+        const nextData = await appApi.getOrdersWithFilter({...filterData, page: filter.filterData.page + 1})
+        if (nextData.data.length === 0 && nextPage === true) {
+            setNextPage(false)
+        } else if (nextData.data.length !== 0 && nextPage === false) {
+          setNextPage(true)
+        }
+      }  
     } 
-
     const fetchStatic = async () => {
       const res = await appApi.getStatisApp()
       if(res) setStatic([res.data.total, res.data.total24h, res.data.totalNow])
-      console.log(res)
     }
 
     fetchStatic()
     fetchFilterOrder()
-  }, [filter.filterData])
+  }, [filter.filterData, userState.wallet, userState.balance])
 
+
+  console.log(filter.filterData)
+  
   const toggleModeView = () => { setIsListMode(!isListMode) };
   const openFilter = () => {
     setFilter({
@@ -118,7 +134,7 @@ const Marketplace = () => {
   const closeSelectToken = () => {setSelectState({selectFrom: false, selectTo: false}) };
 
   const setFilterNetwork = (network: number) => {
-    setFilter({ ...filter, filterData: { ...filter.filterData, network } });
+    setFilter({ ...filter, filterData: { ...filter.filterData, network, page: 1} });
   }
   return (
     <div className="app-market">
@@ -383,18 +399,20 @@ const Marketplace = () => {
         </div>
         
         <div style={{display: 'flex', flexDirection:'column', justifyContent: 'flex-start'}}>
+          <Button className="btn-create" style={{marginTop: 10}}
+            onClick={appState.isConnectedWallet ? () => navigate('create') 
+              : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('create') )}>
+            <UploadOutlined rev={""} style={{marginRight: 2, fontSize:'2.2rem'}}/>
+            Create Order
+          </Button>
           <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('my-order') 
-              : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('my-order') )}>
-            <ProfileOutlined rev={""} style={{fontSize:'2.2rem', position:'relative', bottom: -2}}/>
+              : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('my-order') )}
+            style={{marginTop: 9}}
+          >
+            <ProfileOutlined rev={""} style={{marginRight: 2, fontSize:'2.2rem', position:'relative', bottom: -1}}/>
             My Order 
           </Button>
         
-        <Button className="btn-create" style={{marginTop: 20}}
-          onClick={appState.isConnectedWallet ? () => navigate('create') 
-            : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('create') )}>
-          <UploadOutlined rev={""} style={{fontSize:'2.2rem'}}/>
-          Create Order
-        </Button>
         </div>
       </div>
       
@@ -406,14 +424,20 @@ const Marketplace = () => {
         funcSwapFrom={() => setSelectState({selectFrom: true, selectTo: false})}
         funcClearFilter={hdClickClearFilter}
         funcNetwork={setFilterNetwork}
+        funcChangePage={(page : number) => setFilter({ ...filter, filterData: {...filter.filterData, page}})}
         dataFilter={filter.filterData}
+        nextpage={nextPage}
       />
       
       {isListMode ? (
         <TableOrder data={data} />
       ) : (
-        <div style={{display: 'flex', flexDirection: 'row', flexWrap:'wrap', justifyContent:"space-between"}}>
+        <div className="grid-order">
           {
+            loading ?
+            Array(12).fill(0).map(value => (
+              <Order data={{}} skeleton />
+            )) :
             data.map((item, index) => 
               <Order data = {item}/>
             )
@@ -429,16 +453,16 @@ const Marketplace = () => {
             onClickSelect={(token) => {
               if (selectState.selectFrom) {
                 if (appState.isConnectedWallet) {
-                  setFilter({ ...filter, filterData: {...filter.filterData, from: token.token}});
+                  setFilter({ ...filter, filterData: {...filter.filterData, from: token.token, page: 1}});
                 } else {
-                  setFilter({ ...filter, filterData: {...filter.filterData, from: token}});
+                  setFilter({ ...filter, filterData: {...filter.filterData, from: token, page: 1}});
                 }
               }             
               else {
                 if (appState.isConnectedWallet) {
-                  setFilter({ ...filter, filterData: {...filter.filterData, to: token.token}});
+                  setFilter({ ...filter, filterData: {...filter.filterData, to: token.token, page: 1}});
                 } else {
-                  setFilter({ ...filter, filterData: {...filter.filterData, to: token}});
+                  setFilter({ ...filter, filterData: {...filter.filterData, to: token, page: 1}});
                 }
               }
               setSelectState({selectFrom: false, selectTo: false});

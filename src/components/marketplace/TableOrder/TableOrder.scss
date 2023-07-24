@@ -11,7 +11,8 @@
         flex-direction: row;
         flex: 1;
         font-size: 1.6rem;
-        color: rgba(255,255,255,0.6)
+        color: rgba(255,255,255,0.6);
+        padding: 0px 20px;
     }
 
     .divider {
@@ -20,12 +21,20 @@
     }
 
     .content-item {
-        padding: 10px 0;
+        padding: 10px 20px;
+        border-radius: 5px;
+        
+        cursor: pointer;
+        &:hover{
+            background-color: #aaa;
+        }
     }
     
     .item-field {
         display: flex;
         flex-direction: row;
+        align-items: center;
+
         color: rgba(255,255,255,0.8);
         font-size: 1.4rem;
     }

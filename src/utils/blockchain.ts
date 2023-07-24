@@ -4,9 +4,7 @@ import { IUserState } from "../state/user/userSlice"
 import { fixStringBalance } from "./string"
 import { IToken } from "../state/app/appSlice"
 import { MBC_EXCHANGE_ONE_ADDRESS, AGD_EXCHANGE_ONE_ADDRESS, AGD_EXCHANGE_TWO_ADDRESS, MBC_EXCHANGE_TWO_ADDRESS } from '../constants/contracts'
-
-
-
+import { AGD_EXPLORER, MBC_EXPLORER } from '../constants/host'
 
 export const getBalanceToken = async (myWeb3: any, userState: IUserState, token: IToken) => {
     const tokenABI = tokenData.abi; // Thêm ABI của token vào đây
@@ -14,7 +12,9 @@ export const getBalanceToken = async (myWeb3: any, userState: IUserState, token:
     let balance = await tokenContract.methods.balanceOf(userState.address).call(
         {from: userState.address}
     )
+    console.log(balance)
     const decimals = await tokenContract.methods.decimals().call({from: userState.address})
+
 
     balance = fixStringBalance(balance.toString(), Number(decimals))
     return {token, balance}
@@ -52,3 +52,12 @@ export const getAddressTwoChainContract = (chainID: number) => {
     if (chainID === 8888) return AGD_EXCHANGE_TWO_ADDRESS
     else if (chainID === 4444) return MBC_EXCHANGE_TWO_ADDRESS
 }
+
+// ----------------------------------------------
+export const getLinkExplore = (transactionID: string | undefined, chainID: number) => {
+    if (chainID === 8888) return AGD_EXPLORER.concat(`/tx/${transactionID}`)
+    else if (chainID === 4444) return MBC_EXPLORER.concat(`/tx/${transactionID}`)
+}
+// ----------------------------------------------
+
+

@@ -9,12 +9,14 @@ import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { saveTokens } from "../state/app/appSlice";
-import { Empty, FloatButton, Popover } from 'antd';
+import { Empty, FloatButton, Popconfirm, Popover, Tooltip } from 'antd';
 
 import appApi from "../api/appAPI";
-import { CheckCircleTwoTone, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
-import { openTaskModel } from "../state/task/taskSlice";
+import { AimOutlined, CheckCircleTwoTone, ClearOutlined, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
+import { ITask, clearTask, closeTaskModel, openTaskModel } from "../state/task/taskSlice";
 import PairToken from "../components/app/PairToken";
+import { hdConnectWallet } from "./components/header/helper/ConnectWallet";
+import store from "../state";
 const Layout = ({ children }: LayoutProps) => {
   const particlesInit = useCallback(async (engine: Engine) => {
     // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
@@ -30,17 +32,28 @@ const Layout = ({ children }: LayoutProps) => {
   );
 
   const taskState = useAppSelector((state) => state.taskState);
-
-
-  
+  const userState = useAppSelector((state) => state.userState);
   const dispatch = useAppDispatch();
-    useEffect(() => {
-      async function fetchTokens() {
-        const tokens = await appApi.getTokens();
-        if (tokens){
-          dispatch(saveTokens(tokens.data));
-        }
+
+  useEffect(() => {
+    // Get info about all tokens in system.
+    async function fetchTokens() {
+      const tokens = await appApi.getTokens();
+      if (tokens){
+        dispatch(saveTokens(tokens.data));
       }
+    }
+    // Clear modal in application
+    
+    let storeData = store.getState();
+
+    if (new Date(storeData.userState.expiredTime) > new Date()) {
+      if (window.ethereum) {
+        window.ethereum._metamask.isUnlocked().then(async (res: any) => {
+            res && await hdConnectWallet()
+        })
+      }
+    }
     fetchTokens()
   }, [])    
   
@@ -49,32 +62,77 @@ const Layout = ({ children }: LayoutProps) => {
     switch (type) {
       case "TRANSFER":
         return "Transfer Token";
-      case "ACCEPT" || "TWOCHAIN-CREATE":
+      case "ACCEPT":
         return "Accept Order";
       case "CREATE":
         return "Create Order";
+      case "SELLER-CREATE":
+        return "Create Order";
+      case "REMOVE":
+        return "Remove Order"
+      case "SELLER-REMOVE":
+        return "Remove Order";
+      case "BUYER-DEPOSIT":
+          return "Deposit Token"
+      case "SELLER-DEPOSIT":
+          return "Deposit Token"
+      case "SELLER-WITHDRAW":
+          return "Withdraw Token"
+      case "BUYER-WITHDRAW":
+          return "Withdraw Token"
+      case "REFUND":
+          return "Refund Token"
       default:
         return "Task";
     }
   }
+
+  const getAddress = (task: ITask, type: string) => {
+        switch (type) {
+      case "TRANSFER":
+        return task.from.address
+      case "ACCEPT":
+        return task.to?.address
+      case "CREATE":
+        return task.from.address
+      case "SELLER-CREATE":
+        return task.to?.address
+      case "REMOVE":
+        return task.from.address
+      case "SELLER-REMOVE":
+        return task.from.address
+      case "BUYER-DEPOSIT":
+          return task.to?.address
+      case "SELLER-DEPOSIT":
+          return task.from.address
+      case "SELLER-WITHDRAW":
+          return  task.from.address
+      case "BUYER-WITHDRAW":
+          return task.to?.address
+      case "REFUND":
+          return task.from.address || task.to?.address
+      default:
+        return 
+    }
+  }
+
   const contentTaskPopover = () => {
     return (
-      <div style={{height: 300, minWidth: 400, overflow: 'scroll', cursor: 'pointer'}}>
+      <div style={{height: 300, minWidth: 500, overflow: 'scroll', cursor: 'pointer'}}>
         {
           taskState.taskList.length === 0 ?
-          <Empty /> :
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> :
           taskState.taskList.map((task, index) => {
             return (
               <div key={index} style={{ 
                 display:'flex', flexDirection:'row', alignItems:"center", 
                 padding: "5px 20px",   margin: "5px 0", borderRadius: 3, 
                 backgroundColor: 'rgba(219, 219, 219, 0.5)'}}
-                
                 onClick={() => dispatch(openTaskModel(index))}
               >
                 <div style={{margin: "0 16px 0 -10px"}}>
                   {
-                      (task.status === 1 || task.status === 2) ?
+                      (task.status === 1 || task.status === 2 || task.status === 0) ?
                         <LoadingOutlined rev={""} style={{fontSize: '2.5rem', color:"var(--color-secondary)"}}/>
                       :
                       (
@@ -90,8 +148,8 @@ const Layout = ({ children }: LayoutProps) => {
                   }
                   </p>
                   <p style={{fontSize: '1.2rem'}}>Task ID: #0{task.id}
-                    <span style={{marginLeft: 10}}>Step: {
-                      task.status === 2 ? 'Send Token' : (task.status === 3 ? 'Done' : (task.status === 2 ? 'Approve Token' : 'Fail'))
+                    <span style={{marginLeft: 10}}>Address: {
+                      getAddress(task, task.type)?.slice(0, 5) +'...' + getAddress(task, task.type)?.slice(-10)
                     }</span>
                   </p>
                 </div>
@@ -100,18 +158,17 @@ const Layout = ({ children }: LayoutProps) => {
                   {
                     task.type === "TRANSFER" ? 
                       <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-                        <p style={{fontWeight: 500, marginRight: 10}}>{task.amount} {task.token.symbol}</p>
-                        <img src={task.token ? task.token.image : 'token'} alt={""} style={{height: 30}}/>
+                        <p style={{fontWeight: 500, marginRight: 10}}>{task.from.amount} {task.from.token.symbol}</p>
+                        <img src={task.from.token ? task.from.token.image : 'token'} alt={""} style={{height: 30}}/>
                       </div>
                     :
                       <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-                        <p style={{fontWeight: 500, marginRight: -10}}>{task.amountFrom} {task.tokenFrom.symbol}</p>
-                        <PairToken from_img={task.tokenFrom.image} to_img={task.tokenTo.image} width={30}/>
-                        <p style={{fontWeight: 500, marginLeft: -10}}>{task.amountTo} {task.tokenTo.symbol}</p>
+                        <p style={{fontWeight: 500, marginRight: -10}}>{task.from.amount} {task.from.token.symbol}</p>
+                        <PairToken from_img={task.from.token.image} to_img={task.to?.token.image} width={30}/>
+                        <p style={{fontWeight: 500, marginLeft: -10}}>{task.to?.amount} {task.to?.token.symbol}</p>
                     </div>
                   }
                 </div>
-
               </div>
             )
           })
@@ -135,7 +192,23 @@ const Layout = ({ children }: LayoutProps) => {
       </div>
 
 
-      <Popover placement="leftBottom" title={'Your task'} content={contentTaskPopover} trigger="click">
+      <Popover placement="leftBottom" title={
+        <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%'}}>
+          <p>Your task</p>
+
+          <div onClick={() => {}}>
+            <Popconfirm
+              title="Delete all task"
+              description="Are you sure to delete all task?"
+              onConfirm={() => dispatch(clearTask())}
+              okText="Yes"
+            >
+              <ClearOutlined rev={""} style={{marginRight: 20, padding: 4, cursor:'pointer'}}/>
+            </Popconfirm>
+          </div>
+        </div>
+
+      } content={contentTaskPopover} trigger="click">
         <FloatButton shape="square" icon={
           // <LoadingOutlined rev={""} style={{fontSize: '2.5rem', color:"var(--color-secondary)"}}/>
           taskState.tasksInProgress !== 0 &&

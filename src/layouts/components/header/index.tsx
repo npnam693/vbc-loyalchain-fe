@@ -13,10 +13,8 @@ import { VerticalAlignTopOutlined } from "@ant-design/icons";
 const Header = () => {
   const currentUrl = useLocation().pathname;
   const { t } = useTranslation("common");
-  const inputRef = useRef<any>(null);
   const navigate = useNavigate();
 
-  const [openSearch, setOpenSearch] = useState(false);
   const [headerShow, setheaderShow] = useState(false);
 
   window.onscroll = function () {
@@ -27,11 +25,7 @@ const Header = () => {
     }
   };
 
-  useEffect(() => {
-    if (openSearch && inputRef.current != null) {
-      inputRef.current.focus();
-    }
-  }, [openSearch]);
+
 
   return (
     <>
@@ -45,7 +39,7 @@ const Header = () => {
             <img
               src={Logo}
               alt="loyalChain"
-              style={{ height: 42, marginRight: 10, cursor: "pointer" }}
+              style={{ height: 32, marginRight: 10, cursor: "pointer" }}
               onClick={() => navigate("/")}
             />
             <div className="app-header--option">
@@ -69,21 +63,7 @@ const Header = () => {
               alignItems: "center",
             }}
           >
-            {openSearch ? (
-              <Input.Search
-                placeholder="Input search text"
-                ref={inputRef}
-                size="large"
-                onBlur={() => setOpenSearch(!openSearch)}
-              />
-            ) : (
-              <div
-                onClick={() => setOpenSearch(!openSearch)}
-                className="css-flex-row"
-              >
-                <Search color="white" size={24} />
-              </div>
-            )}
+            
             <ConnectWallet />
             {
               (headerShow && currentUrl === "/") &&
