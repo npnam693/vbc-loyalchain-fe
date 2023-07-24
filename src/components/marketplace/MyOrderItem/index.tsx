@@ -74,7 +74,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       funcExecute: () => {},
       from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
       to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
-      orderID: data._id,
+      orderID: data._id
     }
 
     // Check whether the order is swap one chain or two chain.
@@ -297,6 +297,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
   const onClickRefund = async () => {
     const storeData = store.getState()  
     const refundToken = async (taskState: ITaskState, idTask: number) => {
+      console.log('alo')
       const toaster = toast.loading("Refunding token...")
       let myTask : ITask = {...taskState.taskList[idTask], status: 1}
       dispatch(updateTask({task: myTask, id: idTask}))
@@ -306,20 +307,17 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
             data._id,
             nonce
           )
-
           myTask = {...taskState.taskList[idTask], status: 2}
           dispatch(updateTask({task: myTask, id: idTask}))
-          
           const swapContract = getSwapTwoContract(appState.web3, data.fromValue.token.network)
           const refundMethod = swapContract.methods.refund(
             generateContractID(appState.web3, data._id, data.from.address, data.to.address),
             Number(nonce),
             signatureAdmin.data,
           )
-          await refundMethod.estimateGas({from: storeData.userState.address})
+          console.log(await refundMethod.estimateGas({from: storeData.userState.address}))
           const refundRecipt = await refundMethod.send({from: storeData.userState.address})
-          
-          
+          appApi.cancelOrder(data._id)
           myTask = {...taskState.taskList[idTask], status: 3, transactionHash: refundRecipt.transactionHash}
           dispatch(updateTask({task: myTask, id: idTask}))
           dispatch(saveInfo({...storeData.userState, wallet: await getBalanceAccount(appState.web3, storeData.userState, appState.tokens)}))
@@ -352,8 +350,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
 
 
 
-
-
   // ----------------------------------------------- //
   const textOkBtn = (status: string) => {
     if (IS_SELLER && status === "receiver accepted") {
@@ -371,7 +367,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       if (data.status === "receiver accepted") {
         myBtn = <Button>Cancel Order</Button>
       } 
-      else if (data.status === "sender accepted") {
+      else if (data.status === "sender accepted" || "receiver cancelled") {
         if (timeLock && timeLock * 1000 > Date.now()) {
           myBtn = 
           <Tooltip title="This is the remaining token lock time in the contract." overlayInnerStyle={{textAlign:'center'}}>
@@ -384,7 +380,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       }
       else myBtn = <div></div>
     } else {
-      if (data.status === "sender accepted" || data.status === 'receiver accepted') { 
+      if (data.status === "sender accepted" || data.status === 'receiver accepted' || "sender cancelled") { 
         if (timeLock && timeLock * 1000 > Date.now()) {
           myBtn = 
             <Tooltip title="This is the remaining token lock time in the contract." overlayInnerStyle={{textAlign:'center'}}>
@@ -421,6 +417,33 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         return onBuyerClickWithdraw()
       } else {
         return () => {}
+      }
+    }
+  }
+  const getProgress = () => {
+    // 'receiver accepted', 'sender accepted', 'receiver withdrawn', 'completed'
+    if (IS_SELLER){
+      switch (data.status) {
+        case "receiver accepted":
+          return "Deposit Token"
+        case "sender accepted":
+          return "Waiting recipient"
+        case "receiver withdrawn":
+          return "Withdraw Token"
+        case "sender cancelled":
+          return "Refund Token"  
+      }
+    }
+    else {
+      switch (data.status) {
+        case "receiver accepted":
+          return "Waiting Recipient"
+        case "sender accepted":
+          return "Withdraw Token"
+        case "receiver withdrawn":
+          return "Done"
+        case "receiver cancelled":
+          return "Refund Token"  
       }
     }
   }
@@ -483,7 +506,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
                 <p>Exchange rate: {(dataOrder.fromValue.amount/dataOrder.toValue.amount).toFixed(2)}</p>
               </div>
               <div className="app-order--action--time_left">
-                {data.status}
+                {getProgress()}
               </div>
             </>
           }

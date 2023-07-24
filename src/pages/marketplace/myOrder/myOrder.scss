@@ -7,10 +7,11 @@
         margin-bottom: 20px;
     }
     .list-order{
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        display: grid; /* 1 */
+        grid-template-columns: repeat(auto-fill, 320px); /* 2 */
+        grid-gap: 30px; /* 3 */
+        justify-content: space-between; /* 4 */
         margin-top: 30px;
     }
+
 }

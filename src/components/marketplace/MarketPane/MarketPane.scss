@@ -45,17 +45,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px;
+    padding: 0 4px;
     flex-direction: row;
     background-color: #ccc;
-    height: 30px;
-    // width: 100px;   
+    height: 32px;
     border-radius: 6px;
     font-size: 1.6rem;
     font-weight: 600;
+    margin-right: 10px
 }
 .pagination-btn {
-    padding: 10px;
+    padding: 4px 5px;
     // margin: 20px
     font-weight: 700;
     cursor: pointer;
@@ -64,8 +64,11 @@
     }
 }
 .pagination-current {
-    border: 1px solid #222;
+    border: 1px solid #555;
     line-height: 1.6rem;
-    padding: 2px 10px;
-    border-radius: 6px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin: 0 6px;
+    min-width: 33px;
+    text-align: center;
 }

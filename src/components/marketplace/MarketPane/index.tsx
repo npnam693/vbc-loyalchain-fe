@@ -50,6 +50,7 @@ const MarketPane = (props: IMarketPaneProps) => {
           </Button>
 
           <Button style={{margin: 0, borderRadius: 0, borderTopRightRadius: 6, borderBottomRightRadius: 6,
+            marginRight: 10,
             backgroundColor: props.dataFilter.network === 0 ? 'rgba(21, 191, 253, 0.5)' : '#ccc' }}
             onClick={() => {
               if (props.dataFilter.network === 0)

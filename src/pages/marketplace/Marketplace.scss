@@ -14,7 +14,7 @@
         justify-content: space-between;
         margin-bottom: 20px;
         .btn-create {
-            background-color: rgba($color: #15BFFD, $alpha: 0.5);
+            background-color: rgba($color: #15BFFD, $alpha: 0.8);
             border: 2px solid white;
             color: white;
             font-size: 1.6rem;
@@ -24,7 +24,7 @@
             justify-content: flex-start;
             align-items: center;
             &:hover {
-                background-color: rgba($color: #15BFFD, $alpha: 0.8);
+                background-color: rgba($color: #15BFFD, $alpha: 0.5);
 
             }
         }
@@ -126,6 +126,12 @@
     }
 }
 
+.grid-order {
+    display: grid; /* 1 */
+    grid-template-columns: repeat(auto-fill, 320px); /* 2 */
+    grid-gap: 30px; /* 3 */
+    justify-content: space-between; /* 4 */
+}
     
 
 :where(.css-dev-only-do-not-override-1wazalj).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {

@@ -94,10 +94,15 @@ const taskSlice = createSlice({
         },
         closeTaskModel: (state, action: PayloadAction<undefined>) => {
             state.openModalTask = -1;
+        },
+        clearTask: (state, action: PayloadAction<undefined>) => {
+            state.taskList = [];
+            state.tasksInProgress = 0;
+            return state
         }
     }
 })
 
-export const { createTask, updateTask, openTaskModel, closeTaskModel, doneOneTask, deleteTask} = taskSlice.actions;
+export const { createTask, updateTask, openTaskModel, closeTaskModel, doneOneTask, deleteTask, clearTask} = taskSlice.actions;
 
 export default taskSlice.reducer;

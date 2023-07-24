@@ -97,7 +97,6 @@ const Marketplace = () => {
         }
         else {
           setData(tdata.data)
-          
         }
       }
     } 
@@ -399,7 +398,7 @@ const Marketplace = () => {
           </Button>
           <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('my-order') 
               : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('my-order') )}
-            style={{marginTop: 10}}
+            style={{marginTop: 16}}
           >
             <ProfileOutlined rev={""} style={{marginRight: 2, fontSize:'2.2rem', position:'relative', bottom: -1}}/>
             My Order 
@@ -423,7 +422,7 @@ const Marketplace = () => {
       {isListMode ? (
         <TableOrder data={data} />
       ) : (
-        <div style={{display: 'flex', flexDirection: 'row', flexWrap:'wrap', justifyContent:"space-between"}}>
+        <div className="grid-order">
           {
             data.map((item, index) => 
               <Order data = {item}/>

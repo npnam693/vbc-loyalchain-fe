@@ -1,6 +1,6 @@
 import { DownOutlined, LoadingOutlined, SwapOutlined, WarningOutlined,} from "@ant-design/icons";
 import { Button, Divider, InputNumber, Modal, Steps } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
@@ -55,7 +55,7 @@ export default function CreateOrder() {
       to: formData.from,
     };
     setFormData(newData);
-    countExchangeRateForm();
+    
   };
   
   const countExchangeRateForm = async () => {
@@ -65,6 +65,12 @@ export default function CreateOrder() {
     });
     setRate(String(res?.data));
   };
+  useEffect(() => {
+    if(formData.from.token !== "" && formData.to.token !== ""){
+      countExchangeRateForm();
+    }
+  }, [formData])
+
   const onClickCreate = async () => {
     if (formData.from.token === "" || formData.to.token === "") {
       alert("Please select token");
@@ -421,7 +427,7 @@ export default function CreateOrder() {
                       step={0.1}
                       min={0}
                       precision={3}
-                      value={formData.from.amount / formData.to.amount}
+                      value={(formData.from.amount === 0 || formData.to.amount === 0) ? undefined : formData.from.amount / formData.to.amount}
                       onChange={(e) => e && setFormData({...formData, to: {...formData.to, amount: Number((formData.from.amount / e).toFixed(2))}})}
                     />
                     <span style={{ marginLeft: "1rem" }}>
@@ -442,10 +448,15 @@ export default function CreateOrder() {
       
       <div>
         <p style={{ fontSize: "1.4rem", color: "orange" }}>
-          <WarningOutlined rev={""} /> Warning:{" "}
-          <span style={{ color: "black" }}>
-            Your exchange rate is higer than average.{" "}
-          </span>
+          {
+            formData.from.token !== "" && formData.to.token !== "" && Number(rate) !== formData.from.amount / formData.to.amount &&
+            <>
+              <WarningOutlined rev={""} /> Warning:{" "}
+              <span style={{ color: "black" }}>
+                Your exchange rate is {Number(rate) < (formData.from.amount / formData.to.amount) ? 'higher' : "lower"} than average.{" "}
+              </span>
+            </>
+          }
         </p>
       </div>
       
@@ -460,9 +471,7 @@ export default function CreateOrder() {
             console.log(token)
             setFormData({ ...formData, from: {...formData.from, token: token.token, balance: token.balance} });
             hdClickSelectTokenFrom();
-            if (formData.to.token !== "") {
-              countExchangeRateForm();
-            }
+
           }}
           tokenHidden={
             formData.to.token !== "" ? formData.to.token.deployedAddress : ""
@@ -478,9 +487,6 @@ export default function CreateOrder() {
           onClickSelect={(token: any) => {
             hdClickSelectTokenTo();
             setFormData({ ...formData, to: {...formData.to, token: token.token, balance: token.balance}});
-            if (formData.from.token !== "") {
-              countExchangeRateForm();
-            }
           }}
           isCheckNetwork={isOneChain ? true : false}
           tokenHidden={

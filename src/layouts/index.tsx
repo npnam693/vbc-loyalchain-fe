@@ -9,11 +9,11 @@ import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { saveTokens } from "../state/app/appSlice";
-import { Empty, FloatButton, Popover } from 'antd';
+import { Empty, FloatButton, Popconfirm, Popover } from 'antd';
 
 import appApi from "../api/appAPI";
-import { CheckCircleTwoTone, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
-import { closeTaskModel, openTaskModel } from "../state/task/taskSlice";
+import { CheckCircleTwoTone, ClearOutlined, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
+import { clearTask, closeTaskModel, openTaskModel } from "../state/task/taskSlice";
 import PairToken from "../components/app/PairToken";
 import { hdConnectWallet } from "./components/header/helper/ConnectWallet";
 import store from "../state";
@@ -88,7 +88,6 @@ const Layout = ({ children }: LayoutProps) => {
                 display:'flex', flexDirection:'row', alignItems:"center", 
                 padding: "5px 20px",   margin: "5px 0", borderRadius: 3, 
                 backgroundColor: 'rgba(219, 219, 219, 0.5)'}}
-                
                 onClick={() => dispatch(openTaskModel(index))}
               >
                 <div style={{margin: "0 16px 0 -10px"}}>
@@ -154,7 +153,23 @@ const Layout = ({ children }: LayoutProps) => {
       </div>
 
 
-      <Popover placement="leftBottom" title={'Your task'} content={contentTaskPopover} trigger="click">
+      <Popover placement="leftBottom" title={
+        <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%'}}>
+          <p>Your task</p>
+
+          <div onClick={() => {}}>
+            <Popconfirm
+              title="Delete all task"
+              description="Are you sure to delete all task?"
+              onConfirm={() => dispatch(clearTask())}
+              okText="Yes"
+            >
+              <ClearOutlined rev={""} style={{marginRight: 20, padding: 4, cursor:'pointer'}}/>
+            </Popconfirm>
+          </div>
+        </div>
+
+      } content={contentTaskPopover} trigger="click">
         <FloatButton shape="square" icon={
           // <LoadingOutlined rev={""} style={{fontSize: '2.5rem', color:"var(--color-secondary)"}}/>
           taskState.tasksInProgress !== 0 &&

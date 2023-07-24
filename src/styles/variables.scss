@@ -9,3 +9,37 @@
     --color-hover: #e1f4fa
 }
 
+
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+    :root {
+        --app-margin:4%
+    }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+    :root {
+        --app-margin: 4%
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    :root {
+        --app-margin: 5%
+    }
+}
+
+@media only screen and (min-width: 1680px) {
+    :root {
+        --app-margin: 9%
+    }
+}
+
+
+@media only screen and (min-width: 1920px) {
+    :root {
+        --app-margin: 13%
+    }
+}

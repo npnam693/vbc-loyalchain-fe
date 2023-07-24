@@ -150,7 +150,7 @@ const Order = ({data} : IOrderItemProps) => {
   }
 
   return (
-    <div className="app-order" style={{marginBottom: 20}}>
+    <div className="app-order">
       <div className="app-order--info">
         <div className="app-order--info--token">
           <img src={data.toValue.token.image} alt="StarBuck" width={60} />
@@ -190,7 +190,7 @@ const Order = ({data} : IOrderItemProps) => {
               <p style={{ color: data.fromValue.token.network === data.toValue.token.network ? '#597ef7' : '#9254de' }}>{
                 data.fromValue.token.network === data.toValue.token.network ?
                 mappingNetwork(data.toValue.token.network) : 
-                mappingNetwork(data.toValue.token.network)?.slice(0, Number(mappingNetwork(data.toValue.token.network)?.length) -  8) + " - " + mappingNetwork(data.fromValue.token.network)
+                mappingNetwork(data.toValue.token.network)?.slice(0, Number(mappingNetwork(data.fromValue.token.network)?.length) -  8) + " - " + mappingNetwork(data.toValue.token.network)
               }</p>
             </div>
           }
