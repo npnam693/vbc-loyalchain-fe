@@ -407,7 +407,7 @@ const Marketplace = () => {
           </Button>
           <Button className="btn-create" onClick={appState.isConnectedWallet ? () => navigate('my-order') 
               : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('my-order') )}
-            style={{marginTop: 16}}
+            style={{marginTop: 9}}
           >
             <ProfileOutlined rev={""} style={{marginRight: 2, fontSize:'2.2rem', position:'relative', bottom: -1}}/>
             My Order 

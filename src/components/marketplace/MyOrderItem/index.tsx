@@ -393,9 +393,12 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
   const textOkBtn = (status: string) => {
     if (IS_SELLER && status === "receiver accepted") {
       return <p>Deposit</p>
-    } else if ((IS_SELLER && status === "receiver withdrawn") || (!IS_SELLER && status === "sender accepted")) {
+    } else if ((IS_SELLER && status === "receiver withdrawn")) {
       return <p>Withdraw</p>
-    } else {
+    } else if (status === 'completed') {
+      return <p>OK</p>
+    }
+    else {
       return <LoadingOutlined rev={""}/>
     }
   }
@@ -560,7 +563,15 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
                 <p>Exchange rate: {(dataOrder.fromValue.amount/dataOrder.toValue.amount).toFixed(2)}</p>
               </div>
               <div className="app-order--action--time_left">
-                {getProgress()}
+                {
+                  <p style={{textAlign:'right'}}>
+                    {
+                      IS_SELLER ? 
+                      'Sell' : 'Buy'
+                    }
+                  </p>
+                }
+                <p>{getProgress()}</p>
               </div>
             </>
           }
@@ -586,218 +597,221 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
             }
           </div>
       </div>
-      <Modal
-          title="Detail Order"
-          open={openModel}
-          onCancel={() => {setOpenModal(false)}}
-          width={900}
-          style={{top: 170}}
-          closable={true}
-          footer={<>
-            {removeBtn}
-            {
-              (data.status !== 'cancel' && data.status !== 'sender cancel' && data.status !== 'receiver cancelled' && data.status !== "sender cancelled") && 
-              <Button 
-                type="primary" disabled={(!IS_SELLER && data.status === "receiver withdrawn") ? true : false}
-                onClick={() => hdOnOk(dataOrder.status)}>
-                  {
-                    (!IS_SELLER && data.status === "receiver withdrawn") ? "You have withdrawn" :
-                    textOkBtn(dataOrder.status)
-                  }
-              </Button>
+      {
+        !isPendingOrder && 
+        <Modal
+            title="Detail Order"
+            open={openModel}
+            onCancel={() => {setOpenModal(false)}}
+            width={900}
+            style={{top: 170}}
+            closable={true}
+            footer={<>
+              {removeBtn}
+              {
+                (data.status !== 'cancel' && data.status !== 'sender cancel' && data.status !== 'receiver cancelled' && data.status !== "sender cancelled") && 
+                <Button 
+                  type="primary" disabled={(!IS_SELLER && data.status === "receiver withdrawn") ? true : false}
+                  onClick={() => hdOnOk(dataOrder.status)}>
+                    {
+                      (!IS_SELLER && data.status === "receiver withdrawn") ? "You have withdrawn" :
+                      textOkBtn(dataOrder.status)
+                    }
+                </Button>
+              }
+            </>}
+        >
+          {
+            userState.address === dataOrder.from.address ?
+            // Step of seller (first create order) SELLER
+            <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
+            items={
+              data.status === 'receiver accepted' ? 
+              [
+                {title: "Deposit", status: "process"},
+                {title: "Wait Recipient", status: "wait"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'sender accepted' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "process", icon: <LoadingOutlined  rev={""}/>},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'receiver withdrawn' ?
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "process"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'completed' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "finish"},
+                {title: "Done", status: "finish"}
+              ] : (
+              data.status === 'sender cancelled' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "error"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ]  : // "receiver cancelled"
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "error"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ]
+              ))))
             }
-          </>}
-      >
-        {
-          userState.address === dataOrder.from.address ?
-          // Step of seller (first create order) SELLER
-          <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
-          items={
-            data.status === 'receiver accepted' ? 
-            [
-              {title: "Deposit", status: "process"},
-              {title: "Wait Recipient", status: "wait"},
-              {title: "Withdraw", status: "wait"},
-              {title: "Done", status: "wait"}
-            ] : (
-            data.status === 'sender accepted' ? 
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "process", icon: <LoadingOutlined  rev={""}/>},
-              {title: "Withdraw", status: "wait"},
-              {title: "Done", status: "wait"}
-            ] : (
-            data.status === 'receiver withdrawn' ?
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "finish"},
-              {title: "Withdraw", status: "process"},
-              {title: "Done", status: "wait"}
-            ] : (
-            data.status === 'completed' ? 
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "finish"},
-              {title: "Withdraw", status: "finish"},
-              {title: "Done", status: "finish"}
-            ] : (
-            data.status === 'sender cancelled' ? 
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "error"},
-              {title: "Withdraw", status: "wait"},
-              {title: "Done", status: "wait"}
-            ]  : // "receiver cancelled"
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "error"},
-              {title: "Withdraw", status: "wait"},
-              {title: "Done", status: "wait"}
-            ]
-            ))))
+            />
+            :
+            // Step of buyer (create contract first)
+            <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
+            items={
+              data.status === 'receiver accepted' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "process", icon: <LoadingOutlined rev={""} />},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'sender accepted' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'receiver withdrawn' ?
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "finish"},
+                {title: "Done", status: "finish"}
+              ] : (
+              data.status === 'completed' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "finish"},
+                {title: "Done", status: "finish"}
+              ] : (
+              data.status === 'sender cancelled' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "error"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ]  : // "receiver cancelled"
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "error"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ]
+              ))))
+            }/>
+
           }
-          />
-          :
-          // Step of buyer (create contract first)
-          <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
-          items={
-            data.status === 'receiver accepted' ? 
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "process", icon: <LoadingOutlined rev={""} />},
-              {title: "Withdraw", status: "wait"},
-              {title: "Done", status: "wait"}
-            ] : (
-            data.status === 'sender accepted' ? 
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "finish"},
-              {title: "Withdraw", status: "wait"},
-              {title: "Done", status: "wait"}
-            ] : (
-            data.status === 'receiver withdrawn' ?
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "finish"},
-              {title: "Withdraw", status: "finish"},
-              {title: "Done", status: "finish"}
-            ] : (
-            data.status === 'completed' ? 
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "finish"},
-              {title: "Withdraw", status: "finish"},
-              {title: "Done", status: "finish"}
-            ] : (
-            data.status === 'sender cancelled' ? 
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "error"},
-              {title: "Withdraw", status: "wait"},
-              {title: "Done", status: "wait"}
-            ]  : // "receiver cancelled"
-            [
-              {title: "Deposit", status: "finish"},
-              {title: "Wait Recipient", status: "error"},
-              {title: "Withdraw", status: "wait"},
-              {title: "Done", status: "wait"}
-            ]
-            ))))
-          }/>
-
-        }
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
+            <div>
+              <p style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem"}}>
+                {dataOrder.fromValue.token.name}
+              </p>
+              <p style={{textAlign: "right"}}>{mappingNetwork(dataOrder.fromValue.token.network)}</p>
+              <p style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--color-secondary)", textAlign: "right"}}>
+                {dataOrder.fromValue.amount} {dataOrder.fromValue.token.symbol}
+              </p>
+            </div>
+            <PairToken
+              from_img={dataOrder.fromValue.token.image}
+              to_img={dataOrder.toValue.token.image}
+              width={60}
+            />
           <div>
-            <p style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem"}}>
-              {dataOrder.fromValue.token.name}
-            </p>
-            <p style={{textAlign: "right"}}>{mappingNetwork(dataOrder.fromValue.token.network)}</p>
-            <p style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--color-secondary)", textAlign: "right"}}>
-              {dataOrder.fromValue.amount} {dataOrder.fromValue.token.symbol}
-            </p>
+              <p
+                style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem",}}
+              >
+                {dataOrder.toValue.token.name}
+              </p>
+              <p>{mappingNetwork(dataOrder.toValue.token.network)}</p>
+              <p
+                style={{
+                  fontSize: "1.6rem",
+                  fontWeight: 700,
+                  color: "var(--color-secondary)",
+                }}
+              >
+                {dataOrder.toValue.amount} {dataOrder.toValue.token.symbol}
+              </p>
+            </div>
           </div>
-          <PairToken
-            from_img={dataOrder.fromValue.token.image}
-            to_img={dataOrder.toValue.token.image}
-            width={60}
-          />
-        <div>
-            <p
-              style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem",}}
-            >
-              {dataOrder.toValue.token.name}
-            </p>
-            <p>{mappingNetwork(dataOrder.toValue.token.network)}</p>
-            <p
-              style={{
-                fontSize: "1.6rem",
-                fontWeight: 700,
-                color: "var(--color-secondary)",
-              }}
-            >
-              {dataOrder.toValue.amount} {dataOrder.toValue.token.symbol}
-            </p>
-          </div>
-        </div>
 
-          <div style={{fontWeight: 500}}>
-              {
-                dataOrder.status !== "pending" &&
-                <p>Recipient: <span style={{fontWeight: 400}}>{IS_SELLER ? data.to.address : data.from.address}</span></p>
-              }
-              <p>Order ID:  
-                  <span style={{fontWeight: 400}}> {
-                      dataOrder._id
-                  }</span>
-              </p>
-              {
-                dataOrder.status !== "pending" &&
-                <>
-                <p>Lock contract ID:  
-                  <span style={{fontWeight: 400}}> {
-                      generateContractID(appState.web3, dataOrder._id, dataOrder.from.address, dataOrder.to.address)
-                  }</span>
-              </p>
-              <p>Onchain data:</p>
-              <div style={{display: "flex", flexDirection:"row", alignItems:'flex-start', flex: 1}}>
-                  <Collapse
-                    size="small"
-                    style={{flex: 0.5, marginRight: 20}}
-                    items={[{label: <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
-                      <p>Buyer lock contract</p>
-                      {
-                        (IS_SELLER && dataOnChain != null && dataOnChain.buyer.timelock !== "0")  &&
-                        <Tooltip title="On-chain data confirmed accurate.">
-                          <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
-                        </Tooltip>
-                      }
-                    </div>, 
-                    children: contentOnchain.buyer ? contentOnchain.buyer : <></>}]}
-                    bordered={false}
-                  />
-                  <Collapse
-                    size="small"
-                    style={{flex: 0.5}}
-                    items={[{label: 
-                    <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
-                      <p>Seller lock contract</p>
-                      {
-                        (!IS_SELLER && dataOnChain != null && dataOnChain.seller.timelock !== "0")  &&
-                        <Tooltip title="On-chain data confirmed accurate.">
-                          <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
-                        </Tooltip>
-                      }
-                    </div>
-                  , children: contentOnchain.seller ? contentOnchain.seller : <></>}]}
-                    bordered={false}
-                  />
-              </div>
-                </>
+            <div style={{fontWeight: 500}}>
+                {
+                  data.status !== "pending" &&
+                  <p>Recipient: <span style={{fontWeight: 400}}>{IS_SELLER ? data.to?.address : data.from.address}</span></p>
+                }
+                <p>Order ID:  
+                    <span style={{fontWeight: 400}}> {
+                        data._id
+                    }</span>
+                </p>
+                {
+                  data.status !== "pending" &&
+                  <>
+                  <p>Lock contract ID:  
+                    <span style={{fontWeight: 400}}> {
+                        generateContractID(appState.web3, data._id, data.from.address, data.to.address)
+                    }</span>
+                </p>
+                <p>Onchain data:</p>
+                <div style={{display: "flex", flexDirection:"row", alignItems:'flex-start', flex: 1}}>
+                    <Collapse
+                      size="small"
+                      style={{flex: 0.5, marginRight: 20}}
+                      items={[{label: <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                        <p>Buyer lock contract</p>
+                        {
+                          (IS_SELLER && dataOnChain != null && dataOnChain.buyer.timelock !== "0")  &&
+                          <Tooltip title="On-chain data confirmed accurate.">
+                            <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                          </Tooltip>
+                        }
+                      </div>, 
+                      children: contentOnchain.buyer ? contentOnchain.buyer : <></>}]}
+                      bordered={false}
+                    />
+                    <Collapse
+                      size="small"
+                      style={{flex: 0.5}}
+                      items={[{label: 
+                      <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                        <p>Seller lock contract</p>
+                        {
+                          (!IS_SELLER && dataOnChain != null && dataOnChain.seller.timelock !== "0")  &&
+                          <Tooltip title="On-chain data confirmed accurate.">
+                            <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                          </Tooltip>
+                        }
+                      </div>
+                    , children: contentOnchain.seller ? contentOnchain.seller : <></>}]}
+                      bordered={false}
+                    />
+                </div>
+                  </>
+                  
+                }
                 
-              }
-              
-          </div>
-      </Modal>
+            </div>
+        </Modal>
+      }
     </div>
   )  
 };

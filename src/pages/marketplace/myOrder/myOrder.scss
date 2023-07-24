@@ -13,5 +13,9 @@
         justify-content: space-between; /* 4 */
         margin-top: 30px;
     }
-
+    .myorder-pane {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
 }

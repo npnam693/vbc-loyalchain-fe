@@ -45,14 +45,16 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
 
       toast.update(toaster, { render: "Depositing token...", type: "default", isLoading: true});
       
-      const createRecepit = await swapContract.methods.create(
+      const createMethod = await swapContract.methods.create(
         appState.web3.utils.keccak256(data._id),
         data.from.address,
         data.toValue.token.deployedAddress,
         BigInt(10 ** Number(18) * Number(data.toValue.amount)),
         appState.web3.utils.keccak256(secretKey),
         false,
-      ).send({from: userState.address})
+      )
+      await createMethod.estimateGas({from: userState.address})
+      const createReceipt = await createMethod.send({from: userState.address})
 
       // Save order to database
       await appApi.acceptOder(
@@ -67,7 +69,7 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
     )
 
       toast.update(toaster, { render: "The order was accepted successfully.", type: "success", isLoading: false, autoClose: 1000});
-      task = {...task, status: 3, transactionHash: createRecepit.transactionHash}
+      task = {...task, status: 3, transactionHash: createReceipt.transactionHash}
       dispatch(updateTask({ task: task,  id: task.id }))
     } catch (error) {
       console.log(error);
@@ -159,11 +161,6 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
     }
     dispatch(createTask(task));
   }
-
-
-
-
-
   
   if (!skeleton ) {
     return (

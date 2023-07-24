@@ -17,8 +17,11 @@ const ModalRefund = ({task, taskState, afterClose} : IModalElement) => {
       <Modal
         title="Refund Order"
         open={true}
-        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : (task.status === 3 ? afterClose() : () => {})}
-        okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
+        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : 
+            ((task.status === 3 || task.status < 0) ? afterClose() : {})}
+            okText= {
+                task.status === 0 ? "Confirm" : (
+                (task.status === 3 || task.status < 0) ? "OK" : <LoadingOutlined  rev={""}/>)}
         afterClose={afterClose}
         onCancel={afterClose}
         width={700}

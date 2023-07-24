@@ -15,8 +15,11 @@ const ModalSellerDeposit
     <Modal
       title="Deposit Token"
       open={true}
-      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : ( task.status === 3 ? afterClose() : {})}
-      okText= {task.status === 0 ? "Confirm" : ( task.status === 0 ? "OK" : <LoadingOutlined  rev={""}/>)}
+      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : 
+        ((task.status === 3 || task.status < 0) ? afterClose() : {})}
+        okText= {
+          task.status === 0 ? "Confirm" : (
+          (task.status === 3 || task.status < 0) ? "OK" : <LoadingOutlined  rev={""}/>)}
       afterClose={afterClose}
       onCancel={afterClose}
       width={800}
@@ -31,70 +34,73 @@ const ModalSellerDeposit
           task.status === 0 ? 
           [
             { title: "Approve Token", status: "process"},
-            { title: "Swap Token", status: "wait"},
+            { title: "Deposit Token", status: "wait"},
             { title: "Done", status: "wait"}
           ] : (
           task.status === 1 ? 
           [
             { title: "Approve Token", status: "process", icon: <LoadingOutlined rev={"" }/>},
-            { title: "Swap Token", status: "wait"},
+            { title: "Deposit Token", status: "wait"},
             { title: "Done", status: "wait"}
           ] : (
           task.status === 2 ?
           [
             { title: "Approve Token", status: "finish"},
-            { title: "Swap Token", status: "process", icon: <LoadingOutlined  rev={""}/>},
+            { title: "Deposit Token", status: "process", icon: <LoadingOutlined  rev={""}/>},
             { title: "Done", status: "wait"}
           ] : (
           task.status === 3 ? 
           [
             { title: "Approve Token", status: "finish"},
-            { title: "Swap Token", status: "finish"},
+            { title: "Deposit Token", status: "finish"},
             { title: "Done", status: "finish"}
           ] : (
           task.status === -1 ?
           [
             { title: "Approve Token", status: "error"},
-            { title: "Swap Token", status: "wait"},
+            { title: "Deposit Token", status: "wait"},
             { title: "Done", status: "wait"}
           ] : 
           [
             { title: "Approve Token", status: "finish"},
-            { title: "Swap Token", status: "error"},
+            { title: "Deposit Token", status: "error"},
             { title: "Done", status: "wait"}
           ]))))
         }
       />
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
-        <div>
-          <p style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem"}}>
-            {task.to?.token.name}
-          </p>
-          <p style={{textAlign: "right"}}>{mappingNetwork(task.to?.token.network)}</p>
-          <p style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--color-secondary)", textAlign: "right"}}>
-            {task.to?.amount} {task.to?.token.symbol}
-          </p>
-        </div>
-        <PairToken
-          from_img={task.from?.token.image}
-          to_img={task.to?.token.image}
-          width={60}
-        />
-        <div>
+      <div>
           <p
-            style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem",}}
+            style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem", textAlign:'right'}}
           >
             {task.from.token.name}
           </p>
-          <p>{mappingNetwork(task.from.token.network)}</p>
+          <p style={{textAlign:'right'}}>{mappingNetwork(task.from.token.network)}</p>
           <p
             style={{
               fontSize: "1.6rem",
               fontWeight: 700,
               color: "var(--color-secondary)",
+              textAlign:'right'
             }}
           >
             {task.from.amount} {task.from.token.symbol}
+          </p>
+        </div>
+        
+
+        <PairToken
+          from_img={task.from?.token.image}
+          to_img={task.to?.token.image}
+          width={60}
+        />
+               <div>
+          <p style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem"}}>
+            {task.to?.token.name}
+          </p>
+          <p style={{textAlign: "left"}}>{mappingNetwork(task.to?.token.network)}</p>
+          <p style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--color-secondary)", textAlign: "left"}}>
+            {task.to?.amount} {task.to?.token.symbol}
           </p>
         </div>
       </div>

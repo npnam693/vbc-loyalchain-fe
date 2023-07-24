@@ -102,7 +102,6 @@ const MarketPane = (props: IMarketPaneProps) => {
             <RightOutlined rev={""} className="pagination-btn" style= {{fontSize: '1.8rem'}} 
               onClick={() => {props.nextpage  && props.funcChangePage(Number(props.dataFilter.page + 1))}}/>
           </Tooltip>
-
         </div>
         <Tooltip placement="bottom" title={"View list"}>
           <Button

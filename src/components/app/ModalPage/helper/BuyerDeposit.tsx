@@ -26,7 +26,7 @@ const ModalBuyerDeposit = ({task, taskState, afterClose} : IModalElement) => {
     if(task.status === 0 && secret.length >= 6) {
       task.funcExecute(taskState, task.id, secret)
     }
-    if (task.status === 3) {
+    if (task.status === 3 || task.status < 0) {
       afterClose()
     }
   }
@@ -35,7 +35,9 @@ const ModalBuyerDeposit = ({task, taskState, afterClose} : IModalElement) => {
       title="Accept Order"
       open={true}
       onOk={onOkModal}
-      okText= {(task.status === 0) ? "Confirm" : (task.status === 3 ? "OK": <LoadingOutlined  rev={""}/>)}
+      okText= {
+        task.status === 0 ? "Confirm" : (
+        (task.status === 3 || task.status < 0) ? "OK" : <LoadingOutlined  rev={""}/>)}
       afterClose={afterClose}
       onCancel={afterClose}
       width={800}
@@ -67,13 +69,28 @@ const ModalBuyerDeposit = ({task, taskState, afterClose} : IModalElement) => {
             { title: "Approve Token", status: "finish"},
             { title: "Deposit Token", status: "process", icon: <LoadingOutlined  rev={""} />},
             { title: "Done", status: "wait" }
-          ] : 
+          ] : (
+          task.status === 3 ?
           [
             { title: "Create key",  status: "finish"},
             { title: "Approve Token", status: "finish"},
             { title: "Deposit Token", status: "finish"},
             { title: "Done", status: "finish" }
-          ]))
+          ] : (
+          task.status === - 1 ? 
+          [
+            { title: "Create key",  status: "finish"},
+            { title: "Approve Token", status: "error"},
+            { title: "Deposit Token", status: "wait"},
+            { title: "Done", status: "wait" }
+          ] : 
+          [
+            { title: "Create key",  status: "finish"},
+            { title: "Approve Token", status: "finish"},
+            { title: "Deposit Token", status: "error"},
+            { title: "Done", status: "wait" }
+          ]
+          ))))
         } 
       />
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>

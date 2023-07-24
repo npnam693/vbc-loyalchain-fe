@@ -10,7 +10,7 @@ import { requestChangeNetwork } from '../../services/metamask'
 import Wallet from '../wallet'
 import { getBalanceAccount, getLinkExplore } from '../../utils/blockchain'
 import { saveInfo } from '../../state/user/userSlice'
-import { LoadingOutlined } from '@ant-design/icons'
+import { LoadingOutlined, WarningOutlined } from '@ant-design/icons'
 import { toast } from 'react-toastify'
 import Countdown from 'antd/es/statistic/Countdown'
 import store from '../../state'
@@ -81,7 +81,7 @@ const Faucet = () => {
             return;
         }
         setIsLoading(true)
-        const toaster = toast.loading(`Faceting ${selectedAmount} ${tokenSelected.token ? tokenSelected.token.symbol : tokenSelected.symbol}`)
+        const toaster = toast.loading(`Sending ${selectedAmount} ${tokenSelected.token ? tokenSelected.token.symbol : tokenSelected.symbol} to ${wallet.slice(0,4)+'...'+wallet.slice(-7)}`)
         const faucetContract  = getFaucetContract(appState.web3, tokenSelected.token ? tokenSelected.token.network : tokenSelected.network)
         
         const faucetMethod = faucetContract.methods.faucetToken(
@@ -187,7 +187,13 @@ const Faucet = () => {
                 </div>
             </div>
                 
-
+            <p style={{marginTop: 10, fontSize:'1.4rem', fontWeight: 500, color:'orange', width:'80%'}}>
+              <WarningOutlined rev={""} /> Note:{" "}
+              <span style={{fontSize:'1.4rem', fontWeight: 400, color: 'black'}}>
+                Loyalchain is currently in the testing phase on 2 networks, MBC and AGD. 
+                You will need gas fees on these networks to be able to faucet the corresponding tokens.
+              </span>
+            </p>       
             <Divider />
             {
                 txID &&
@@ -200,7 +206,6 @@ const Faucet = () => {
                     </Tooltip>
                 </p>                
             }
-
             {
                 timeLock && timeLock * 1000 > Date.now() ? (
                     <Tooltip title="Time remaining until the next faucet loyalty token" placement='bottom'
