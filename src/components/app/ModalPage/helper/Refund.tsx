@@ -4,6 +4,7 @@ import { Modal, Steps, Tooltip } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain'
 import PairToken from '../../PairToken'
+import { useAppSelector } from '../../../../state/hooks'
 
 
 export interface IModalElement {
@@ -13,6 +14,8 @@ export interface IModalElement {
 }
 
 const ModalRefund = ({task, taskState, afterClose} : IModalElement) => {
+    const {userState} = useAppSelector(state => state)
+    console.log(task.from.address === userState.address)
   return (
       <Modal
         title="Refund Order"
@@ -66,17 +69,27 @@ const ModalRefund = ({task, taskState, afterClose} : IModalElement) => {
                 ]))))}
         />
 
-        <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 30}}>
-            <div >
-              <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{task.from.token.name}</p>
-              <p style={{textAlign: "right", fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{task.from.amount} {task.from.token.symbol}</p>
+        {
+            userState.address === task.from.address ?
+            <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 16}}>
+                <img src={task.from.token.image} alt='token' style={{height: 60, marginRight: 16}}/>
+                <div style={{display:'flex', flexDirection:'column'}}>
+                    <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{task.from.token.name}</p>
+                    <span style={{fontWeight: 400, fontSize:"1.2rem", lineHeight:'1.2rem', margin: 0, marginTop: 5}}> {mappingNetwork(task.from.token.network)}</span>
+                    <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{task.from.amount} {task.from.token.symbol}</p>
+                </div>
             </div>
-            <PairToken from_img={task.from.token.image} to_img={task.to?.token.image} width={60}/>
-            <div>
-                <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{task.to?.token.name}</p>
-                <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{task.to?.amount} {task.to?.token.symbol}</p>
+            :
+            <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 16}}>
+                <img src={task.to?.token.image} alt='token' style={{height: 60, marginRight: 16}}/>
+                <div style={{display:'flex', flexDirection:'column'}}>
+                    <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{task.to?.token.name}</p>
+                    <span style={{fontWeight: 400, fontSize:"1.2rem", lineHeight:'1.2rem', margin: 0, marginTop: 5}}> {mappingNetwork(task.from.token.network)}</span>
+                    <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{task.to?.amount} {task.to?.token.symbol}</p>
+                </div>
             </div>
-        </div>
+        }
+
 
         <div style={{fontWeight: 500}}>
               <p>Status: {
@@ -87,7 +100,7 @@ const ModalRefund = ({task, taskState, afterClose} : IModalElement) => {
                   : 
                       <span style={{fontWeight: 400, color: '#1677ff'}}>In Progress</span>)}
               </p>
-              <p>Owner: <span>{task.from.address}</span></p>
+              <p>Recipient: <span style={{fontWeight: 400}}>{userState.address === task.from.address ? task.to?.address : task.from.address}</span></p>
               
               <p>Network: 
                   <span style={{fontWeight: 400}}> {

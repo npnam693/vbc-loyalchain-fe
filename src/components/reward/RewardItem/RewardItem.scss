@@ -1,15 +1,16 @@
 .app-reward_item {
     width: 310px;
-    padding: 12px;
-    border-radius: 15px;
-    background-color: white;
-
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #0B2134;
+    margin-bottom: 16px;
     .content{
         padding: 0px 20px;
         .title {
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--color-text-main);
+            color: white;
+            margin-bottom: 4px;
         }
         
         .info {
@@ -31,7 +32,7 @@
 
         .divider {
             border-color: rgba($color: black, $alpha: 0.2);
-            margin: 10px 0px;
+            margin: 6px 0px;
         }
 
         .action{

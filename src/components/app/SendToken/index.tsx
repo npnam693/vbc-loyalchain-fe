@@ -60,6 +60,7 @@ const SendToken = (props : ISendToken) => {
                 fromValue: formData.amount,
                 fromTokenId: props.token.token._id,
                 to: formData.to,
+                
             })
             dispatch(saveInfo({...userState, 
                 wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),

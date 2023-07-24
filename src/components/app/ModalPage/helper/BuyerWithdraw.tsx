@@ -114,11 +114,11 @@ const ModalBuyerWithdraw = ({task, taskState, afterClose} : IModalElement) => {
     />
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
       <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 16}}>
-        <img src={task.to?.token.image} alt='token' style={{height: 60, marginRight: 16}}/>
+        <img src={task.from.token.image} alt='token' style={{height: 60, marginRight: 16}}/>
         <div style={{display:'flex', flexDirection:'column'}}>
-            <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{task.to?.token.name}</p>
+            <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{task.from.token.name}</p>
             <span style={{fontWeight: 400, fontSize:"1.2rem", lineHeight:'1.2rem', margin: 0}}> {mappingNetwork(task.from.token.network)}</span>
-            <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{task.to?.amount} {task.to?.token.symbol}</p>
+            <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{task.from.amount} {task.from.token.symbol}</p>
         </div>
       </div>
     

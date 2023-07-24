@@ -35,7 +35,18 @@ function App() {
           </I18nextProvider>
         </BrowserRouter>
       </PersistGate>
-      <ToastContainer position={toast.POSITION.BOTTOM_LEFT} />
+      <ToastContainer 
+      position="bottom-center"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="dark"
+/>
 
 
     </Provider>

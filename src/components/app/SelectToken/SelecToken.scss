@@ -9,13 +9,12 @@
         background-color: white;
         border-radius: 16px;
         min-height: 600px;
-        width: 26%;
+        width: 450px;
     
         position: fixed;
         padding: 20px;
-        top: calc((100vh - 600px) / 2);
-        right: 37vw;
-        left: 37vw;
+        top: calc((100vh - 600px) / 2 - 50px);
+        right: calc((100vw - 600px) / 2);
 
         .header {
             display: flex;

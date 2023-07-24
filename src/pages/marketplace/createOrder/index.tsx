@@ -15,6 +15,7 @@ import { getBalanceAccount, getBalanceToken } from "../../../utils/blockchain";
 import { ITask, ITaskState, createTask, doneOneTask, updateTask,} from "../../../state/task/taskSlice";
 import { getTokenContract, getSwapOneContract } from "../../../services/contract";
 import { getAddressOneChainContract } from "../../../utils/blockchain";
+import { requestChangeNetwork } from "../../../services/metamask";
 
 interface IFormData {
   from: {
@@ -49,13 +50,15 @@ export default function CreateOrder() {
   const [isOneChain, setIsOneChain] = useState<boolean>(true);
   const [rate, setRate] = useState("0.000");
 
-  const hdClickSwap = () => {
+  const hdClickSwap = async () => {
+    if (formData.from.token !== "" && formData.to.token.network !== userState.network) {
+      await requestChangeNetwork(formData.to.token.network)
+    }
     const newData: IFormData = {
       from: formData.to,
       to: formData.from,
     };
     setFormData(newData);
-    
   };
   
   const countExchangeRateForm = async () => {
@@ -69,7 +72,7 @@ export default function CreateOrder() {
     if(formData.from.token !== "" && formData.to.token !== ""){
       countExchangeRateForm();
     }
-  }, [formData])
+  }, [formData.from, formData.to])
 
   const onClickCreate = async () => {
     if (formData.from.token === "" || formData.to.token === "") {

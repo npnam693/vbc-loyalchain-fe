@@ -20,15 +20,16 @@ import { fixStringBalance } from "../../../utils/string";
 interface IMyOrderItem {
   data: any
   isPendingOrder?: boolean;
+  rerender?: () => void
 }
 
-const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
-  console.log(data)
+const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
   const dispatch = useAppDispatch()
   const { appState, userState, taskState } = useAppSelector((state) => state)
   const [dataOrder, setDataOrder] = useState<any>(userState.address === data.from.address ? data : {...data, fromValue: data.toValue, toValue: data.fromValue});
   const [openModel, setOpenModal] = useState<boolean>(false);
   const [removeBtn, setRemoveBtn] = useState<any>(<div></div>);
+  const [okBtn, setOkBtn] = useState<any>(<div></div>);
   const [contentOnchain, setContentOnchain] = useState<any>({
     buyer: <div></div>,
     seller: <div></div>
@@ -59,27 +60,26 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     })
   }
 
+  
+
   useEffect(() =>     {
     userState.address === data.from.address ? setDataOrder(data) : 
     setDataOrder({...data, fromValue: data.toValue, toValue: data.fromValue})
-    if (openModel) {getDataOnChain()}
-  }, [userState])
+    if (openModel) {
+      getDataOnChain()
+      setOkBtn(textOkBtn(data.status))
+    }
+  }, [userState, data.status])
 
   const onClickRemove = async () => {
     const storeData = store.getState()  
-    console.log(storeData)
-    console.log(data.fromValue.token.network !== storeData.userState.network)
-    // if (data.fromValue.token.network !== storeData.userState.network) {
-    //   await requestChangeNetwork(data.fromValue.token.network);
-    //   return;
-    // }
     let task: ITask = {
       id: taskState.taskList.length,
       status: 0,
       type: "",
       funcExecute: () => {},
-      from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
       orderID: data._id
     }
 
@@ -129,6 +129,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       dispatch(updateTask({ task: task, id: task.id}))
       
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
+      rerender && rerender()
     } catch (error) {
       dispatch(updateTask({ task: { ...task, status: -1 }, id: task.id}))
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
@@ -147,6 +148,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         id: task.id
       }))
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
+      rerender && rerender()
     } catch (error) {
       console.log(error)
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
@@ -183,6 +185,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         task = {...task, status: 3}
         dispatch(updateTask({ task: task, id: task.id}))
         toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
+        rerender && rerender()
       } catch (error) {
         console.log(error);
         dispatch(updateTask({
@@ -194,14 +197,15 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         }))
         toast.update(toaster, { render: "Accept order fail, check your secret key", type: "error", isLoading: false, autoClose: 1000});
       }
+      dispatch(doneOneTask())
     }
     let task: ITask = {
       id: taskState.taskList.length,
       type: "SELLER-WITHDRAW",
       status: 0,
       funcExecute: sellerWithdraw,
-      from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
       orderID: data._id,
     };
 
@@ -236,6 +240,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         task = {...task, status: 3}
         dispatch(updateTask({ task: task, id: task.id}))
         toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
+        console.log('alo')
+        rerender && rerender()
       } catch (error) {
         console.log(error);
         dispatch(updateTask({
@@ -254,8 +260,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       type: "BUYER-WITHDRAW",
       status: 0,
       funcExecute: buyerWithdraw,
-      from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
       orderID: data._id,
     };
     dispatch(createTask(task));
@@ -301,6 +307,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         toast.update(toaster, { render: "Deposit token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
         task = {...task, status: 3, transactionHash: createRecipt.transactionHash}
         dispatch(updateTask({ task: task, id: task.id}))
+        rerender && rerender()
+        setOpenModal(false)
       } catch (error) {
         console.log(error);
         dispatch(updateTask({
@@ -319,8 +327,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       type: "SELLER-DEPOSIT",
       status: 0,
       funcExecute: sellerDeposit,
-      from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
       orderID: data._id,
     };
     dispatch(createTask(task));
@@ -357,6 +365,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
             ), 18)})
           )
           toast.update(toaster, { render: "Token was refund successfully.", type: "success", isLoading: false, autoClose: 1000});
+          rerender && rerender()
       } catch (error) {
         dispatch(updateTask({ 
           task: { ...task, status: task.status === 1 ? -1 : -2 }, 
@@ -364,6 +373,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         )
         toast.update(toaster, { render: "Refund token fail.", type: "error", isLoading: false, autoClose: 1000});
       }
+      dispatch(doneOneTask())
     }
     let networkAction = IS_SELLER ? data.fromValue.token.network : data.toValue.token.network;
     if (storeData.userState.network !== networkAction) {
@@ -375,8 +385,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       type: "REFUND",
       status: 0,
       funcExecute: refundToken,
-      from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
       orderID: data._id,
     };
     dispatch(createTask(task));
@@ -393,7 +403,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
   const textOkBtn = (status: string) => {
     if (IS_SELLER && status === "receiver accepted") {
       return <p>Deposit</p>
-    } else if ((IS_SELLER && status === "receiver withdrawn")) {
+    } else if ((IS_SELLER && status === "receiver withdrawn") || (!IS_SELLER && status === "sender accepted")) {
       return <p>Withdraw</p>
     } else if (status === 'completed') {
       return <p>OK</p>
@@ -407,7 +417,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     let myBtn = <div></div>
     if (IS_SELLER) {
       if (data.status === "receiver accepted") {
-        myBtn = <Button>Cancel Order</Button>
+        myBtn = <Button onClick={onClickRemove}>Cancel Order</Button>
       } 
       else if (data.status === "sender accepted" || data.status === "receiver cancelled") {
         if (timeLock && timeLock * 1000 > Date.now()) {
@@ -454,7 +464,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       } else if (status === "receiver withdrawn") {
         return onSellerClickWithdraw()
       } else {
-        return () => {}
+        return setOpenModal(false)
       }
     }
     else {
@@ -465,7 +475,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         }
         return onBuyerClickWithdraw()
       } else {
-        return () => {}
+        return setOpenModal(false)
       }
     }
   }
@@ -598,7 +608,6 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           </div>
       </div>
       {
-        !isPendingOrder && 
         <Modal
             title="Detail Order"
             open={openModel}

@@ -21,31 +21,36 @@ const MyOrder = () => {
     const [pageName, setPageName] = useState<string>('inprogressOrder')
     const [page, setPage] = useState<number>(1)
     const [loading, setLoading] = useState<boolean>(true)
-
+    const [render, setRender ] = useState<boolean>(false)
     const userState = useAppSelector(state => state.userState)
+    const fetchData = async () => {
+        let res;
+        if (pageName === 'pendingOrder') {
+            res = await appApi.getUserOrder({status: 0, page})
+            res.data.length !== 0 && setdataFetch({...dataFetch, pendingOrders: res.data})
+        }
+        if (pageName === 'inprogressOrder') {
+            res = await appApi.getUserOrder({status: 1, page})
+            res.data.length !== 0 &&  setdataFetch({...dataFetch, inprogressOrders: res.data})
+        }
+        if (pageName === 'completedOrder') {
+            res = await appApi.getUserOrder({status: 2, page})
+            res.data.length !== 0 &&  setdataFetch({...dataFetch, completedOrders: res.data})
+        }
+        if (res?.data.length === 0 && page > 1) setPage(page - 1)
+        setLoading(false)
+    }
+    
+    useEffect(() => {
+        setLoading(true)
+        fetchData()
+    }, [pageName, page])
 
     useEffect(() => {
-        console.log("UE MYORDER CHẠY ROI")
-        setLoading(true)
-        const fetchData = async () => {
-            let res;
-            if (pageName === 'pendingOrder') {
-                res = await appApi.getUserOrder({status: 0, page})
-                res.data.length !== 0 && setdataFetch({...dataFetch, pendingOrders: res.data})
-            }
-            if (pageName === 'inprogressOrder') {
-                res = await appApi.getUserOrder({status: 1, page})
-                res.data.length !== 0 &&  setdataFetch({...dataFetch, inprogressOrders: res.data})
-            }
-            if (pageName === 'completedOrder') {
-                res = await appApi.getUserOrder({status: 2, page})
-                res.data.length !== 0 &&  setdataFetch({...dataFetch, completedOrders: res.data})
-            }
-            if (res?.data.length === 0) setPage(page - 1)
-            setLoading(false)
-        }
         fetchData()
-    }, [pageName, userState, userState.balance, userState.wallet,page])
+    }, [render])
+
+
 
   return (
     <div className='app-myOrder'>      
@@ -91,19 +96,19 @@ const MyOrder = () => {
                 {
                     pageName === 'inprogressOrder' &&
                     dataFetch.inprogressOrders.map((item, index) => (
-                        <MyOrderItem data = {item}/>
+                        <MyOrderItem data = {item} rerender={() => setRender(!render)}/>
                         ))
                     }
                 {
                     pageName === 'pendingOrder' &&
                     dataFetch.pendingOrders.map((item, index) => (
-                        <MyOrderItem data={item} isPendingOrder/>
+                        <MyOrderItem data={item} isPendingOrder rerender={() => setRender(!render)}/>
                         ))
                     }
                 {
                     pageName === 'completedOrder' &&
                     dataFetch.completedOrders.map((item, index) => (
-                        <MyOrderItem data={item} />
+                        <MyOrderItem data={item} rerender={() => setRender(!render)} />
                         ))
                     }    
                 </>

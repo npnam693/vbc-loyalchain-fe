@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { mappingNetwork } from "../utils/blockchain";
 
 export const requestChangeNetwork = async (chainID: number) => {
@@ -8,7 +9,8 @@ export const requestChangeNetwork = async (chainID: number) => {
       params: [{ chainId: '0x' + chainID.toString(16) }], // chainId must be in hexadecimal numbers
     });
   } catch (error : any) {
-    alert(error.message);
+    toast.error(error.message);
+    if (error.code === 4001) return;
     await window.ethereum.request({
       method: 'wallet_addEthereumChain',
       params: [
@@ -25,7 +27,6 @@ export const requestChangeNetwork = async (chainID: number) => {
         },
       ],
     });
-    await requestChangeNetwork(chainID)
   }
 }
 

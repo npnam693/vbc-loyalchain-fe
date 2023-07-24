@@ -17,7 +17,7 @@ interface IForm {
 enum WalletPage { TOKEN, REWARD, HISTORY }
 const handleAddressClick = (address: string) => {
   navigator.clipboard.writeText(address);
-  toast("Coppy address success")
+  toast("Copied address wallet successfully!", {autoClose: 500})
 };
 
 const Wallet = () => {
@@ -67,7 +67,7 @@ const Wallet = () => {
             </div>
           </div>
         </div>
-        <div className="content--right">
+        <div className="content--right" style={{overflow:'scroll'}}>
           <header>
             <div className={`header-item${page === WalletPage.TOKEN ? ' header-item--selected' : ''}`}
               onClick={() => page !== WalletPage.TOKEN && setPage(WalletPage.TOKEN)}
@@ -86,7 +86,7 @@ const Wallet = () => {
               <p>History</p>
             </div>
           </header>
-          <main>
+          <main >
           {
               contentPage()
           }

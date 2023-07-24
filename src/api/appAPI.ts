@@ -86,10 +86,13 @@ class AppAPI {
             toValue: 0,
         });
     }
-
     getUserOrder = (data: any) => {
         const url = this.LOYALCHAIN_API.concat("/users/tx");
-        return axiosClient.get(url, {params: data});
+        return axiosClient.get(url, {params: {...data, transactionType: 'exchange'}});
+    }
+    getUserHistory = (page: number) => {
+        const url = this.LOYALCHAIN_API.concat("/users/tx");
+        return axiosClient.get(url, {params: {status: 2, page}});
     }
 }
 
