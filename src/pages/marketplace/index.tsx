@@ -29,7 +29,7 @@ const filterRawData : IFilterData = {
   to: "",
   amountFrom: [0, 10000],
   amountTo: [0, 10000],
-  page: 1
+  page: 1,
 };
 const titleStatistic = [
   {
@@ -73,6 +73,9 @@ const Marketplace = () => {
     isFilterMode: true,
     filterData: filterRawData,
   });
+  const [loading, setLoading] = useState(true);
+  const [nextPage, setNextPage] = useState(true)
+
   const appState = useAppSelector((state) => state.appState)
   const userState = useAppSelector((state) => state.userState)
   const dispatch = useAppDispatch()
@@ -80,6 +83,7 @@ const Marketplace = () => {
 
   useEffect(() => {
     const fetchFilterOrder = async () => {
+      setLoading(true)
       const filterData = {
         fromTokenId: filter.filterData.from !== '' ? filter.filterData.from._id : null,
         toTokenId: filter.filterData.to !== '' ? filter.filterData.to._id : null,
@@ -88,19 +92,20 @@ const Marketplace = () => {
         toValueUp: filter.filterData.amountTo[1],
         toValueDown: filter.filterData.amountTo[0],
         network: filter.filterData.network === -1 ? null : filter.filterData.network ,
-        page: filter.filterData.page
+        page: filter.filterData.page,
       }
       const tdata = await appApi.getOrdersWithFilter({...filterData})
       if(tdata) {
-        if (tdata.data.length === 0) {
-          setFilter({ ...filter, filterData: {...filter.filterData, page: filter.filterData.page - 1}})
+        setData(tdata.data)
+        setLoading(false)
+        const nextData = await appApi.getOrdersWithFilter({...filterData, page: filter.filterData.page + 1})
+        if (nextData.data.length === 0 && nextPage === true) {
+            setNextPage(false)
+        } else if (nextData.data.length !== 0 && nextPage === false) {
+          setNextPage(true)
         }
-        else {
-          setData(tdata.data)
-        }
-      }
+      }  
     } 
-
     const fetchStatic = async () => {
       const res = await appApi.getStatisApp()
       if(res) setStatic([res.data.total, res.data.total24h, res.data.totalNow])
@@ -108,8 +113,11 @@ const Marketplace = () => {
 
     fetchStatic()
     fetchFilterOrder()
-  }, [filter.filterData, userState])
+  }, [filter.filterData, userState.wallet])
 
+
+  console.log(filter.filterData)
+  
   const toggleModeView = () => { setIsListMode(!isListMode) };
   const openFilter = () => {
     setFilter({
@@ -125,7 +133,7 @@ const Marketplace = () => {
   const closeSelectToken = () => {setSelectState({selectFrom: false, selectTo: false}) };
 
   const setFilterNetwork = (network: number) => {
-    setFilter({ ...filter, filterData: { ...filter.filterData, network } });
+    setFilter({ ...filter, filterData: { ...filter.filterData, network, page: 1} });
   }
   return (
     <div className="app-market">
@@ -417,6 +425,7 @@ const Marketplace = () => {
         funcNetwork={setFilterNetwork}
         funcChangePage={(page : number) => setFilter({ ...filter, filterData: {...filter.filterData, page}})}
         dataFilter={filter.filterData}
+        nextpage={nextPage}
       />
       
       {isListMode ? (
@@ -424,6 +433,10 @@ const Marketplace = () => {
       ) : (
         <div className="grid-order">
           {
+            loading ?
+            Array(12).fill(0).map(value => (
+              <Order data={{}} skeleton />
+            )) :
             data.map((item, index) => 
               <Order data = {item}/>
             )
@@ -439,16 +452,16 @@ const Marketplace = () => {
             onClickSelect={(token) => {
               if (selectState.selectFrom) {
                 if (appState.isConnectedWallet) {
-                  setFilter({ ...filter, filterData: {...filter.filterData, from: token.token}});
+                  setFilter({ ...filter, filterData: {...filter.filterData, from: token.token, page: 1}});
                 } else {
-                  setFilter({ ...filter, filterData: {...filter.filterData, from: token}});
+                  setFilter({ ...filter, filterData: {...filter.filterData, from: token, page: 1}});
                 }
               }             
               else {
                 if (appState.isConnectedWallet) {
-                  setFilter({ ...filter, filterData: {...filter.filterData, to: token.token}});
+                  setFilter({ ...filter, filterData: {...filter.filterData, to: token.token, page: 1}});
                 } else {
-                  setFilter({ ...filter, filterData: {...filter.filterData, to: token}});
+                  setFilter({ ...filter, filterData: {...filter.filterData, to: token, page: 1}});
                 }
               }
               setSelectState({selectFrom: false, selectTo: false});

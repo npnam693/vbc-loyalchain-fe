@@ -26,13 +26,16 @@ const ModalBuyerDeposit = ({task, taskState, afterClose} : IModalElement) => {
     if(task.status === 0 && secret.length >= 6) {
       task.funcExecute(taskState, task.id, secret)
     }
+    if (task.status === 3) {
+      afterClose()
+    }
   }
   return (
     <Modal
       title="Accept Order"
       open={true}
       onOk={onOkModal}
-      okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
+      okText= {(task.status === 0) ? "Confirm" : (task.status === 3 ? "OK": <LoadingOutlined  rev={""}/>)}
       afterClose={afterClose}
       onCancel={afterClose}
       width={800}

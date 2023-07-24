@@ -16,12 +16,14 @@ import Countdown from "antd/es/statistic/Countdown";
 import PairToken from "../../app/PairToken";
 import { generateContractID, getTxTwoOnchain } from "../../../services/blockchain";
 import store from "../../../state";
+import { fixStringBalance } from "../../../utils/string";
 interface IMyOrderItem {
   data: any
   isPendingOrder?: boolean;
 }
 
 const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
+  console.log(data)
   const dispatch = useAppDispatch()
   const { appState, userState, taskState } = useAppSelector((state) => state)
   const [dataOrder, setDataOrder] = useState<any>(userState.address === data.from.address ? data : {...data, fromValue: data.toValue, toValue: data.fromValue});
@@ -33,6 +35,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
   });
   const [dataOnChain, setDataOnChain] = useState<any>(null)
   const IS_SELLER : boolean = userState.address === data.from.address;
+  
   const getDataOnChain = async () => {
     const sellerLock = await getTxTwoOnchain(
       generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
@@ -59,14 +62,17 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
   useEffect(() =>     {
     userState.address === data.from.address ? setDataOrder(data) : 
     setDataOrder({...data, fromValue: data.toValue, toValue: data.fromValue})
+    if (openModel) {getDataOnChain()}
   }, [userState])
 
-
-  const onClickRemove = () => {
-    if (data.fromValue.token.network !== userState.network) {
-      requestChangeNetwork(data.fromValue.token.network);
-      return;
-    }
+  const onClickRemove = async () => {
+    const storeData = store.getState()  
+    console.log(storeData)
+    console.log(data.fromValue.token.network !== storeData.userState.network)
+    // if (data.fromValue.token.network !== storeData.userState.network) {
+    //   await requestChangeNetwork(data.fromValue.token.network);
+    //   return;
+    // }
     let task: ITask = {
       id: taskState.taskList.length,
       status: 0,
@@ -111,7 +117,13 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       dispatch(updateTask({ task, id: task.id }))
       
       await appApi.cancelOrder(data._id)
-      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
+      
+      dispatch(saveInfo({...userState, 
+        wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+        balance:fixStringBalance(String(
+            await appState.web3.eth.getBalance(userState.address)
+        ), 18)})
+      )
       
       task = {...task, status: 3}
       dispatch(updateTask({ task: task, id: task.id}))
@@ -160,7 +172,13 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           secretKey?.data
         ).send({from: userState.address})
 
-        dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
+        dispatch(saveInfo({...userState, 
+          wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+          balance:fixStringBalance(String(
+              await appState.web3.eth.getBalance(userState.address)
+          ), 18)})
+      )
+
         const updateOrder = await appApi.updateStatusOrder(data._id, "completed");
         task = {...task, status: 3}
         dispatch(updateTask({ task: task, id: task.id}))
@@ -183,7 +201,8 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       status: 0,
       funcExecute: sellerWithdraw,
       from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
     };
 
     dispatch(createTask(task));
@@ -206,8 +225,13 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           secretKey?.toString()
         ).send({from: userState.address})
 
+        dispatch(saveInfo({...userState, 
+          wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+          balance: fixStringBalance(String(
+              await appState.web3.eth.getBalance(userState.address)
+          ), 18)})
+        )
 
-        dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
         await appApi.updateStatusOrder(data._id, "receiver withdrawn");
         task = {...task, status: 3}
         dispatch(updateTask({ task: task, id: task.id}))
@@ -267,7 +291,13 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         console.log(await appApi.updateStatusOrder(data._id, "sender accepted")
         )
         
-        dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
+        dispatch(saveInfo({...userState, 
+          wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+          balance:fixStringBalance(String(
+              await appState.web3.eth.getBalance(userState.address)
+          ), 18)})
+        )
+
         toast.update(toaster, { render: "Deposit token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
         task = {...task, status: 3, transactionHash: createRecipt.transactionHash}
         dispatch(updateTask({ task: task, id: task.id}))
@@ -290,14 +320,14 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
       status: 0,
       funcExecute: sellerDeposit,
       from: {address: userState.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount}
+      to: {address: userState.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
     };
     dispatch(createTask(task));
   }
   const onClickRefund = async () => {
     const storeData = store.getState()  
     const refundToken = async (taskState: ITaskState, idTask: number) => {
-      console.log('alo')
       const toaster = toast.loading("Refunding token...")
       let myTask : ITask = {...taskState.taskList[idTask], status: 1}
       dispatch(updateTask({task: myTask, id: idTask}))
@@ -317,10 +347,15 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           )
           console.log(await refundMethod.estimateGas({from: storeData.userState.address}))
           const refundRecipt = await refundMethod.send({from: storeData.userState.address})
-          appApi.cancelOrder(data._id)
+          const cancelOrder = await appApi.cancelOrder(data._id)
           myTask = {...taskState.taskList[idTask], status: 3, transactionHash: refundRecipt.transactionHash}
           dispatch(updateTask({task: myTask, id: idTask}))
-          dispatch(saveInfo({...storeData.userState, wallet: await getBalanceAccount(appState.web3, storeData.userState, appState.tokens)}))
+          dispatch(saveInfo({...userState, 
+            wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+            balance:fixStringBalance(String(
+                await appState.web3.eth.getBalance(userState.address)
+            ), 18)})
+          )
           toast.update(toaster, { render: "Token was refund successfully.", type: "success", isLoading: false, autoClose: 1000});
       } catch (error) {
         dispatch(updateTask({ 
@@ -330,10 +365,9 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         toast.update(toaster, { render: "Refund token fail.", type: "error", isLoading: false, autoClose: 1000});
       }
     }
-
-    let netwokAction = IS_SELLER ? data.fromValue.token.network : data.toValue.token.network;
-    if (storeData.userState.network !== netwokAction) {
-      await requestChangeNetwork(data.fromValue.token.network)
+    let networkAction = IS_SELLER ? data.fromValue.token.network : data.toValue.token.network;
+    if (storeData.userState.network !== networkAction) {
+      await requestChangeNetwork(networkAction)
       return;
     }
     let task: ITask = {
@@ -350,6 +384,11 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
 
 
 
+
+
+
+
+  
   // ----------------------------------------------- //
   const textOkBtn = (status: string) => {
     if (IS_SELLER && status === "receiver accepted") {
@@ -361,13 +400,13 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     }
   }
   const getRemoveBtn = async (timeLock: number) => {
-    console.log(timeLock)
+    console.log(timeLock, data, IS_SELLER)
     let myBtn = <div></div>
     if (IS_SELLER) {
       if (data.status === "receiver accepted") {
         myBtn = <Button>Cancel Order</Button>
       } 
-      else if (data.status === "sender accepted" || "receiver cancelled") {
+      else if (data.status === "sender accepted" || data.status === "receiver cancelled") {
         if (timeLock && timeLock * 1000 > Date.now()) {
           myBtn = 
           <Tooltip title="This is the remaining token lock time in the contract." overlayInnerStyle={{textAlign:'center'}}>
@@ -378,9 +417,12 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         }
         else myBtn = <Button onClick={onClickRefund}>Refund</Button>
       }
+      else if (data.status === "sender cancelled") {
+        myBtn = <Button onClick={() => {}} disabled>You have refunded.</Button>
+      }
       else myBtn = <div></div>
     } else {
-      if (data.status === "sender accepted" || data.status === 'receiver accepted' || "sender cancelled") { 
+      if (data.status === "sender accepted" || data.status === 'receiver accepted' || data.status === "sender cancelled") { 
         if (timeLock && timeLock * 1000 > Date.now()) {
           myBtn = 
             <Tooltip title="This is the remaining token lock time in the contract." overlayInnerStyle={{textAlign:'center'}}>
@@ -391,6 +433,10 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         }
         else myBtn = <Button onClick={onClickRefund}>Refund</Button>
       }
+      else if (data.status === "receiver cancelled") {
+        myBtn = <Button onClick={() => {}} disabled>You have refunded.</Button>
+      }
+      else myBtn = <div></div>
     }
     setRemoveBtn(myBtn)
   }
@@ -431,7 +477,9 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         case "receiver withdrawn":
           return "Withdraw Token"
         case "sender cancelled":
-          return "Refund Token"  
+          return "Refund Token" 
+        case "receiver cancelled":
+          return "Refund Token" 
       }
     }
     else {
@@ -443,11 +491,14 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         case "receiver withdrawn":
           return "Done"
         case "receiver cancelled":
+          return "Refund Token"
+        case "sender cancelled":
           return "Refund Token"  
       }
     }
   }
   const makecontentOnChain = (isSeller: boolean, txData: any) => {
+    console.log(data)
     if (txData.timelock.toString() !== '0') {
       return (
         <div>
@@ -463,6 +514,9 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           <p style={{fontSize: '1.3rem'}}>Amount:
             <span style={{fontWeight: 400}}>{' '}{txData.amount.toString()}</span>
           </p>
+          <p style={{fontSize: '1.3rem'}}>Status:
+            <span style={{fontWeight: 400}}>{' '}{txData.status === '0' ? 'Pending' : (txData.status === '1' ? "Withdrawn" : "Refunded")}</span>
+          </p>
         </div>
         )
     }
@@ -473,7 +527,7 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
     }
   }
   return (
-    <div className="app-order" style={{marginBottom: 20}}>
+    <div className="app-order" >
       <div className="app-order--info">
         <div className="app-order--info--token">
           <img src={dataOrder.fromValue.token.image} alt="Token" width={60} />
@@ -541,56 +595,115 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           closable={true}
           footer={<>
             {removeBtn}
-            <Button type="primary" onClick={() => hdOnOk(dataOrder.status)}>{textOkBtn(dataOrder.status)}</Button>
+            {
+              (data.status !== 'cancel' && data.status !== 'sender cancel' && data.status !== 'receiver cancelled' && data.status !== "sender cancelled") && 
+              <Button 
+                type="primary" disabled={(!IS_SELLER && data.status === "receiver withdrawn") ? true : false}
+                onClick={() => hdOnOk(dataOrder.status)}>
+                  {
+                    (!IS_SELLER && data.status === "receiver withdrawn") ? "You have withdrawn" :
+                    textOkBtn(dataOrder.status)
+                  }
+              </Button>
+            }
           </>}
       >
         {
           userState.address === dataOrder.from.address ?
-          // Step of seller (first create order)
+          // Step of seller (first create order) SELLER
           <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
           items={
+            data.status === 'receiver accepted' ? 
             [
-              { title: "Deposit",
-                status: dataOrder.status === "receiver accepted" ? "process" : "finish" 
-              },
-              {
-                title: "Wait Recipient",
-                status: dataOrder.status === "receiver accepted" ? "wait" : (dataOrder.status === "sender accepted" ? "process" : "finish"),
-                icon: dataOrder.status === "sender accepted" && <LoadingOutlined  rev={""}/>
-              },
-              {
-                title: "Withdraw",
-                status: dataOrder.status === "completed" ? "finish" : (dataOrder.status === "receiver withdrawn" ? "process" : "wait"),
-              },
-              {
-                title: "Done",
-                status: dataOrder.staus === "completed" ? "finish" : "wait"
-              },
-            ]}/>
+              {title: "Deposit", status: "process"},
+              {title: "Wait Recipient", status: "wait"},
+              {title: "Withdraw", status: "wait"},
+              {title: "Done", status: "wait"}
+            ] : (
+            data.status === 'sender accepted' ? 
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "process", icon: <LoadingOutlined  rev={""}/>},
+              {title: "Withdraw", status: "wait"},
+              {title: "Done", status: "wait"}
+            ] : (
+            data.status === 'receiver withdrawn' ?
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "finish"},
+              {title: "Withdraw", status: "process"},
+              {title: "Done", status: "wait"}
+            ] : (
+            data.status === 'completed' ? 
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "finish"},
+              {title: "Withdraw", status: "finish"},
+              {title: "Done", status: "finish"}
+            ] : (
+            data.status === 'sender cancelled' ? 
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "error"},
+              {title: "Withdraw", status: "wait"},
+              {title: "Done", status: "wait"}
+            ]  : // "receiver cancelled"
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "error"},
+              {title: "Withdraw", status: "wait"},
+              {title: "Done", status: "wait"}
+            ]
+            ))))
+          }
+          />
           :
           // Step of buyer (create contract first)
           <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
           items={
+            data.status === 'receiver accepted' ? 
             [
-              {
-                title: "Deposit",
-                status: "finish",
-              },
-              {
-                title: "Wait Recipient",
-                status: data.status === "receiver accepted" ? "process" : "finish",
-                icon: data.status === "receiver accepted" && <LoadingOutlined  rev={""}/>
-              },
-              {
-                title: "Withdraw",
-                status: data.status === "sender accepted" ? "process" : (
-                  (data.status === "receiver withdrawn" || data.status === "completed") ? "finish" : "wait")
-              },
-              {
-                title: "Done",
-                status: (data.status === "completed" || data.status === "receiver withdrawn") ? "finish" : "wait"
-              },
-            ]}/>
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "process", icon: <LoadingOutlined rev={""} />},
+              {title: "Withdraw", status: "wait"},
+              {title: "Done", status: "wait"}
+            ] : (
+            data.status === 'sender accepted' ? 
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "finish"},
+              {title: "Withdraw", status: "wait"},
+              {title: "Done", status: "wait"}
+            ] : (
+            data.status === 'receiver withdrawn' ?
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "finish"},
+              {title: "Withdraw", status: "finish"},
+              {title: "Done", status: "finish"}
+            ] : (
+            data.status === 'completed' ? 
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "finish"},
+              {title: "Withdraw", status: "finish"},
+              {title: "Done", status: "finish"}
+            ] : (
+            data.status === 'sender cancelled' ? 
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "error"},
+              {title: "Withdraw", status: "wait"},
+              {title: "Done", status: "wait"}
+            ]  : // "receiver cancelled"
+            [
+              {title: "Deposit", status: "finish"},
+              {title: "Wait Recipient", status: "error"},
+              {title: "Withdraw", status: "wait"},
+              {title: "Done", status: "wait"}
+            ]
+            ))))
+          }/>
 
         }
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>

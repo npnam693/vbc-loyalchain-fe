@@ -58,3 +58,6 @@ export const getLinkExplore = (transactionID: string | undefined, chainID: numbe
     if (chainID === 8888) return AGD_EXPLORER.concat(`/tx/${transactionID}`)
     else if (chainID === 4444) return MBC_EXPLORER.concat(`/tx/${transactionID}`)
 }
+// ----------------------------------------------
+
+

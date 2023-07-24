@@ -21,46 +21,47 @@ const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
       cancelButtonProps={{ style: { display: 'none' } }}
     >
       <Steps
-              size="default"
-              style={{width: 600, margin: 'auto', marginTop: 40, marginBottom: 30}}
-              items={
-                task.status === 0 ? 
-                [
-                  {
-                    title: "Approve Token",
-                    status: "wait"
-                  },
-                  {
-                    title: task.from.token.network === task.to?.token.network ? "Send Token" : "Deposit Token",
-                    status: "wait"
-                  },
-                  {
-                    title: "Done",
-                    status: "wait"
-                  }
-                ] : 
-                [
-                  {
-                    title: "Approve Token",
-                    status: task.status === -1 ? 'error' : 
-                            ((task.status >  1) ? 'finish' : 'process'),
-                    icon:  task.status === 1 && <LoadingOutlined  rev={""}/>
-                  },
-                  {
-                    title: task.from.token.network === task.to?.token.network ? "Send Token" : "Deposit Token",
-                    status: task.status === -2 ? 'error' : (
-                              task.status < 2 ? 'wait' : (
-                                task.status === 3 ? 'finish' : 'process'
-                              )
-                            ),
-                    icon:  task.status === 2 && <LoadingOutlined  rev={""}/>                  
-                  },
-                  {
-                    title: 'Done',
-                    status: task.status === 3 ? 'finish' : 'wait'
-                  }
-                ]}
-          />
+        size="default"
+        style={{width: 600, margin: 'auto', marginTop: 40, marginBottom: 30}}
+        items={
+          task.status === 0 ? 
+          [
+            { title: "Approve Token", status: "process"},
+            { title: "Swap Token", status: "wait"},
+            { title: "Done", status: "wait"}
+          ] : (
+          task.status === 1 ? 
+          [
+            { title: "Approve Token", status: "process", icon: <LoadingOutlined rev={"" }/>},
+            { title: "Swap Token", status: "wait"},
+            { title: "Done", status: "wait"}
+          ] : (
+          task.status === 2 ?
+          [
+            { title: "Approve Token", status: "finish"},
+            { title: "Swap Token", status: "process", icon: <LoadingOutlined  rev={""}/>},
+            { title: "Done", status: "wait"}
+          ] : (
+          task.status === 3 ? 
+          [
+            { title: "Approve Token", status: "finish"},
+            { title: "Swap Token", status: "finish"},
+            { title: "Done", status: "finish"}
+          ] : (
+          task.status === -1 ?
+          [
+            { title: "Approve Token", status: "error"},
+            { title: "Swap Token", status: "wait"},
+            { title: "Done", status: "wait"}
+          ] : 
+          [
+            { title: "Approve Token", status: "finish"},
+            { title: "Swap Token", status: "error"},
+            { title: "Done", status: "wait"}
+          ]))))
+        }
+          
+        />
 
       <div
         style={{

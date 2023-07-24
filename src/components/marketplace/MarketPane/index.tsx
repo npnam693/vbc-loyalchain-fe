@@ -1,4 +1,4 @@
-import { Button, Pagination, Popover, Tooltip } from "antd";
+import { Button, Tooltip } from "antd";
 import { AppstoreOutlined, BarsOutlined, ClearOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "./MarketPane.scss";
 import { IFilterData } from "../../../pages/marketplace";
@@ -13,6 +13,7 @@ interface IMarketPaneProps {
   funcSwapFrom?: () => void;
   funcClearFilter?: () => void;
   funcChangePage: (page: number) => void;
+  nextpage?: boolean;
 }
 
 const MarketPane = (props: IMarketPaneProps) => {
@@ -91,11 +92,17 @@ const MarketPane = (props: IMarketPaneProps) => {
 
       <div style={{display: 'flex', flexDirection:"row", alignItems:'center'}}>
         <div className="pagination-container">
-          <LeftOutlined rev={""} className="pagination-btn"  style= {{fontSize: '1.8rem'}} 
-          onClick={() => props.dataFilter.page > 1 && props.funcChangePage(Number(props.dataFilter.page - 1))}
-          />
+          <Tooltip placement="bottom" title={"Previous page"}>
+            <LeftOutlined rev={""} className="pagination-btn"  style= {{fontSize: '1.8rem'}} 
+              onClick={() => props.dataFilter.page  > 1 && props.funcChangePage(Number(props.dataFilter.page - 1))}
+            />
+          </Tooltip>
           <div className="pagination-current"> {props.dataFilter.page} </div>
-          <RightOutlined rev={""} className="pagination-btn" style= {{fontSize: '1.8rem'}} onClick={() => props.funcChangePage(Number(props.dataFilter.page + 1))}/>
+          <Tooltip placement="bottom" title={ props.nextpage ? "Next page" : "End of items"}>
+            <RightOutlined rev={""} className="pagination-btn" style= {{fontSize: '1.8rem'}} 
+              onClick={() => {props.nextpage  && props.funcChangePage(Number(props.dataFilter.page + 1))}}/>
+          </Tooltip>
+
         </div>
         <Tooltip placement="bottom" title={"View list"}>
           <Button
@@ -129,8 +136,6 @@ const MarketPane = (props: IMarketPaneProps) => {
             <BarsOutlined rev={""} />
           </Button>
         </Tooltip>
-        
-
 
       </div>
     </div>

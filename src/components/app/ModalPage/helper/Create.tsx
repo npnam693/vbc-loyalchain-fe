@@ -169,7 +169,7 @@ const ModalCreate = ({task, taskState, afterClose} : IModalElement) => {
           </span>
         </p>
         <p>
-          Transaction Hash:
+          Transaction Hash: {" "}
           {
             task.transactionHash && 
             <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.from.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>

@@ -14,9 +14,9 @@ export interface IModalElement {
 const ModalSellerCreate = ({task, taskState, afterClose} : IModalElement) => {
   return (
     <Modal
-      title="Transfer Token"
+      title="Create Order"
       open={true}
-      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : {}}
+      onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : (task.status === 3 ? afterClose() : {})}
       okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
       afterClose={afterClose}
       onCancel={afterClose}
@@ -126,17 +126,6 @@ const ModalSellerCreate = ({task, taskState, afterClose} : IModalElement) => {
               In Progress
             </span>
           )}
-        </p>
-        <p>
-          Transaction Hash:
-          <span style={{ fontWeight: 400 }}>
-            {" "}
-            {task.status === 0
-              ? "..."
-              : task.status === 3
-              ? task.transactionHash
-              : "..."}
-          </span>
         </p>
         <p>
           Order ID: 

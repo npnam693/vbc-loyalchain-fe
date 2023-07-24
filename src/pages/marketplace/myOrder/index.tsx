@@ -22,6 +22,7 @@ const MyOrder = () => {
     const userState = useAppSelector(state => state.userState)
 
     useEffect(() => {
+        console.log("UE MYORDER CHẠY ROI")
         const fetchData = async () => {
             Promise.all([appApi.getUserOrder({status: 0}), appApi.getUserOrder({status: 1}), await appApi.getUserOrder({status: 2})]) 
             .then(res => {
@@ -34,8 +35,8 @@ const MyOrder = () => {
             .catch(err => console.log(err))
         }
         fetchData()
-    
-    }, [userState])
+     
+    }, [userState, userState.balance, userState.wallet])
 
     console.log(dataFetch)
   return (

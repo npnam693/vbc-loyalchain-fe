@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { ITask, ITaskState } from '../../../../state/task/taskSlice'
-import { Divider, Input, Modal, Steps } from 'antd'
+import { Divider, Input, Modal, Steps, Tooltip } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
-import { mappingNetwork } from '../../../../utils/blockchain'
+import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain'
 import PairToken from '../../PairToken'
 import { useAppSelector } from '../../../../state/hooks'
 
@@ -18,7 +18,7 @@ const ModalBuyerWithdraw = ({task, taskState, afterClose} : IModalElement) => {
     <Modal
         title="Withdraw Token"
         open={true}
-        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id, secret) : {}}
+        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id, secret) : (task.status === 3 ? afterClose() : {})}
         okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
         afterClose={afterClose}
         onCancel={afterClose}
@@ -77,6 +77,21 @@ const ModalBuyerWithdraw = ({task, taskState, afterClose} : IModalElement) => {
                   title: "Done",
                   status: "finish"
               } 
+            ] : (
+            task.status === -1 ?
+            [
+              {
+                title: "Enter key", 
+                status: "error"
+              },
+              {
+                  title: "Withdraw Token",
+                  status: "wait",
+              },
+              {
+                  title: "Done",
+                  status: "wait"
+              } 
             ] : 
             [
               {
@@ -91,41 +106,19 @@ const ModalBuyerWithdraw = ({task, taskState, afterClose} : IModalElement) => {
                   title: "Done",
                   status: "wait"
               } 
-            ]))
+            ])))
         }
     />
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
-        <div>
-          <p style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem"}}>
-            {task.to?.token.name}
-          </p>
-          <p style={{textAlign: "right"}}>{mappingNetwork(task.to?.token.network)}</p>
-          <p style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--color-secondary)", textAlign: "right"}}>
-            {task.to?.amount} {task.to?.token.symbol}
-          </p>
+      <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 16}}>
+        <img src={task.to?.token.image} alt='token' style={{height: 60, marginRight: 16}}/>
+        <div style={{display:'flex', flexDirection:'column'}}>
+            <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{task.to?.token.name}</p>
+            <span style={{fontWeight: 400, fontSize:"1.2rem", lineHeight:'1.2rem', margin: 0}}> {mappingNetwork(task.from.token.network)}</span>
+            <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{task.to?.amount} {task.to?.token.symbol}</p>
         </div>
-        <PairToken
-          from_img={task.to?.token.image}
-          to_img={task.from?.token.image}
-          width={60}
-        />
-        <div>
-          <p
-            style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem",}}
-          >
-            {task.from.token.name}
-          </p>
-          <p>{mappingNetwork(task.from.token.network)}</p>
-          <p
-            style={{
-              fontSize: "1.6rem",
-              fontWeight: 700,
-              color: "var(--color-secondary)",
-            }}
-          >
-            {task.from.amount} {task.from.token.symbol}
-          </p>
-        </div>
+      </div>
+    
       </div>
       <div style={{fontWeight: 600, display:'flex', flexDirection:'row', alignItems:'center'}}>
         Secret Key: 
@@ -153,23 +146,23 @@ const ModalBuyerWithdraw = ({task, taskState, afterClose} : IModalElement) => {
             </span>
           )}
         </p>
-        <p>
-          Transaction Hash:
-          <span style={{ fontWeight: 400 }}>
-            {" "}
-            {task.status === 0
-              ? "..."
-              : task.status === 3
-              ? task.transactionHash
-              : "..."}
-          </span>
+        <p>Recipient: 
+          <span style={{fontWeight: 400}}> {task.from.address}</span>
         </p>
         <p>
           Order ID: 
           <span style={{ fontWeight: 400 }}> {task.orderID}</span>
         </p>
-        <p>Recipient: 
-          <span style={{fontWeight: 400}}> {task.from.address}</span>
+        <p>
+          Transaction Hash:{" "}
+          {
+            task.transactionHash && 
+            <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.to?.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>
+              <span style={{ fontWeight: 400 }}>
+              { task.transactionHash }
+              </span>
+            </Tooltip>
+          }
         </p>
       </div>
 </Modal>

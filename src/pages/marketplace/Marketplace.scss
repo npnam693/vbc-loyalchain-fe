@@ -14,9 +14,9 @@
         justify-content: space-between;
         margin-bottom: 20px;
         .btn-create {
-            background-color: rgba($color: #15BFFD, $alpha: 0.8);
-            border: 2px solid white;
-            color: white;
+            background-color: var(--color-secondary);
+            border: 2px solid #ccc;
+            color: black;
             font-size: 1.6rem;
             font-weight: 600;
             height: 40px;

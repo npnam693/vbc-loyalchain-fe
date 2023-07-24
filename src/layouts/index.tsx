@@ -81,7 +81,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div style={{height: 300, minWidth: 500, overflow: 'scroll', cursor: 'pointer'}}>
         {
           taskState.taskList.length === 0 ?
-          <Empty /> :
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> :
           taskState.taskList.map((task, index) => {
             return (
               <div key={index} style={{ 

@@ -11,6 +11,7 @@ import { showConfirmConnectWallet } from '../../../pages/marketplace'
 import { useAppDispatch, useAppSelector } from '../../../state/hooks'
 import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
 import { ITask, ITaskState, createTask, doneOneTask, updateTask } from '../../../state/task/taskSlice'
+import { fixStringBalance } from '../../../utils/string'
 interface ISendToken {
     token?: any;
     onCloseBtn: () => void
@@ -60,7 +61,12 @@ const SendToken = (props : ISendToken) => {
                 fromTokenId: props.token.token._id,
                 to: formData.to,
             })
-            dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
+            dispatch(saveInfo({...userState, 
+                wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+                balance:fixStringBalance(String(
+                    await appState.web3.eth.getBalance(userState.address)
+                ), 18)})
+            )
             task = {...task, orderID: transferData && transferData.data._id, transactionHash: myReceipt.transactionHash, status: 3}
             dispatch(updateTask({task, id: idTask}))
             dispatch(doneOneTask())

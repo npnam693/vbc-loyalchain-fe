@@ -1,8 +1,8 @@
 import React from 'react'
 import { ITask, ITaskState } from '../../../../state/task/taskSlice'
-import { Modal, Steps } from 'antd'
+import { Modal, Steps, Tooltip } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
-import { mappingNetwork } from '../../../../utils/blockchain'
+import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain'
 import PairToken from '../../PairToken'
 
 
@@ -17,7 +17,7 @@ const ModalRefund = ({task, taskState, afterClose} : IModalElement) => {
       <Modal
         title="Refund Order"
         open={true}
-        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : (task.status === 3 ? afterClose : () => {})}
+        onOk={() => task.status === 0 ? task.funcExecute(taskState, task.id) : (task.status === 3 ? afterClose() : () => {})}
         okText= {(task.status === 0 || task.status === 3) ? "Confirm" : <LoadingOutlined  rev={""}/>}
         afterClose={afterClose}
         onCancel={afterClose}
@@ -100,10 +100,14 @@ const ModalRefund = ({task, taskState, afterClose} : IModalElement) => {
                   }</span>
               </p>
               <p>Transaction Hash:  
-                  <span style={{fontWeight: 400}}> {
-                      task.status === 0 ? '...' :
-                      (task.status === 3 ? task.transactionHash : '...')
-                  }</span>
+                {
+                task.transactionHash && 
+                <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.to?.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>
+                    <span style={{ fontWeight: 400 }}> {" "}
+                    { task.transactionHash }
+                    </span>
+                </Tooltip>
+                }
               </p>
           </div>
     </Modal>

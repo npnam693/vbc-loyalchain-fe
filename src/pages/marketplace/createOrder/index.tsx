@@ -114,12 +114,7 @@ export default function CreateOrder() {
         dispatch(createTask(myTask))
     }
   };
-  const hdClickSelectTokenFrom = () => {
-    setSelectingTokenFrom(!selectingTokenFrom);
-  };
-  const hdClickSelectTokenTo = () => {
-    setSelectingTokenTo(!selectingTokenTo);
-  };
+
   const createOrderOneChain = async (taskState: ITaskState, idTask: number) => {
     const orderId = appState.web3.utils.soliditySha3(uuidv4());
     const toastify = toast.loading("Approving token...");
@@ -222,7 +217,7 @@ export default function CreateOrder() {
         isLoading: true,
       });
 
-      await appApi.createOrder({
+      const dataOrder = await appApi.createOrder({
         fromValue: formData.from.amount,
         fromTokenId: formData.from.token._id,
         toValue: formData.to.amount,
@@ -236,7 +231,7 @@ export default function CreateOrder() {
         autoClose: 1000,
       });
 
-      dispatch(updateTask({task: {...task, status: 3}, id: task.id}))
+      dispatch(updateTask({task: {...task, status: 3, orderID: dataOrder.data._id}, id: task.id}))
     } catch (error) {
       console.log(error);
       toast.update(toastify, {
@@ -249,6 +244,17 @@ export default function CreateOrder() {
     }
     dispatch(doneOneTask())
   }
+
+
+
+
+
+  const hdClickSelectTokenFrom = () => {
+    setSelectingTokenFrom(!selectingTokenFrom);
+  };
+  const hdClickSelectTokenTo = () => {
+    setSelectingTokenTo(!selectingTokenTo);
+  };
   return (
     <div className="app-create">
 
@@ -261,12 +267,22 @@ export default function CreateOrder() {
         <div>
           <Button
             style={isOneChain ? { backgroundColor: "#597ef7" } : {}}
-            onClick={() => setIsOneChain(true)}
+            onClick={() => {setIsOneChain(true); setFormData({...formData, to: {
+              token: "",
+              amount: 0,
+              balance: 0
+            }})}}
           > One Chain
           </Button>
           <Button
             style={{ marginLeft: 10, backgroundColor: !isOneChain ? "#9254de" : "white"}}
-            onClick={() => setIsOneChain(false)}
+            onClick={() => {setIsOneChain(false); setFormData({...formData, to: {
+              token: "",
+              amount: 0,
+              balance: 0
+            }})}
+          }
+
           > Cross Chain
           </Button>
         </div>

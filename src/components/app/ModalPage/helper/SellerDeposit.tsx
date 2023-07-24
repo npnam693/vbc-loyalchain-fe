@@ -1,8 +1,8 @@
 import { IModalElement } from './Transfer';
-import { Input, Modal, Steps } from 'antd';
+import { Input, Modal, Steps, Tooltip } from 'antd';
 import {  LoadingOutlined } from '@ant-design/icons';
 import PairToken from '../../PairToken';
-import { mappingNetwork } from '../../../../utils/blockchain';
+import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain';
 
 
 
@@ -31,27 +31,39 @@ const ModalSellerDeposit
           task.status === 0 ? 
           [
             { title: "Approve Token", status: "process"},
-            { title: "Deposit Token", status: "wait"},
-            { title: "Done", status: "wait" }
+            { title: "Swap Token", status: "wait"},
+            { title: "Done", status: "wait"}
           ] : (
           task.status === 1 ? 
           [
-            { title: "Approve Token", status: "process", icon: <LoadingOutlined  rev={""}/>},
-            { title: "Deposit Token", status: "wait"},
-            { title: "Done", status: "wait" }
+            { title: "Approve Token", status: "process", icon: <LoadingOutlined rev={"" }/>},
+            { title: "Swap Token", status: "wait"},
+            { title: "Done", status: "wait"}
           ] : (
-          task.status === 2 ? 
+          task.status === 2 ?
           [
             { title: "Approve Token", status: "finish"},
-            { title: "Deposit Token", status: "process", icon: <LoadingOutlined  rev={""} />},
-            { title: "Done", status: "wait" }
+            { title: "Swap Token", status: "process", icon: <LoadingOutlined  rev={""}/>},
+            { title: "Done", status: "wait"}
+          ] : (
+          task.status === 3 ? 
+          [
+            { title: "Approve Token", status: "finish"},
+            { title: "Swap Token", status: "finish"},
+            { title: "Done", status: "finish"}
+          ] : (
+          task.status === -1 ?
+          [
+            { title: "Approve Token", status: "error"},
+            { title: "Swap Token", status: "wait"},
+            { title: "Done", status: "wait"}
           ] : 
           [
             { title: "Approve Token", status: "finish"},
-            { title: "Deposit Token", status: "finish"},
-            { title: "Done", status: "finish" }
-          ]))
-        } 
+            { title: "Swap Token", status: "error"},
+            { title: "Done", status: "wait"}
+          ]))))
+        }
       />
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
         <div>
@@ -101,23 +113,23 @@ const ModalSellerDeposit
             </span>
           )}
         </p>
-        <p>
-          Transaction Hash:
-          <span style={{ fontWeight: 400 }}>
-            {" "}
-            {task.status === 0
-              ? "..."
-              : task.status === 3
-              ? task.transactionHash
-              : "..."}
-          </span>
+        <p>Recipient: 
+          <span style={{fontWeight: 400}}> {task.from.address}</span>
         </p>
         <p>
           Order ID: 
           <span style={{ fontWeight: 400 }}> {task.orderID}</span>
         </p>
-        <p>Recipient: 
-          <span style={{fontWeight: 400}}> {task.from.address}</span>
+        <p>
+          Transaction Hash: {" "}
+          {
+            task.transactionHash && 
+            <Tooltip title={(<div style={{cursor:'pointer'}} onClick={() => window.open(getLinkExplore(task.transactionHash, task.to?.token.network), '_blank', 'noopener,noreferrer')}>View in explorer</div>)} placement='bottom'>
+              <span style={{ fontWeight: 400 }}>
+              { task.transactionHash }
+              </span>
+            </Tooltip>
+          }
         </p>
       </div>
     </Modal>
