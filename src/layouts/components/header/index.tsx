@@ -36,6 +36,7 @@ const Header = () => {
       >
         <div className="app-header--pane">
           <div style={{ display: "flex", flexDirection: "row" }}>
+            
             <img
               src={Logo}
               alt="loyalChain"

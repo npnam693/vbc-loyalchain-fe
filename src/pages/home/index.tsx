@@ -78,57 +78,98 @@ export default function Home() {
       <div className="app-home--whychoose">
         <p className="title">Why choose LoyalChain?</p>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 60,
-            width: "100%",
-          }}
-        >
-          <WhyChoose
-            size={2}
-            uriImg={SVGIntro2}
-            title="Integration other"
-            content="Lorem ipsum dolor sit amet, consectetur
-            adipisicing elit, sed do eiusmod tempor
-            incididunt Laoreet non curabitur gravida
-            sagittis aliquam bibendum."
-          />{" "}
-          <WhyChoose
-            size={1}
-            uriImg={SVGIntro2}
-            title="Integration other"
-            content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-          />
+        <div className="app-home--whychoose--pc">
+          <div
+            className="app-home--whychoose--list-1"
+          >
+            <WhyChoose
+              size={2}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Lorem ipsum dolor sit amet, consectetur
+              adipisicing elit, sed do eiusmod tempor
+              incididunt Laoreet non curabitur gravida
+              sagittis aliquam bibendum."
+            />{" "}
+            <WhyChoose
+              size={1}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+            />
+          </div>
+          <div
+            className="app-home--whychoose--list-2"
+          >
+            <WhyChoose
+              size={1}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+            />{" "}
+            <WhyChoose
+              size={1}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+            />{" "}
+            <WhyChoose
+              size={1}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+            />{" "}
+          </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <WhyChoose
-            size={1}
-            uriImg={SVGIntro2}
-            title="Integration other"
-            content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-          />{" "}
-          <WhyChoose
-            size={1}
-            uriImg={SVGIntro2}
-            title="Integration other"
-            content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-          />{" "}
-          <WhyChoose
-            size={1}
-            uriImg={SVGIntro2}
-            title="Integration other"
-            content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-          />{" "}
+
+        <div className="app-home--whychoose--mobile">
+          <div
+            className="app-home--whychoose--list-1"
+          >
+            <WhyChoose
+              size={2}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Lorem ipsum dolor sit amet, consectetur
+              adipisicing elit, sed do eiusmod tempor
+              incididunt Laoreet non curabitur gravida
+              sagittis aliquam bibendum."
+            />{" "}
+          </div>
+          <div
+            className="app-home--whychoose--list-2"
+          >
+            <WhyChoose
+              size={1}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+            />
+            <WhyChoose
+              size={1}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+            />{" "}
+            <WhyChoose
+              size={1}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+            />{" "}
+            <WhyChoose
+              size={1}
+              uriImg={SVGIntro2}
+              title="Integration other"
+              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+            />{" "}
+          </div>
         </div>
+
+
+
+
+        
       </div>
 
       <div className="app-home--package">

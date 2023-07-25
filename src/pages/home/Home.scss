@@ -66,9 +66,7 @@ $padding-v-intro: 40px;
         .intro-right{
             flex:0.6;
             .title {
-                font-size: 3rem;
-                font-weight: 700;
-                margin-bottom: 1rem;
+                font-size: 2rem;
                 color: var(--color-text-white);
                 text-align: right;
             }   
@@ -110,6 +108,9 @@ $padding-v-intro: 40px;
 
     &--whychoose{
         // padding: 100px;
+        &--mobile {
+            display: none;
+        }
         .title {
             font-size: 3rem;
             font-weight: 700;
@@ -118,6 +119,20 @@ $padding-v-intro: 40px;
             text-align: center;
             margin-bottom: 80px;
         }   
+
+        &--list-1 {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-bottom: 60px;
+            width: 100%;
+        }
+
+        &--list-2 {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
     }
 
     &--package {
@@ -151,3 +166,114 @@ $padding-v-intro: 40px;
     }
 }
 
+
+
+
+@media only screen and (max-width: 600px) {
+    .app-home{
+        &--intro1 {
+            display: block;
+            margin-top: 100px;
+            padding-bottom: 20px;
+            height: auto;
+            .intro-left{
+                padding-right: 10%;
+                .title {
+                    font-size: 1.8rem;
+                }   
+                .desc {
+                    font-size: 1.4rem;
+                    font-weight: 400;
+                    color: var(--color-text-white);
+                    margin-bottom: 24px;
+                }
+                .btn-1 {
+                    font-size: 1.4rem;
+                }
+                .btn-2 {
+                    font-size: 1.4rem;
+                }
+            }
+    
+            .intro-right {
+                img {
+                    height: 300px;
+                    z-index: -1;
+                    right: 0;
+                    top: -400px;
+                }
+                .lottie-gift {
+                    display: none;
+                }
+            }
+        }
+        
+        &--intro2{
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 0px;
+            .intro-right{
+                padding-bottom: 0px;
+                width: 90%;
+                .title {
+                    font-size: 1.8rem;
+                }   
+                .desc {
+                    font-size: 1.4rem;
+                    font-weight: 400;
+                    color: var(--color-text-white);
+                    margin-bottom: 24px;
+                    text-align: right;
+                }
+            }
+            .intro-left{
+                img {
+                    height: 200px;
+                }
+            }
+        }
+    
+        &--whychoose{
+            &--pc {
+                display: none;
+            }
+            .title {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+                color: var(--color-text-white);
+                text-align: center;
+                margin-bottom: 10px;
+            }   
+            &--list-1 {
+                // display: flex;
+                flex-direction: column;
+                // justify-content: space-between;
+                margin-bottom: 0px;
+                width: 100%;
+            }
+    
+            &--list-2 {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+        }
+    
+        &--package {
+            display: none;
+        }
+        &--logo_tail{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 0 40px 0;
+            
+            img {
+                width: 60%;
+            }
+        }
+    }
+    
+}

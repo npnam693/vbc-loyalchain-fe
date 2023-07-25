@@ -38,7 +38,7 @@ const Footer = () => {
                 <img src={VBC_Logo} alt="logoAGD" />
               </div>
             </a>
-            <p>
+            <p className="footer-company-intro">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. In urna
               ultrices amet tellus ornare. Faucibus id posuere massa
             </p>

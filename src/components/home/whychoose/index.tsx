@@ -30,20 +30,15 @@ export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
         <img src={imgmy} alt="loyalChain" />
 
         <p
-          style={{
-            fontSize: "2.4rem",
-            fontWeight: 600,
-            color: "var(--primary-color)",
-          }}
+            className="app-whychoose--title"
+
         >
           {props.title}
         </p>
 
         <p
-          style={{
-            marginTop: 4,
-            fontSize: "1.6rem",
-          }}
+            className="app-whychoose--desc"
+
         >
           {props.content}
         </p>
@@ -52,29 +47,17 @@ export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
   } else {
     return (
       <div
-        style={{
-          width: "65%",
-          display: "flex",
-          justifyContent: "space-evenly",
-          alignItems: "center",
-        }}
-        className="app-whychoose"
+
+        className="app-whychoose-2"
       >
         <div style={{ flex: 0.6 }}>
           <p
-            style={{
-              fontSize: "2.4rem",
-              fontWeight: 600,
-              color: "var(--primary-color)",
-            }}
+            className="app-whychoose--title"
           >
             {props.title}
           </p>
           <p
-            style={{
-              fontSize: "1.6rem",
-              marginTop: 10,
-            }}
+            className="app-whychoose--desc"
           >
             {props.content}
           </p>
@@ -82,10 +65,7 @@ export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
         <img
           src={props.uriImg}
           alt="loyalChain"
-          style={{
-            width: "100%",
-            flex: 0.3,
-          }}
+          className="app-whychoose--img"
         />
       </div>
     );

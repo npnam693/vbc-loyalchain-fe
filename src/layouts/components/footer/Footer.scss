@@ -10,7 +10,7 @@
     
     &--container {
         margin: 0 var(--app-margin) 0 var(--app-margin);
-        padding: 20px 0 20px 0;
+        padding: 20px 0 0px 0;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -75,3 +75,24 @@
     }
 }
 
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+    .app-footer {
+        .app-footer--content {
+            display: none;
+        }
+        .app-footer--container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .footer-company-intro {
+            width: 80vw;
+            text-align: center;
+        }
+        .app-footer--logovbc img{
+            padding-left: 40px;
+        }
+    }
+}

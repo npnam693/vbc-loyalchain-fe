@@ -119,3 +119,17 @@
   }
 
 }
+
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+  .app-header--option {
+    display: none;
+  }
+  .app-header--pane {
+    justify-content: space-between;
+    display: flex;
+    flex-direction: row;
+  }
+
+}
