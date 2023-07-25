@@ -1,3 +1,4 @@
+import React from 'react'
 import { Button, Divider, Input, Tooltip } from 'antd'
 import './Faucet.scss'
 import SelectToken from '../../components/app/SelectToken'

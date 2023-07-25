@@ -1,6 +1,7 @@
 
 import { Spin } from 'antd'
 import { useAppSelector } from '../../../state/hooks'
+import React from 'react'
 
 const LoadingPage = () => {
     const loadingState = useAppSelector((state) => state.loadingState)
