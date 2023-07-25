@@ -82,7 +82,6 @@ const Marketplace = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    
     const fetchFilterOrder = async () => {
       setLoading(true)
       const filterData = {
@@ -95,16 +94,18 @@ const Marketplace = () => {
         network: filter.filterData.network === -1 ? null : filter.filterData.network ,
         page: filter.filterData.page,
       }
-      const tdata = await appApi.getOrdersWithFilter({...filterData})
-      if(tdata) {
-        setData(tdata.data)
-        setLoading(false)
-        const nextData = await appApi.getOrdersWithFilter({...filterData, page: filter.filterData.page + 1})
-        if (nextData.data.length === 0 && nextPage === true) {
-            setNextPage(false)
-        } else if (nextData.data.length !== 0 && nextPage === false) {
+      const res = await appApi.getOrdersWithFilter({...filterData})
+      if(res) {
+        if (res.data.length < 12) {
+          setData(res.data)
+          setNextPage(false)
+        } else if (res.data.length === 0) {
+          setNextPage(false)
+        } else if (res.data.length === 12) {
+          setData(res.data)
           setNextPage(true)
         }
+        setLoading(false)
       }  
     } 
     const fetchStatic = async () => {
@@ -427,6 +428,7 @@ const Marketplace = () => {
         funcChangePage={(page : number) => setFilter({ ...filter, filterData: {...filter.filterData, page}})}
         dataFilter={filter.filterData}
         nextpage={nextPage}
+        loading={loading}
       />
       
       {isListMode ? (

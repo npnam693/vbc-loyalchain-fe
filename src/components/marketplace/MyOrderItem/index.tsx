@@ -14,7 +14,7 @@ import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccou
 import { requestChangeNetwork } from "../../../services/metamask";
 import Countdown from "antd/es/statistic/Countdown";
 import PairToken from "../../app/PairToken";
-import { generateContractID, getTxTwoOnchain } from "../../../services/blockchain";
+import { generateContractID, getTxTwoOnchain  } from "../../../services/blockchain";
 import store from "../../../state";
 import { fixStringBalance } from "../../../utils/string";
 interface IMyOrderItem {
@@ -69,7 +69,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       getDataOnChain()
       setOkBtn(textOkBtn(data.status))
     }
-  }, [userState, data.status])
+  }, [userState.balance, data.status])
 
   const onClickRemove = async () => {
     const storeData = store.getState()  
@@ -172,17 +172,22 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         const withdrawMethod = await exchangeContract.methods.withdraw(
           generateContractID(appState.web3, data._id, data.from.address, data.to.address),
           secretKey?.data
-        ).send({from: userState.address})
+        )
+        
+        await withdrawMethod.estimateGas({from: userState.address})
+
+        const withdrawReceipt = await withdrawMethod.send({from: userState.address})
+        
 
         dispatch(saveInfo({...userState, 
           wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
           balance:fixStringBalance(String(
               await appState.web3.eth.getBalance(userState.address)
           ), 18)})
-      )
+        )
 
         const updateOrder = await appApi.updateStatusOrder(data._id, "completed");
-        task = {...task, status: 3}
+        task = {...task, status: 3, transactionHash: withdrawReceipt.transactionHash}
         dispatch(updateTask({ task: task, id: task.id}))
         toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
         rerender && rerender()
@@ -197,6 +202,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         }))
         toast.update(toaster, { render: "Accept order fail, check your secret key", type: "error", isLoading: false, autoClose: 1000});
       }
+      setOpenModal(false)
       dispatch(doneOneTask())
     }
     let task: ITask = {
@@ -224,10 +230,13 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
           secretKey
         ).estimateGas({from: userState.address})
 
-        const withdrawReceipt = await exchangeContract.methods.withdraw(
+        const withdrawMethod = await exchangeContract.methods.withdraw(
           generateContractID(appState.web3, data._id, data.from.address, data.to.address),
           secretKey?.toString()
-        ).send({from: userState.address})
+        )
+        await withdrawMethod.estimateGas({from: userState.address})
+
+        const withdrawReceipt = await withdrawMethod.send({from: userState.address})
 
         dispatch(saveInfo({...userState, 
           wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
@@ -237,7 +246,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         )
 
         await appApi.updateStatusOrder(data._id, "receiver withdrawn");
-        task = {...task, status: 3}
+        task = {...task, status: 3, transactionHash: withdrawReceipt.transactionHash}
         dispatch(updateTask({ task: task, id: task.id}))
         toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
         console.log('alo')
@@ -285,15 +294,18 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         dispatch(updateTask({ task: task, id: task.id}))
         toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
 
-        const createRecipt = await  exchangeContract.methods.create(
+        const createMethod = await  exchangeContract.methods.create(
           appState.web3.utils.soliditySha3(data._id),
           data.to.address,
           data.fromValue.token.deployedAddress,
           BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
           data.hashlock,
           true,
-        ).send({from: userState.address})
-        
+        )
+        await createMethod.estimateGas({from: userState.address})
+        const createReceipt = createMethod.send({from: userState.address})
+
+
         console.log(await appApi.updateStatusOrder(data._id, "sender accepted")
         )
         
@@ -305,7 +317,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         )
 
         toast.update(toaster, { render: "Deposit token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
-        task = {...task, status: 3, transactionHash: createRecipt.transactionHash}
+        task = {...task, status: 3, transactionHash: createReceipt.transactionHash}
         dispatch(updateTask({ task: task, id: task.id}))
         rerender && rerender()
         setOpenModal(false)
@@ -354,9 +366,9 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
             signatureAdmin.data,
           )
           console.log(await refundMethod.estimateGas({from: storeData.userState.address}))
-          const refundRecipt = await refundMethod.send({from: storeData.userState.address})
+          const refundReceipt = await refundMethod.send({from: storeData.userState.address})
           const cancelOrder = await appApi.cancelOrder(data._id)
-          myTask = {...taskState.taskList[idTask], status: 3, transactionHash: refundRecipt.transactionHash}
+          myTask = {...taskState.taskList[idTask], status: 3, transactionHash: refundReceipt.transactionHash}
           dispatch(updateTask({task: myTask, id: idTask}))
           dispatch(saveInfo({...userState, 
             wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
@@ -391,12 +403,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
     };
     dispatch(createTask(task));
   }
-
-
-
-
-
-
 
   
   // ----------------------------------------------- //

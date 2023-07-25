@@ -255,6 +255,7 @@ export default function CreateOrder() {
     setSelectingTokenTo(!selectingTokenTo);
   };
   return (
+    <div style={{minHeight: '100vh'}}>
     <div className="app-create">
 
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
@@ -511,6 +512,7 @@ export default function CreateOrder() {
           hiddenChain={(!isOneChain && formData.from.token !== '') ? formData.from.token.network : null}
         />
       )}
+    </div>
     </div>
   );
 }

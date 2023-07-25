@@ -42,7 +42,7 @@ const RewardItem = () => {
             <Countdown value={Date.now() + 1000 * 1000} valueStyle={{fontSize: '1.4rem', fontWeight:700, color:'#ccc'}}/>
           </div>
 
-          <Button>Buy</Button>
+          <Button className="buy-btn">Buy</Button>
         </div>
       </div>
     </div>

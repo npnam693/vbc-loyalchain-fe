@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import { mappingNetwork } from "../utils/blockchain";
 
 export const requestChangeNetwork = async (chainID: number) => {
-  alert(`Switch to ${mappingNetwork(chainID)} to Select Token`)
+  alert(`Switch to ${mappingNetwork(chainID)} to continue!`)
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',

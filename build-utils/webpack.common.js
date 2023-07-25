@@ -92,7 +92,7 @@ module.exports = {
     new WebpackBar(),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: "Truy xuất nguồn gốc trên nền tảng blockchain",
+      title: "Loyalchain",
       template: path.resolve(__dirname, "./index.html"),
     }),
     new MiniCssExtractPlugin({

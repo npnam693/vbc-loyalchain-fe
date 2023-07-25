@@ -187,7 +187,7 @@ const Faucet = () => {
                 </div>
             </div>
                 
-            <p style={{marginTop: 10, fontSize:'1.4rem', fontWeight: 500, color:'orange', width:'80%'}}>
+            <p style={{marginTop: 10, fontSize:'1.4rem', fontWeight: 500, color:'orange', width:'90%'}}>
               <WarningOutlined rev={""} /> Note:{" "}
               <span style={{fontSize:'1.4rem', fontWeight: 400, color: 'black'}}>
                 Loyalchain is currently in the testing phase on 2 networks, MBC and AGD. 
