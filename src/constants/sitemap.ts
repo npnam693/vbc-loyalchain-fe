@@ -8,12 +8,12 @@ const SITEMAP = [
         key: "nav.market",
       },
       {
-        path: "/rewards",
-        key: 'nav.rewards',
+        path: "/faucet",
+        key: 'nav.faucet',
       },
       {
-        path: "/blog",
-        key: 'nav.blog',
+        path: "/rewards",
+        key: 'nav.rewards',
       },
       {
         path: "/about",

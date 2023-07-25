@@ -53,9 +53,8 @@ const SelectToken = (props: ISelectTokenProps) => {
         </div>
         <Divider className="divider" />
         <Input.Search
-          placeholder="input search loading default"
-          loading
-          size="large"
+          placeholder="Enter loyalty program token name or symbol"
+          style={{fontSize:'1.2rem'}}
         />
         {
           appState.isConnectedWallet ?

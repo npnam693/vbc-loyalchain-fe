@@ -6,7 +6,6 @@
     align-items: center;
 }
 
-
 .app-wallet {
     min-height: 100vh;
     .title {
@@ -42,9 +41,11 @@
         flex-direction: row;
         align-items: cetner;
         justify-content: space-between;
-        flex: 1;
+        background-color: #0B2134;
+        padding: 20px 40px;
+        border-radius: 10px;
         &--left {
-            flex: 0.3;
+            width: 30%;
             .qrcode-container {
                 width: 100%;
                 display: flex;
@@ -61,12 +62,11 @@
         }
 
         &--right {
-            flex: 0.65;
-            background-color: #0B2134;
-            width: 100%;
-            height: 80vh;
-            border-radius: 20px;
-            padding: 10px 40px;
+            // flex: 0.65;
+
+            width: 65%;
+            height: 75vh;
+            padding: 40px 40px 20px 40px;
             header {
                 display: flex;
                 flex-direction: row;
@@ -122,4 +122,38 @@
             width: 100%;
         }
     }
+    .pagination-container{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 4px;
+        flex-direction: row;
+        background-color: #ccc;
+        height: 32px;
+        border-radius: 6px;
+        font-size: 1.6rem;
+        font-weight: 600;
+        // margin-right: 10px
+        margin-left: auto;
+        width: 120px;
+    }
+    .pagination-btn {
+        padding: 4px 5px;
+        // margin: 20px
+        font-weight: 700;
+        cursor: pointer;
+        &:hover {
+            color: var(--color-secondary)
+        }
+    }
+    .pagination-current {
+        border: 1px solid #555;
+        line-height: 1.6rem;
+        padding: 2px 4px;
+        border-radius: 3px;
+        margin: 0 6px;
+        min-width: 33px;
+        text-align: center;
+    }
 }
+

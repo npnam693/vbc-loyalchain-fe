@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Provider } from "react-redux";
@@ -12,10 +12,13 @@ import AppLayout from "./layouts";
 import 'react-toastify/dist/ReactToastify.css';
 import LoadingPage from "./components/app/LoadingPage";
 import ModalPage from "./components/app/ModalPage";
+import { closeTaskModel } from "./state/task/taskSlice";
 const queryClient = new QueryClient();
 
-
 function App() {
+  useEffect(() => {
+    store.dispatch(closeTaskModel())
+  })
 
   return (
     <Provider store={store}>
@@ -32,7 +35,18 @@ function App() {
           </I18nextProvider>
         </BrowserRouter>
       </PersistGate>
-      <ToastContainer position={toast.POSITION.BOTTOM_LEFT} />
+      <ToastContainer 
+      position="bottom-center"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="dark"
+/>
 
 
     </Provider>

@@ -1,15 +1,16 @@
 .app-reward_item {
     width: 310px;
-    padding: 12px;
-    border-radius: 15px;
-    background-color: white;
-
+    padding: 15px 10px 20px 10px ;
+    border-radius: 10px;
+    background-color: #0B2134;
+    margin-bottom: 16px;
     .content{
         padding: 0px 20px;
         .title {
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--color-text-main);
+            color: white;
+            margin-bottom: 4px;
         }
         
         .info {
@@ -30,8 +31,8 @@
         }
 
         .divider {
-            border-color: rgba($color: black, $alpha: 0.2);
-            margin: 10px 0px;
+            border-color: rgba($color: white, $alpha: 0.6);
+            margin: 5px 0px 10px 0;
         }
 
         .action{
@@ -39,6 +40,12 @@
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
+
+            .buy-btn {
+                font-weight: 700;
+                border-radius: 2px;
+                background-color: #ccc;
+            }
         }
 
     }

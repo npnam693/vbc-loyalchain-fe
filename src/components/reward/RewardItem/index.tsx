@@ -3,6 +3,7 @@ import myimg from "../../../assets/svg/rewards/img1.svg";
 import tokenimg from "../../../assets/svg/tokens/starbuck.svg";
 import "./RewardItem.scss";
 import { Divider, Button } from "antd";
+import Countdown from "antd/es/statistic/Countdown";
 
 interface IRewardItemProps {
   uriImg: string;
@@ -17,32 +18,31 @@ interface IRewardItemProps {
 const RewardItem = () => {
   return (
     <div className="app-reward_item">
-      <img src={myimg} alt="img" />
+      <img src={myimg} alt="img"/>
 
       <div className="content">
+        <div className="info">
         <p className="title">ArtStarBuck</p>
 
-        <div className="info">
-          <div className="cost">
-            <img
-              src={tokenimg}
-              alt="myIMG"
-              style={{ width: "2.5rem", marginRight: 6 }}
-            />
-            <p>2000 SBP</p>
-          </div>
-
-          <div className="quantity">
-            <p>10 of 20</p>
-          </div>
+        <div className="cost">
+          <img
+            src={tokenimg}
+            alt="myIMG"
+            style={{ width: "2.5rem", marginRight: 6 }}
+          />
+          <p>2000 SBP</p>
         </div>
+      </div>
+
 
         <Divider className="divider" />
 
         <div className="action">
-          <div className="time-left">3h 50m 2s left</div>
+          <div className="time-left">
+            <Countdown value={Date.now() + 1000 * 1000} valueStyle={{fontSize: '1.4rem', fontWeight:700, color:'#ccc'}}/>
+          </div>
 
-          <Button>Buy</Button>
+          <Button className="buy-btn">Buy</Button>
         </div>
       </div>
     </div>

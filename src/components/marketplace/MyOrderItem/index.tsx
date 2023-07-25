@@ -1,159 +1,106 @@
-import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
-import { Divider, Modal, Steps } from "antd";
+import { CheckCircleTwoTone, LoadingOutlined, SwapOutlined } from "@ant-design/icons";
+import { Button, Collapse, Divider, Modal, Steps, Tooltip } from "antd";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
 import { useEffect, useState } from "react";
 
 import "./MyOrderItem.scss";
 import appApi from "../../../api/appAPI";
-import PairToken from "../../app/PairToken";
 import { useAppSelector } from "../../../state/hooks";
 import { useAppDispatch } from "../../../state/hooks";
 import { saveInfo } from "../../../state/user/userSlice";
-import { IAcceptTask, createTask, updateTask } from "../../../state/task/taskSlice";
-import { getSwapOneContract, getTokenContract, getSwapTwoConract } from "../../../services/contract";
+import {  ITask, ITaskState, createTask, doneOneTask, updateTask } from "../../../state/task/taskSlice";
+import { getSwapOneContract, getSwapTwoContract, getTokenContract } from "../../../services/contract";
 import { getAddressOneChainContract, getAddressTwoChainContract, getBalanceAccount, mappingNetwork } from "../../../utils/blockchain";
 import { requestChangeNetwork } from "../../../services/metamask";
 import Countdown from "antd/es/statistic/Countdown";
-
-
+import PairToken from "../../app/PairToken";
+import { generateContractID, getTxTwoOnchain  } from "../../../services/blockchain";
+import store from "../../../state";
+import { fixStringBalance } from "../../../utils/string";
 interface IMyOrderItem {
   data: any
   isPendingOrder?: boolean;
+  rerender?: () => void
 }
 
-
-
-const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
+const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
   const dispatch = useAppDispatch()
   const { appState, userState, taskState } = useAppSelector((state) => state)
   const [dataOrder, setDataOrder] = useState<any>(userState.address === data.from.address ? data : {...data, fromValue: data.toValue, toValue: data.fromValue});
-  useEffect(() =>     
-    userState.address === data.from.address ? setDataOrder(data) : 
-      setDataOrder({...data, fromValue: data.toValue, toValue: data.fromValue})
-  , [userState.address])
+  const [openModel, setOpenModal] = useState<boolean>(false);
+  const [removeBtn, setRemoveBtn] = useState<any>(<div></div>);
+  const [okBtn, setOkBtn] = useState<any>(<div></div>);
+  const [contentOnchain, setContentOnchain] = useState<any>({
+    buyer: <div></div>,
+    seller: <div></div>
+  });
+  const [dataOnChain, setDataOnChain] = useState<any>(null)
+  const IS_SELLER : boolean = userState.address === data.from.address;
   
-  const [idTask, setIdTask] = useState(-1);
-  // -1:Hidden - 1: Remove Modal  - 2. Detail modal 
-  const [openModal, setOpenModal] = useState<number>(-1);
-  const getTask : any = (id : number) => {
-    return taskState.taskList[taskState.taskList.length - 1 - id]
-  }
-  
-  const sellerDeposit = async () => {
-    if (data.fromValue.token.network !== userState.network) {
-      requestChangeNetwork(data.fromValue.token.network)
-      return
-    }
+  const getDataOnChain = async () => {
+    const sellerLock = await getTxTwoOnchain(
+      generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
+      data.fromValue.token.network
+    )
+    const buyerLock = await getTxTwoOnchain(
+      generateContractID(appState.web3, data._id, data.from.address, data.to.address), 
+      data.toValue.token.network
+    )
 
-    let depositTask : IAcceptTask = {
-      id: taskState.taskList.length,
-      type: "SELLER_DEPOSIT",
-      status: 1,
-      tokenFrom: data.fromValue.token,
-      tokenTo: data.toValue.token,
-      amountFrom: data.fromValue.amount,
-      amountTo: data.toValue.amount,
-      orderID: data._id,
-      owner: data.from.address
-    }
-
-    const toaster = toast.loading("Approving token...")
-    dispatch(createTask(depositTask))
-    setIdTask(depositTask.id)
+    setDataOnChain({
+      seller: sellerLock,
+      buyer: buyerLock
+    })
     
-    try {
-      const exchangeContract = getSwapTwoConract(appState.web3, userState.network);
-      const tokenContract = getTokenContract(appState.web3, dataOrder.fromValue.token.deployedAddress)
-      const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
-      
-      const approveRecipt = await tokenContract.methods.approve(
-        SWAP_ADDRESS_CONTRACT,
-        BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
-      ).send({from: userState.address})
-      
-
-      depositTask = {...depositTask, status: 2}
-      dispatch(updateTask({
-        task: depositTask, 
-        id: depositTask.id
-      }))
-      toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
-      
-      const depositMethod = exchangeContract.methods.create(
-        data.txId,
-        data.to.address,
-        data.fromValue.token.deployedAddress,
-        BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
-        "vcl that",
-        appState.web3.utils.soliditySha3('vcl that'),
-        BigInt(24)
-      )
-
-      const acceptRecepit = await appState.web3.eth.sendTransaction({
-        from: userState.address,
-        gasPrice: "0",
-        gas: await depositMethod.estimateGas({
-          from: userState.address,
-          data: depositMethod.encodeABI()
-        }),
-        to: SWAP_ADDRESS_CONTRACT,
-        value: "0",
-        data: depositMethod.encodeABI(),
-      })
-
-      const orderData = await appApi.updateStatusOrder(data._id, "sender accepted")
-      
-      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
-      
-      toast.update(toaster, { render: "Deposit token successfully.", type: "success", isLoading: false, autoClose: 1000});
-      
-      depositTask = {...depositTask, status: 3, transactionHash: acceptRecepit.blockHash}
-      dispatch(updateTask({
-        task: depositTask, 
-        id: depositTask.id
-      }))
-
-    } catch (error) {
-      console.log(error);
-      dispatch(updateTask({
-        task: {
-            ...depositTask, 
-            status: depositTask.status === 1 ? -1 : -2 ,
-        }, 
-        id: depositTask.id
-      }))
-      toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
-    }
+    IS_SELLER ? getRemoveBtn(sellerLock.timelock) : getRemoveBtn(buyerLock.timelock)
+    
+    setContentOnchain({
+      seller: makecontentOnChain(true, sellerLock),
+      buyer: makecontentOnChain(false, buyerLock)
+    })
   }
 
+  
 
-  const removeOrder1Chain = async () => {
-    if (data.fromValue.token.network !== userState.network) {
-      requestChangeNetwork(data.fromValue.token.network);
-      return;
+  useEffect(() =>     {
+    userState.address === data.from.address ? setDataOrder(data) : 
+    setDataOrder({...data, fromValue: data.toValue, toValue: data.fromValue})
+    if (openModel) {
+      getDataOnChain()
+      setOkBtn(textOkBtn(data.status))
     }
-    const toaster = toast.loading("Remove Order..")
-    let cancelTask : IAcceptTask = {
+  }, [userState.balance, data.status])
+
+  const onClickRemove = async () => {
+    const storeData = store.getState()  
+    let task: ITask = {
       id: taskState.taskList.length,
-      type: "ONECHAIN-CANCEL",
-      status: 1,
-      tokenFrom: data.fromValue.token,
-      tokenTo: data.toValue.token,
-      amountFrom: data.fromValue.amount,
-      amountTo: data.toValue.amount,
-      orderID: data._id,
-      owner: data.from.address
+      status: 0,
+      type: "",
+      funcExecute: () => {},
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id
     }
-    dispatch(createTask(cancelTask))
-    setIdTask(cancelTask.id)
+
+    // Check whether the order is swap one chain or two chain.
+    if (data.fromValue.token.network === data.toValue.token.network) {
+      task = {...task, type: "REMOVE", funcExecute: removeOrder1Chain}
+    }
+    else {
+      task = {...task, type: "SELLER-REMOVE", funcExecute: removeOrder2Chain}
+    }
+    dispatch(createTask(task));
+  }
+  const removeOrder1Chain = async (taskState: ITaskState, idTask: number) => {
+    const toaster = toast.loading("Remove Order..")
+    let task : ITask = {...taskState.taskList[idTask], status: 1}
+    dispatch(updateTask({task, id: idTask}))
     try {
       const exchangeContract = getSwapOneContract(appState.web3, userState.network);
       const SWAP_ADDRESS_CONTRACT = getAddressOneChainContract(userState.network)
       
-      const refundMethod = exchangeContract.methods.refund(
-        data.txIdFrom,
-      )
+      const refundMethod = exchangeContract.methods.refund( data.txId )
       const refundRecepit = await appState.web3.eth.sendTransaction({
         from: userState.address,
         gasPrice: "0",
@@ -166,92 +113,440 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
         data: refundMethod.encodeABI(),
       })
       
-      cancelTask = {...cancelTask, status: 2, transactionHash: refundRecepit.blockHash}
-      dispatch(updateTask({
-        task: cancelTask, 
-        id: cancelTask.id
-      }))
+      task = {...task, status: 2, transactionHash: refundRecepit.transactionHash}
+      dispatch(updateTask({ task, id: task.id }))
       
       await appApi.cancelOrder(data._id)
-      dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
-      cancelTask = {...cancelTask, status: 3}
-      dispatch(updateTask({
-        task: cancelTask, 
-        id: cancelTask.id
-      }))
+      
+      dispatch(saveInfo({...userState, 
+        wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+        balance:fixStringBalance(String(
+            await appState.web3.eth.getBalance(userState.address)
+        ), 18)})
+      )
+      
+      task = {...task, status: 3}
+      dispatch(updateTask({ task: task, id: task.id}))
+      
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
+      rerender && rerender()
     } catch (error) {
-      dispatch(updateTask({
-        task: {
-            ...cancelTask, 
-            status: cancelTask.status === 1 ? -1 : -2 ,
-        }, 
-        id: cancelTask.id
-      }))
+      dispatch(updateTask({ task: { ...task, status: -1 }, id: task.id}))
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
     }
+    dispatch(doneOneTask())
   }
-
-  const removeOrder2Chain = async () => {
-    const toaster = toast.loading("Remove Order..")
-    let cancelTask : IAcceptTask = {
-      id: taskState.taskList.length,
-      type: "TWOCHAIN-CANCEL",
-      status: 1,
-      tokenFrom: data.fromValue.token,
-      tokenTo: data.toValue.token,
-      amountFrom: data.fromValue.amount,
-      amountTo: data.toValue.amount,
-      orderID: data._id,
-      owner: data.from.address
-    }
-    dispatch(createTask(cancelTask))
-    setIdTask(cancelTask.id)
+  const removeOrder2Chain = async (taskState: ITaskState, idTask: number) => {
+    const toaster = toast.loading("Remove Order...")
+    let task : ITask = {...taskState.taskList[idTask], status: 1}
+    dispatch(updateTask({task, id: idTask}))
     try {
       await appApi.cancelOrder(data._id)
-      cancelTask = {...cancelTask, status: 3}
+      task = {...task, status: 3}
       dispatch(updateTask({
-        task: cancelTask, 
-        id: cancelTask.id
+        task: task, 
+        id: task.id
       }))
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
+      rerender && rerender()
     } catch (error) {
       console.log(error)
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
       dispatch(updateTask({
-        task: {
-            ...cancelTask, 
-            status: cancelTask.status === 1 ? -1 : -2 ,
-        }, 
-        id: cancelTask.id
+        task: { ...task, status: -1}, 
+        id: task.id
       }))
     }
+    dispatch(doneOneTask())
   }
+  const onSellerClickWithdraw = () => {
+    const sellerWithdraw = async  (taskState: ITaskState, idTask: number) => {
+      const toaster = toast.loading("Withdraw token...")
+      let task : ITask = {...taskState.taskList[idTask], status: 2}
+      dispatch(updateTask({task, id: idTask}))
+      try {
+        const exchangeContract = getSwapTwoContract(appState.web3, data.toValue.token.network);
 
-  const buyerWithdraw = async () => {
+        const secretKey = await appApi.getScretKey(data._id)
 
-  }
-  const sellerWithdraw = async () => {}
+        const withdrawMethod = await exchangeContract.methods.withdraw(
+          generateContractID(appState.web3, data._id, data.from.address, data.to.address),
+          secretKey?.data
+        )
+        
+        await withdrawMethod.estimateGas({from: userState.address})
 
+        const withdrawReceipt = await withdrawMethod.send({from: userState.address})
+        
 
-  const onOkModal = () => {
-    if (data.fromValue.token.network === data.toValue.token.network) {
-      if (idTask === -1) {
-        removeOrder1Chain()
-      } else {
-        setOpenModal(-1) ; setIdTask(-1)
+        dispatch(saveInfo({...userState, 
+          wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+          balance:fixStringBalance(String(
+              await appState.web3.eth.getBalance(userState.address)
+          ), 18)})
+        )
+
+        const updateOrder = await appApi.updateStatusOrder(data._id, "completed");
+        task = {...task, status: 3, transactionHash: withdrawReceipt.transactionHash}
+        dispatch(updateTask({ task: task, id: task.id}))
+        toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
+        rerender && rerender()
+      } catch (error) {
+        console.log(error);
+        dispatch(updateTask({
+          task: {
+              ...task, 
+              status: -1,
+          }, 
+          id: task.id
+        }))
+        toast.update(toaster, { render: "Accept order fail, check your secret key", type: "error", isLoading: false, autoClose: 1000});
       }
+      setOpenModal(false)
+      dispatch(doneOneTask())
+    }
+    let task: ITask = {
+      id: taskState.taskList.length,
+      type: "SELLER-WITHDRAW",
+      status: 0,
+      funcExecute: sellerWithdraw,
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
+    };
+
+    dispatch(createTask(task));
+  }
+  const onBuyerClickWithdraw = () => {
+    const buyerWithdraw = async (taskState: ITaskState, idTask: number, secretKey: string | undefined ) => {
+      const toaster = toast.loading("Withdraw token...")
+      let task : ITask = {...taskState.taskList[idTask], status: 1}
+      dispatch(updateTask({task, id: idTask}))
+      try {
+        const exchangeContract = getSwapTwoContract(appState.web3, data.fromValue.token.network);
+        console.log(secretKey)
+        await exchangeContract.methods.withdraw(
+          generateContractID(appState.web3, data._id, data.from.address, data.to.address),
+          secretKey
+        ).estimateGas({from: userState.address})
+
+        const withdrawMethod = await exchangeContract.methods.withdraw(
+          generateContractID(appState.web3, data._id, data.from.address, data.to.address),
+          secretKey?.toString()
+        )
+        await withdrawMethod.estimateGas({from: userState.address})
+
+        const withdrawReceipt = await withdrawMethod.send({from: userState.address})
+
+        dispatch(saveInfo({...userState, 
+          wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+          balance: fixStringBalance(String(
+              await appState.web3.eth.getBalance(userState.address)
+          ), 18)})
+        )
+
+        await appApi.updateStatusOrder(data._id, "receiver withdrawn");
+        task = {...task, status: 3, transactionHash: withdrawReceipt.transactionHash}
+        dispatch(updateTask({ task: task, id: task.id}))
+        toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
+        console.log('alo')
+        rerender && rerender()
+      } catch (error) {
+        console.log(error);
+        dispatch(updateTask({
+          task: {
+              ...task, 
+              status: -1,
+          }, 
+          id: task.id
+        }))
+        toast.update(toaster, { render: "Accept order fail, check your secret key", type: "error", isLoading: false, autoClose: 1000});
+      }
+      dispatch(doneOneTask())
+    }
+    let task: ITask = {
+      id: taskState.taskList.length,
+      type: "BUYER-WITHDRAW",
+      status: 0,
+      funcExecute: buyerWithdraw,
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
+    };
+    dispatch(createTask(task));
+  }
+  const onSellerClickDeposit = () => {
+    const sellerDeposit = async (taskState: ITaskState, idTask: number) => {
+      const toaster = toast.loading("Approving token...")
+      let task : ITask = {...taskState.taskList[idTask], status: 1}
+      dispatch(updateTask({task, id: idTask}))
+      try {
+        const exchangeContract = getSwapTwoContract(appState.web3, userState.network);
+        const tokenContract = getTokenContract(appState.web3, data.fromValue.token.deployedAddress)
+        const SWAP_ADDRESS_CONTRACT = getAddressTwoChainContract(userState.network)
+        
+        await tokenContract.methods.approve(
+          SWAP_ADDRESS_CONTRACT,
+          BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
+        ).send({from: userState.address})
+
+        task = {...task, status: 2}
+        dispatch(updateTask({ task: task, id: task.id}))
+        toast.update(toaster, { render: "Deposit token...", type: "default", isLoading: true});
+
+        const createMethod = await  exchangeContract.methods.create(
+          appState.web3.utils.soliditySha3(data._id),
+          data.to.address,
+          data.fromValue.token.deployedAddress,
+          BigInt(10 ** Number(18) * Number(data.fromValue.amount)),
+          data.hashlock,
+          true,
+        )
+        await createMethod.estimateGas({from: userState.address})
+        const createReceipt = createMethod.send({from: userState.address})
+
+
+        console.log(await appApi.updateStatusOrder(data._id, "sender accepted")
+        )
+        
+        dispatch(saveInfo({...userState, 
+          wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+          balance:fixStringBalance(String(
+              await appState.web3.eth.getBalance(userState.address)
+          ), 18)})
+        )
+
+        toast.update(toaster, { render: "Deposit token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
+        task = {...task, status: 3, transactionHash: createReceipt.transactionHash}
+        dispatch(updateTask({ task: task, id: task.id}))
+        rerender && rerender()
+        setOpenModal(false)
+      } catch (error) {
+        console.log(error);
+        dispatch(updateTask({
+          task: {
+              ...task, 
+              status: task.status === 1 ? -1 : -2 ,
+          }, 
+          id: task.id
+        }))
+        toast.update(toaster, { render: "Accept order fail, see detail in console!", type: "error", isLoading: false, autoClose: 1000});
+      }
+      dispatch(doneOneTask())
+    }
+    let task: ITask = {
+      id: taskState.taskList.length,
+      type: "SELLER-DEPOSIT",
+      status: 0,
+      funcExecute: sellerDeposit,
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
+    };
+    dispatch(createTask(task));
+  }
+  const onClickRefund = async () => {
+    const storeData = store.getState()  
+    const refundToken = async (taskState: ITaskState, idTask: number) => {
+      const toaster = toast.loading("Refunding token...")
+      let myTask : ITask = {...taskState.taskList[idTask], status: 1}
+      dispatch(updateTask({task: myTask, id: idTask}))
+      try {
+          const nonce = await appState.web3.eth.getTransactionCount(storeData.userState.address)
+          const signatureAdmin = await appApi.getSignatureAdmin(
+            data._id,
+            nonce
+          )
+          myTask = {...taskState.taskList[idTask], status: 2}
+          dispatch(updateTask({task: myTask, id: idTask}))
+          const swapContract = getSwapTwoContract(appState.web3, data.fromValue.token.network)
+          const refundMethod = swapContract.methods.refund(
+            generateContractID(appState.web3, data._id, data.from.address, data.to.address),
+            Number(nonce),
+            signatureAdmin.data,
+          )
+          console.log(await refundMethod.estimateGas({from: storeData.userState.address}))
+          const refundReceipt = await refundMethod.send({from: storeData.userState.address})
+          const cancelOrder = await appApi.cancelOrder(data._id)
+          myTask = {...taskState.taskList[idTask], status: 3, transactionHash: refundReceipt.transactionHash}
+          dispatch(updateTask({task: myTask, id: idTask}))
+          dispatch(saveInfo({...userState, 
+            wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+            balance:fixStringBalance(String(
+                await appState.web3.eth.getBalance(userState.address)
+            ), 18)})
+          )
+          toast.update(toaster, { render: "Token was refund successfully.", type: "success", isLoading: false, autoClose: 1000});
+          rerender && rerender()
+      } catch (error) {
+        dispatch(updateTask({ 
+          task: { ...task, status: task.status === 1 ? -1 : -2 }, 
+          id: task.id})
+        )
+        toast.update(toaster, { render: "Refund token fail.", type: "error", isLoading: false, autoClose: 1000});
+      }
+      dispatch(doneOneTask())
+    }
+    let networkAction = IS_SELLER ? data.fromValue.token.network : data.toValue.token.network;
+    if (storeData.userState.network !== networkAction) {
+      await requestChangeNetwork(networkAction)
+      return;
+    }
+    let task: ITask = {
+      id: taskState.taskList.length,
+      type: "REFUND",
+      status: 0,
+      funcExecute: refundToken,
+      from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
+      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
+      orderID: data._id,
+    };
+    dispatch(createTask(task));
+  }
+
+  
+  // ----------------------------------------------- //
+  const textOkBtn = (status: string) => {
+    if (IS_SELLER && status === "receiver accepted") {
+      return <p>Deposit</p>
+    } else if ((IS_SELLER && status === "receiver withdrawn") || (!IS_SELLER && status === "sender accepted")) {
+      return <p>Withdraw</p>
+    } else if (status === 'completed') {
+      return <p>OK</p>
+    }
+    else {
+      return <LoadingOutlined rev={""}/>
+    }
+  }
+  const getRemoveBtn = async (timeLock: number) => {
+    console.log(timeLock, data, IS_SELLER)
+    let myBtn = <div></div>
+    if (IS_SELLER) {
+      if (data.status === "receiver accepted") {
+        myBtn = <Button onClick={onClickRemove}>Cancel Order</Button>
+      } 
+      else if (data.status === "sender accepted" || data.status === "receiver cancelled") {
+        if (timeLock && timeLock * 1000 > Date.now()) {
+          myBtn = 
+          <Tooltip title="This is the remaining token lock time in the contract." overlayInnerStyle={{textAlign:'center'}}>
+            <Button disabled style={{marginRight: 10}}>
+              <Countdown value={timeLock * 1000} valueStyle={{fontSize: '1.4rem', fontWeight:700, color:'#ccc'}}/>
+            </Button>
+          </Tooltip>
+        }
+        else myBtn = <Button onClick={onClickRefund}>Refund</Button>
+      }
+      else if (data.status === "sender cancelled") {
+        myBtn = <Button onClick={() => {}} disabled>You have refunded.</Button>
+      }
+      else myBtn = <div></div>
     } else {
-      if (idTask === -1) {
-        removeOrder2Chain()
+      if (data.status === "sender accepted" || data.status === 'receiver accepted' || data.status === "sender cancelled") { 
+        if (timeLock && timeLock * 1000 > Date.now()) {
+          myBtn = 
+            <Tooltip title="This is the remaining token lock time in the contract." overlayInnerStyle={{textAlign:'center'}}>
+              <Button disabled style={{marginRight: 10}}>
+                <Countdown value={timeLock * 1000} valueStyle={{fontSize: '1.4rem', fontWeight:700, color:'#ccc'}}/>
+              </Button>
+            </Tooltip>          
+        }
+        else myBtn = <Button onClick={onClickRefund}>Refund</Button>
+      }
+      else if (data.status === "receiver cancelled") {
+        myBtn = <Button onClick={() => {}} disabled>You have refunded.</Button>
+      }
+      else myBtn = <div></div>
+    }
+    setRemoveBtn(myBtn)
+  }
+  const hdOnOk = async (status: string) => {
+    if (IS_SELLER) {
+      if (status === "receiver accepted") {
+        if (data.fromValue.token.network !== userState.network) {
+          await requestChangeNetwork(data.fromValue.token.network);
+          return;
+        }
+        return onSellerClickDeposit()
+      } else if (status === "receiver withdrawn") {
+        return onSellerClickWithdraw()
       } else {
-        setOpenModal(-1) ; setIdTask(-1)
+        return setOpenModal(false)
+      }
+    }
+    else {
+      if (status === "sender accepted") {
+        if (data.fromValue.token.network !== userState.network) {
+          await requestChangeNetwork(data.fromValue.token.network);
+          return;
+        }
+        return onBuyerClickWithdraw()
+      } else {
+        return setOpenModal(false)
       }
     }
   }
-
+  const getProgress = () => {
+    // 'receiver accepted', 'sender accepted', 'receiver withdrawn', 'completed'
+    if (IS_SELLER){
+      switch (data.status) {
+        case "receiver accepted":
+          return "Deposit Token"
+        case "sender accepted":
+          return "Waiting recipient"
+        case "receiver withdrawn":
+          return "Withdraw Token"
+        case "sender cancelled":
+          return "Refund Token" 
+        case "receiver cancelled":
+          return "Refund Token" 
+      }
+    }
+    else {
+      switch (data.status) {
+        case "receiver accepted":
+          return "Waiting Recipient"
+        case "sender accepted":
+          return "Withdraw Token"
+        case "receiver withdrawn":
+          return "Done"
+        case "receiver cancelled":
+          return "Refund Token"
+        case "sender cancelled":
+          return "Refund Token"  
+      }
+    }
+  }
+  const makecontentOnChain = (isSeller: boolean, txData: any) => {
+    console.log(data)
+    if (txData.timelock.toString() !== '0') {
+      return (
+        <div>
+          <p style={{fontSize: '1.3rem'}}>Network:
+            <span style={{fontWeight: 400}}>{' '}{mappingNetwork(!isSeller ? data.toValue.token.network : data.fromValue.token.network)}</span>
+          </p>
+          <p style={{fontSize: '1.3rem'}}>Token address:
+            <span style={{fontWeight: 400}}>{' '}{txData.tokenContract.toString()}</span>
+          </p>
+          <p style={{fontSize: '1.3rem'}}>Receiver:
+            <span style={{fontWeight: 400}}>{' '}{txData.receiver.toString()}</span>
+          </p>
+          <p style={{fontSize: '1.3rem'}}>Amount:
+            <span style={{fontWeight: 400}}>{' '}{txData.amount.toString()}</span>
+          </p>
+          <p style={{fontSize: '1.3rem'}}>Status:
+            <span style={{fontWeight: 400}}>{' '}{txData.status === '0' ? 'Pending' : (txData.status === '1' ? "Withdrawn" : "Refunded")}</span>
+          </p>
+        </div>
+        )
+    }
+    else {
+      return (
+        <div>There is currently no on-chain information available for this lock contract.</div>
+      )
+    }
+  }
   return (
-    <div className="app-order" style={{marginBottom: 20}}>
+    <div className="app-order" >
       <div className="app-order--info">
         <div className="app-order--info--token">
           <img src={dataOrder.fromValue.token.image} alt="Token" width={60} />
@@ -266,11 +561,9 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
           <img src={dataOrder.toValue.token.image} alt="StarBuck" width={60} />
           <div>
             <p className="quantity">{dataOrder.toValue.amount} <span className="symbol">{dataOrder.toValue.token.symbol}</span></p>
-            
           </div>
         </div>
       </div>
-
       <div style={{fontSize: '1.2rem', color:'rgba(255,255,255,0.8)', fontWeight: 500}}>
         <div style={{display: 'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'flex-end'}}>
           {
@@ -286,19 +579,21 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
                 <p>Exchange rate: {(dataOrder.fromValue.amount/dataOrder.toValue.amount).toFixed(2)}</p>
               </div>
               <div className="app-order--action--time_left">
-                {/* <p> 3h 4p 50s
-                <span style={{fontWeight: 400}}> left</span>
-                </p> */}
-                  <Countdown value={ Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30} valueStyle={{fontSize: '1.4rem', fontWeight:700, color:'#ccc'}}/>
+                {
+                  <p style={{textAlign:'right'}}>
+                    {
+                      IS_SELLER ? 
+                      'Sell' : 'Buy'
+                    }
+                  </p>
+                }
+                <p>{getProgress()}</p>
               </div>
             </>
           }
         </div>
       </div>
-
-
       <Divider style={{ marginTop: 6 , marginBottom: 6, borderColor: '#333' }} />
-      
       <div className="app-order--action">
           {
             <div className="app-order--action--network">
@@ -309,295 +604,231 @@ const MyOrderItem = ({data, isPendingOrder} : IMyOrderItem) => {
               }</p>
             </div>
           }
-          <div className="app-order--action--btn" onClick={() => {isPendingOrder ? setOpenModal(1) : setOpenModal(2)}}>
+          <div className="app-order--action--btn" onClick={(data.status === "pending") ? onClickRemove : async () => {
+            setOpenModal(true)
+            await getDataOnChain()
+          }}>
             {
               isPendingOrder ? "Remove" : "Detail"
             }
           </div>
       </div>
-
-      <Modal
-          title="Remove Order"
-          open={openModal === 1}
-          
-          onOk={onOkModal}
-          okText= {idTask === -1 ? "Confirm" : 'OK'}
-
-          cancelText="Cancel"
-          onCancel={() => {setOpenModal(-1); setIdTask(-1)}}
-
-          width={700}
-          style={{top: 200}}
-          
-          closable={true}
-      >
-        <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 30}}>
-          <div >
-            <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{dataOrder.fromValue.token.name}</p>
-            <p style={{textAlign: "right", fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{dataOrder.fromValue.amount} {dataOrder.fromValue.token.symbol}</p>
-          </div>
-          <PairToken from_img={dataOrder.toValue.token.image} to_img={dataOrder.fromValue.token.image} width={60}/>
-          <div>
-              <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{dataOrder.toValue.token.name}</p>
-              <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{dataOrder.toValue.amount} {dataOrder.toValue.token.symbol}</p>
-          </div>
-        </div>
-
+      {
+        <Modal
+            title="Detail Order"
+            open={openModel}
+            onCancel={() => {setOpenModal(false)}}
+            width={900}
+            style={{top: 170}}
+            closable={true}
+            footer={<>
+              {removeBtn}
+              {
+                (data.status !== 'cancel' && data.status !== 'sender cancel' && data.status !== 'receiver cancelled' && data.status !== "sender cancelled") && 
+                <Button 
+                  type="primary" disabled={(!IS_SELLER && data.status === "receiver withdrawn") ? true : false}
+                  onClick={() => hdOnOk(dataOrder.status)}>
+                    {
+                      (!IS_SELLER && data.status === "receiver withdrawn") ? "You have withdrawn" :
+                      textOkBtn(dataOrder.status)
+                    }
+                </Button>
+              }
+            </>}
+        >
           {
-            dataOrder.toValue.token.network === dataOrder.fromValue.token.network ?
-            <Steps size="default" style={{width: 600, margin: 'auto', marginTop: 40, marginBottom: 30}}
-              items={
-                idTask === -1 ? 
-                [
-                  {
-                    title: "Widthdraw Token",
-                    status: "wait"
-                  },
-                  {
-                    title: "Save Data",
-                    status: "wait"
-                  },
-                  {
-                    title: "Done",
-                    status: "wait"
-                  }
-                ] : 
-                [
-                  {
-                    title: "Widthdraw Token",
-                    status: getTask(idTask).status === -1 ? 'error' : 
-                            ((getTask(idTask).status >  1) ? 'finish' : 'process'),
-                    icon:  getTask(idTask).status === 1 && <LoadingOutlined  rev={""}/>
-                  },
-                  {
-                    title: "Save Data",
-                    status: getTask(idTask).status === -2 ? 'error' : (
-                              getTask(idTask).status < 2 ? 'wait' : (
-                                getTask(idTask).status === 3 ? 'finish' : 'process'
-                              )
-                            ),
-                    icon:  getTask(idTask).status === 2 && <LoadingOutlined  rev={""}/>                  
-                  },
-                  {
-                    title: 'Done',
-                    status: getTask(idTask).status === 3 ? 'finish' : 'wait'
-                  }
-                ]}
-            />
-            : 
-            <Steps size="default" style={{width: 600, margin: 'auto', marginTop: 40, marginBottom: 30}}
+            userState.address === dataOrder.from.address ?
+            // Step of seller (first create order) SELLER
+            <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
             items={
-              idTask === -1 ? 
+              data.status === 'receiver accepted' ? 
               [
-                {
-                  title: "Save Data",
-                  status: "wait"
-                },
-                {
-                  title: "Done",
-                  status: "wait"
-                }
-              ] : 
+                {title: "Deposit", status: "process"},
+                {title: "Wait Recipient", status: "wait"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'sender accepted' ? 
               [
-                {
-                  title: "Save Data",
-                  status: getTask(idTask).status === -1 ? 'error' : (
-                            getTask(idTask).status > 1 ? 'finish' : 'process'
-                          ),
-                  icon:  getTask(idTask).status === 1 && <LoadingOutlined  rev={""}/>                  
-                },
-                {
-                  title: 'Done',
-                  status: getTask(idTask).status === 3 ? 'finish' : 'wait'
-                }
-              ]}
-          />
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "process", icon: <LoadingOutlined  rev={""}/>},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'receiver withdrawn' ?
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "process"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'completed' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "finish"},
+                {title: "Done", status: "finish"}
+              ] : (
+              data.status === 'sender cancelled' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "error"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ]  : // "receiver cancelled"
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "error"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ]
+              ))))
+            }
+            />
+            :
+            // Step of buyer (create contract first)
+            <Steps size="default" style={{width: 800, margin: 'auto', marginTop: 20, marginBottom: 30}} 
+            items={
+              data.status === 'receiver accepted' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "process", icon: <LoadingOutlined rev={""} />},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'sender accepted' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ] : (
+              data.status === 'receiver withdrawn' ?
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "finish"},
+                {title: "Done", status: "finish"}
+              ] : (
+              data.status === 'completed' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "finish"},
+                {title: "Withdraw", status: "finish"},
+                {title: "Done", status: "finish"}
+              ] : (
+              data.status === 'sender cancelled' ? 
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "error"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ]  : // "receiver cancelled"
+              [
+                {title: "Deposit", status: "finish"},
+                {title: "Wait Recipient", status: "error"},
+                {title: "Withdraw", status: "wait"},
+                {title: "Done", status: "wait"}
+              ]
+              ))))
+            }/>
+
           }
-          <div style={{fontWeight: 500}}>
-              <p>Status: {
-                  idTask === -1  ? 
-                      <span style={{fontWeight: 400, color: "#333"}}>Pending</span> 
-                  : (getTask(idTask).status === 3 ? 
-                      <span style={{fontWeight: 400, color: "#52c41a"}}>Success</span> 
-                  : 
-                      <span style={{fontWeight: 400, color: '#1677ff'}}>In Progress</span>)}
-              </p>
-              <p>Owner: <span>{dataOrder.from.address}</span></p>
-              
-              <p>Network: 
-                  <span style={{fontWeight: 400}}> {
-                    dataOrder.fromValue.token.network === dataOrder.toValue.token.network ?
-                      mappingNetwork(dataOrder.fromValue.token.network)
-                    : mappingNetwork(dataOrder.fromValue.token.network) + ' - ' + mappingNetwork(dataOrder.toValue.token.network)  
-                  }
-                  </span>
-              </p>
-              <p>Order ID:  
-                  <span style={{fontWeight: 400}}> {
-                      dataOrder._id
-                  }</span>
-              </p>
-              <p>Transaction Hash:  
-                  <span style={{fontWeight: 400}}> {
-                      idTask === -1 ? '...' :
-                      (getTask(idTask).status === 3 ? getTask(idTask).transactionHash : '...')
-                  }</span>
-              </p>
-          </div>
-      </Modal>
-
-      <Modal
-          title="Detail Order"
-          open={openModal === 2}
-          
-          onOk={onOkModal}
-          okText= {idTask === -1 ? "Confirm" : 'OK'}
-          cancelText="Cancel"
-          onCancel={() => {setOpenModal(-1); setIdTask(-1)}}
-
-          width={700}
-          style={{top: 200}}
-          
-          closable={true}
-      >
-        {
-          userState.address === dataOrder.from.address ?
-          // Step of seller (first create order)
-          <Steps size="default" style={{width: 620, margin: 'auto', marginTop: 40, marginBottom: 30}} 
-          items={
-            idTask === -1 ? 
-            [
-              { title: "Deposit",
-                status: dataOrder.status === "receiver accepted" ? "wait" : "finish" 
-              },
-              {
-                title: "Wait Recipient",
-                status: dataOrder.status === "receiver accepted" ? "wait" : (dataOrder.status === "sender accepted" ? "process" : "finish"),
-                icon: dataOrder.status === "sender accepted" && <LoadingOutlined  rev={""}/>
-              },
-              {
-                title: "Withdraw",
-                status: dataOrder.status === "completed" ? "finish" : "wait",
-              },
-              {
-                title: "Done",
-                status: dataOrder.staus === "completed" ? "finish" : "wait"
-              },
-            ] : 
-            [
-              {
-                title: "Widthdraw Token",
-                status: getTask(idTask).status === -1 ? 'error' : 
-                        ((getTask(idTask).status >  1) ? 'finish' : 'process'),
-                icon:  getTask(idTask).status === 1 && <LoadingOutlined  rev={""}/>
-              },
-              {
-                title: "Save Data",
-                status: getTask(idTask).status === -2 ? 'error' : (
-                          getTask(idTask).status < 2 ? 'wait' : (
-                            getTask(idTask).status === 3 ? 'finish' : 'process'
-                          )
-                        ),
-                icon:  getTask(idTask).status === 2 && <LoadingOutlined  rev={""}/>                  
-              },
-              {
-                title: 'Done',
-                status: getTask(idTask).status === 3 ? 'finish' : 'wait'
-              }
-          ]}/>
-          :
-          // Step of buỷer (create contract first)
-          <Steps size="default" style={{width: 620, margin: 'auto', marginTop: 40, marginBottom: 30}} 
-          items={
-            idTask === -1 ? 
-            [
-              {
-                title: "Deposit",
-                status: "finish",
-              },
-              {
-                title: "Wait Recipient",
-                status: dataOrder.status === "sender accepted" ? "process" : (dataOrder.status === "receiver accepted" ? "wait" : "finish") ,
-                icon: dataOrder.status === "sender accepted" && <LoadingOutlined  rev={""}/>
-              },
-              {
-                title: "Withdraw",
-                status: dataOrder.status === "completed" ? "finish" : "wait"
-              },
-              {
-                title: "Done",
-                status: dataOrder.status === "completed" ? "finish" : "wait"
-              },
-            ] : 
-            [
-              {
-                title: "Widthdraw Token",
-                status: getTask(idTask).status === -1 ? 'error' : 
-                        ((getTask(idTask).status >  1) ? 'finish' : 'process'),
-                icon:  getTask(idTask).status === 1 && <LoadingOutlined  rev={""}/>
-              },
-              {
-                title: "Save Data",
-                status: getTask(idTask).status === -2 ? 'error' : (
-                          getTask(idTask).status < 2 ? 'wait' : (
-                            getTask(idTask).status === 3 ? 'finish' : 'process'
-                          )
-                        ),
-                icon:  getTask(idTask).status === 2 && <LoadingOutlined  rev={""}/>                  
-              },
-              {
-                title: 'Done',
-                status: getTask(idTask).status === 3 ? 'finish' : 'wait'
-              }
-          ]}/>
-          
-        }
-          <div style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 30}}>
-            <div >
-              <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{dataOrder.fromValue.token.name}</p>
-              <p style={{textAlign: "right", fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{dataOrder.fromValue.amount} {dataOrder.fromValue.token.symbol}</p>
-            </div>
-            <PairToken from_img={dataOrder.fromValue.token.image} to_img={dataOrder.toValue.token.image} width={60}/>
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
             <div>
-                <p style={{fontSize: '1.6rem', fontWeight: 500, lineHeight: '1.6rem'}}>{dataOrder.toValue.token.name}</p>
-                <p style={{fontSize: '1.6rem', fontWeight: 600, color: 'var(--color-secondary)'}}>{dataOrder.toValue.amount} {dataOrder.toValue.token.symbol}</p>
+              <p style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem"}}>
+                {dataOrder.fromValue.token.name}
+              </p>
+              <p style={{textAlign: "right"}}>{mappingNetwork(dataOrder.fromValue.token.network)}</p>
+              <p style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--color-secondary)", textAlign: "right"}}>
+                {dataOrder.fromValue.amount} {dataOrder.fromValue.token.symbol}
+              </p>
+            </div>
+            <PairToken
+              from_img={dataOrder.fromValue.token.image}
+              to_img={dataOrder.toValue.token.image}
+              width={60}
+            />
+          <div>
+              <p
+                style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem",}}
+              >
+                {dataOrder.toValue.token.name}
+              </p>
+              <p>{mappingNetwork(dataOrder.toValue.token.network)}</p>
+              <p
+                style={{
+                  fontSize: "1.6rem",
+                  fontWeight: 700,
+                  color: "var(--color-secondary)",
+                }}
+              >
+                {dataOrder.toValue.amount} {dataOrder.toValue.token.symbol}
+              </p>
             </div>
           </div>
-          
-          <div style={{fontWeight: 500}}>
-              <p>Status: {
-                  idTask === -1  ? 
-                      <span style={{fontWeight: 400, color: "#333"}}>Pending</span> 
-                  : (getTask(idTask).status === 3 ? 
-                      <span style={{fontWeight: 400, color: "#52c41a"}}>Success</span> 
-                  : 
-                      <span style={{fontWeight: 400, color: '#1677ff'}}>In Progress</span>)}
-              </p>
-              <p>Owner: <span style={{fontWeight: 400}}>{dataOrder.from.address}</span></p>
-              
-              <p>Network: 
-                  <span style={{fontWeight: 400}}> {
-                    dataOrder.fromValue.token.network === dataOrder.toValue.token.network ?
-                      mappingNetwork(dataOrder.fromValue.token.network)
-                    : mappingNetwork(dataOrder.fromValue.token.network) + ' - ' + mappingNetwork(dataOrder.toValue.token.network)  
-                  }
-                  </span>
-              </p>
-              <p>Order ID:  
-                  <span style={{fontWeight: 400}}> {
-                      dataOrder._id
-                  }</span>
-              </p>
-              <p>Transaction Hash:  
-                  <span style={{fontWeight: 400}}> {
-                      idTask === -1 ? '...' :
-                      (getTask(idTask).status === 3 ? getTask(idTask).transactionHash : '...')
-                  }</span>
-              </p>
-          </div>
-      </Modal>
+
+            <div style={{fontWeight: 500}}>
+                {
+                  data.status !== "pending" &&
+                  <p>Recipient: <span style={{fontWeight: 400}}>{IS_SELLER ? data.to?.address : data.from.address}</span></p>
+                }
+                <p>Order ID:  
+                    <span style={{fontWeight: 400}}> {
+                        data._id
+                    }</span>
+                </p>
+                {
+                  data.status !== "pending" &&
+                  <>
+                  <p>Lock contract ID:  
+                    <span style={{fontWeight: 400}}> {
+                        generateContractID(appState.web3, data._id, data.from.address, data.to.address)
+                    }</span>
+                </p>
+                <p>Onchain data:</p>
+                <div style={{display: "flex", flexDirection:"row", alignItems:'flex-start', flex: 1}}>
+                    <Collapse
+                      size="small"
+                      style={{flex: 0.5, marginRight: 20}}
+                      items={[{label: <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                        <p>Buyer lock contract</p>
+                        {
+                          (IS_SELLER && dataOnChain != null && dataOnChain.buyer.timelock !== "0")  &&
+                          <Tooltip title="On-chain data confirmed accurate.">
+                            <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                          </Tooltip>
+                        }
+                      </div>, 
+                      children: contentOnchain.buyer ? contentOnchain.buyer : <></>}]}
+                      bordered={false}
+                    />
+                    <Collapse
+                      size="small"
+                      style={{flex: 0.5}}
+                      items={[{label: 
+                      <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                        <p>Seller lock contract</p>
+                        {
+                          (!IS_SELLER && dataOnChain != null && dataOnChain.seller.timelock !== "0")  &&
+                          <Tooltip title="On-chain data confirmed accurate.">
+                            <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                          </Tooltip>
+                        }
+                      </div>
+                    , children: contentOnchain.seller ? contentOnchain.seller : <></>}]}
+                      bordered={false}
+                    />
+                </div>
+                  </>
+                  
+                }
+                
+            </div>
+        </Modal>
+      }
     </div>
-  );
+  )  
 };
 
 export default MyOrderItem;

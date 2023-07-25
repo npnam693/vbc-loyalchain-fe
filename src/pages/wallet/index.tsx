@@ -17,7 +17,7 @@ interface IForm {
 enum WalletPage { TOKEN, REWARD, HISTORY }
 const handleAddressClick = (address: string) => {
   navigator.clipboard.writeText(address);
-  toast("Coppy address success")
+  toast("Copied address wallet successfully!", {autoClose: 500})
 };
 
 const Wallet = () => {
@@ -47,8 +47,6 @@ const Wallet = () => {
       <div className="content">
         <div className="content--left">
           <p className="title">My Wallet</p>
-          
-
           <div className="account-info">Your address: <CopyOutlined rev={""} className="copy-icon"
             onClick={() => handleAddressClick(userState.address)}
           /> 
@@ -74,23 +72,23 @@ const Wallet = () => {
             >
               <p>Token</p>
             </div>
+            <div className={`header-item${page === WalletPage.HISTORY ? ' header-item--selected' : ''}`}
+              onClick={() => page !== WalletPage.HISTORY && setPage(WalletPage.HISTORY)}
+            >
+              <p>History</p>
+            </div>
             <div className={`header-item${page === WalletPage.REWARD ? ' header-item--selected' : ''}`}
               onClick={() => page !== WalletPage.REWARD && setPage(WalletPage.REWARD)}
 
             >
               <p>Reward</p>
             </div>
-            <div className={`header-item${page === WalletPage.HISTORY ? ' header-item--selected' : ''}`}
-              onClick={() => page !== WalletPage.HISTORY && setPage(WalletPage.HISTORY)}
-            >
-              <p>History</p>
-            </div>
           </header>
-          <main>
+          <div>
           {
               contentPage()
           }
-          </main>
+          </div>
         </div>
       </div>
     </div>

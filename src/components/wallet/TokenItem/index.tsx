@@ -1,9 +1,11 @@
 import React from 'react'
 import { TokenItem } from '../../app/SelectToken/TokenItem'
 import { ITokenItemProps } from '../../app/SelectToken/TokenItem';
-import { SendOutlined, SwapOutlined, InfoCircleOutlined} from '@ant-design/icons';
+import { SendOutlined, CopyOutlined} from '@ant-design/icons';
 import './TokenItem.scss'
 import { mappingNetwork } from '../../../utils/blockchain';
+import { Tooltip } from 'antd';
+import { toast } from 'react-toastify';
 
 const TokenItemWallet = (props : any) => {
     const data = props.data
@@ -18,12 +20,23 @@ const TokenItemWallet = (props : any) => {
             </div>
 
         <div className='token-item-right'>
+
             <p className='balance-token'>{data.balance} {data.token.symbol}</p>        
 
             <div className='action-token'>
-                <InfoCircleOutlined rev={""} className='action-icon'/>
-                <SendOutlined rev={""} className='action-icon' onClick={() => props.onClickSend()}/>
-                <SwapOutlined rev={""} className='action-icon'/>
+            
+                <Tooltip title = "Copy address token.">
+                    <CopyOutlined rev={""} className='action-icon'
+                        onClick={() => {
+                            navigator.clipboard.writeText(data.token.deployedAddress);
+                            toast("Copied address token successfully!", {autoClose: 500})
+                        }}
+                    />
+                </Tooltip>
+            
+                <Tooltip title="Send tokens to the destination you want." style={{textAlign:'center'}}>
+                    <SendOutlined rev={""} className='action-icon' onClick={() => props.onClickSend()}/>
+                </Tooltip>
             </div>
         </div>
 
