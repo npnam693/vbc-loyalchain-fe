@@ -72,5 +72,55 @@
 }
 
 .amount-container {
-    min-height: 80Zpx;
+    min-height: 80px;
+}
+
+@media only screen and (max-width: 600px) {
+    .app-faucet{
+        width: 100vw;
+        // overflow: ;
+    }
+    .title {
+        font-size: 2rem;
+    }   
+    .desc {
+        font-size: 1.4rem;
+    }
+    .input-address {
+        width: 80vw;
+        margin: 10px 0;
+    }
+    .select-container {
+        min-height: 140px;
+    }
+    .select-btn {
+        width: 130px;
+        margin: 10px 0;
+    }
+    .app-faucet-content {
+        display: flex;
+        flex-direction: column;
+        margin: 20px 0;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        width: 90vw;
+    }
+    .wallet-container {
+        height: 120px;
+    }
+    .faucet-amount {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 2px 0;
+        div {
+            cursor: pointer;
+            padding: 6px 5px;
+            margin: 0px 20px 0px 0;
+            border-radius: 3px;
+            background-color: #ccc;
+        }
+    }
+
 }

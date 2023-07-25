@@ -3,10 +3,7 @@ import {
   ProfileOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { clearInfo } from "../../../../state/user/userSlice";
-import { clearWeb3 } from "../../../../state/app/appSlice";
 interface IItemPopover {
   icon: JSX.Element;
   title: string;
@@ -18,7 +15,6 @@ interface IPopoverUser {
 }
 
 const PopoverUser = ({ onClickLogout }:IPopoverUser ) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const listItemPopover: IItemPopover[] = [
     {

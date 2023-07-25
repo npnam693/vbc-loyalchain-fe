@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useCallback } from "react";
 import Particles from "react-particles";
 import { loadFull } from "tsparticles";
@@ -9,11 +9,11 @@ import Footer from "./components/footer/Footer";
 import { LayoutProps } from "../types/route";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { saveTokens } from "../state/app/appSlice";
-import { Empty, FloatButton, Popconfirm, Popover, Tooltip } from 'antd';
+import { Empty, FloatButton, Popconfirm, Popover } from 'antd';
 
 import appApi from "../api/appAPI";
-import { AimOutlined, CheckCircleTwoTone, ClearOutlined, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
-import { ITask, clearTask, closeTaskModel, openTaskModel } from "../state/task/taskSlice";
+import { CheckCircleTwoTone, ClearOutlined, CloseCircleTwoTone, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
+import { ITask, clearTask, openTaskModel } from "../state/task/taskSlice";
 import PairToken from "../components/app/PairToken";
 import { hdConnectWallet } from "./components/header/helper/ConnectWallet";
 import store from "../state";
@@ -42,19 +42,21 @@ const Layout = ({ children }: LayoutProps) => {
       if (tokens){
         dispatch(saveTokens(tokens.data));
       }
-    }
-    // Clear modal in application
-    
-    let storeData = store.getState();
 
-    if (new Date(storeData.userState.expiredTime) > new Date()) {
-      if (window.ethereum) {
-        window.ethereum._metamask.isUnlocked().then(async (res: any) => {
-            res && await hdConnectWallet()
-        })
+      let storeData = store.getState();
+
+      if (new Date(storeData.userState.expiredTime) > new Date()) {
+        if (window.ethereum) {
+          window.ethereum._metamask.isUnlocked().then(async (res: any) => {
+              res && await hdConnectWallet()
+          })
+        }
       }
     }
+    // Clear modal in application
     fetchTokens()
+    
+
   }, [])    
   
 
@@ -118,7 +120,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   const contentTaskPopover = () => {
     return (
-      <div style={{height: 300, minWidth: 500, overflow: 'scroll', cursor: 'pointer'}}>
+      <div className="task-manage">
         {
           taskState.taskList.length === 0 ?
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> :
@@ -207,9 +209,8 @@ const Layout = ({ children }: LayoutProps) => {
             </Popconfirm>
           </div>
         </div>
-
       } content={contentTaskPopover} trigger="click">
-        <FloatButton shape="square" icon={
+        <FloatButton shape="square" className="btn-task" icon={
           // <LoadingOutlined rev={""} style={{fontSize: '2.5rem', color:"var(--color-secondary)"}}/>
           taskState.tasksInProgress !== 0 &&
           <SyncOutlined spin rev={""}/>

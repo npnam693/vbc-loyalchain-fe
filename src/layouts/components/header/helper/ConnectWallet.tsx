@@ -1,11 +1,10 @@
 import Web3 from "web3";
-import axios from "axios";
 import { toast } from 'react-toastify'
 import { Button, Popover } from "antd";
 import { SafetyCertificateTwoTone } from "@ant-design/icons";
 
 import PopoverUser from "./PopoverUser";
-import { clearWeb3, saveTokens, saveWeb3 } from "../../../../state/app/appSlice";
+import { clearWeb3, saveWeb3 } from "../../../../state/app/appSlice";
 import { IUserState, clearInfo, saveInfo } from "../../../../state/user/userSlice";
 import { useAppSelector, useAppDispatch } from "../../../../state/hooks";
 import { fixStringBalance, shortenAddress } from "../../../../utils/string";
@@ -20,7 +19,7 @@ const signatureLogin = async (web3: any, userAddress: string) : Promise<string> 
 };
 
 export const hdConnectWallet = async () => {
-    const toastify = toast.loading("Connecting to wallet...")
+    const toastify = toast.loading("Connecting to wallet ..., sign message to confirm!")
     let storeData = store.getState();
     if (typeof window.ethereum !== "undefined") {
         const myWeb3 = new Web3(window.ethereum);
@@ -55,19 +54,19 @@ export const hdConnectWallet = async () => {
             store.dispatch(saveInfo(myUserState));
             store.dispatch(saveWeb3(myWeb3));
 
-            toast.update(toastify, { render: "Connect wallet successful!", type: "success", isLoading: false, autoClose: 1000});
+            toast.update(toastify, { render: "Connect wallet successfully!", type: "success", isLoading: false, autoClose: 1000});
         } catch (error) {
-            toast.update(toastify, { render: "Connect wallet fail, see detail in console.", type: "error", isLoading: false, autoClose: 1000});
+            toast.update(toastify, { render: "Connect wallet failed, see detail in console.", type: "error", isLoading: false, autoClose: 1000});
             console.log(error)
         }
     } else {
-        alert("MetaMask is not installed");
+        alert("MetaMask is not installed.");
     }
 }
 const hdAccountChange = async () => {
     let storeData = store.getState();
     if (!storeData.appState.isListening) return;
-    const toastify = toast.loading("Account changed, please wait a moment...")
+    const toastify = toast.loading("Account changed, sign message to continue...")
     const myWeb3 = new Web3(window.ethereum);
     await window.ethereum.request({ method: "eth_requestAccounts" });
     const address = (await myWeb3.eth.getAccounts())[0];
@@ -95,9 +94,9 @@ const hdAccountChange = async () => {
         myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, storeData.appState.tokens)
         store.dispatch(saveInfo(myUserState));
         store.dispatch(saveWeb3(myWeb3));
-        toast.update(toastify, { render: "Change account successful!", type: "success", isLoading: false, autoClose: 1000});
+        toast.update(toastify, { render: "Change account successfully!", type: "success", isLoading: false, autoClose: 1000});
     } catch (error) {
-        toast.update(toastify, { render: "Error", type: "error", isLoading: false, autoClose: 1000});
+        toast.update(toastify, { render: "Change account failed", type: "error", isLoading: false, autoClose: 1000});
         alert(error);
     }
 }
@@ -148,7 +147,7 @@ const ConnectWallet = () => {
                             size={10}
                             className="network-icon"
                         />
-                        <p>{mappingNetwork(userState.network)}</p>
+                        <p className="network-name">{mappingNetwork(userState.network)}</p>
                     </div>
                     <Button type="primary" className="btn-connect_wallet">
                         {shortenAddress(userState.address)}

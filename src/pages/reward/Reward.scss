@@ -6,4 +6,25 @@
         color: var(--color-text-white);
         margin-bottom: 20px;
     }
+    .list-rewards{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+}
+
+@media only screen and (max-width: 600px)  {
+    .app-reward {
+        min-height: 100vh;
+        .title {
+            font-size: 2rem;
+        }
+        .list-rewards{
+            justify-content: center;
+        }
+    }
+    .app-reward-pane {
+        display: none;
+    }
 }

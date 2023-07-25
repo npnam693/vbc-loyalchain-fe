@@ -10,6 +10,7 @@ import ConnectWallet from "./helper/ConnectWallet";
 import SITEMAP from "../../../constants/sitemap";
 import "./Header.scss";
 import { VerticalAlignTopOutlined } from "@ant-design/icons";
+import SidebarMobile from "./helper/SidebarMobile";
 const Header = () => {
   const currentUrl = useLocation().pathname;
   const { t } = useTranslation("common");
@@ -35,11 +36,12 @@ const Header = () => {
         })}
       >
         <div className="app-header--pane">
-          <div style={{ display: "flex", flexDirection: "row" }}>
+          <div style={{ display: "flex", flexDirection: "row" }} >
+            <SidebarMobile />
             <img
               src={Logo}
               alt="loyalChain"
-              style={{ height: 32, marginRight: 10, cursor: "pointer" }}
+              className="app-logo"
               onClick={() => navigate("/")}
             />
             <div className="app-header--option">

@@ -170,3 +170,134 @@
     }
 
 }
+
+
+@media only screen and (max-width: 600px) {
+
+
+    .app-create {
+        // height: 70%;
+        width: 95%;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        .title {
+            font-size: 2rem;
+            line-height: 2rem;
+            &--desc {
+                font-size: 1.4rem;
+                margin-bottom: 16px;
+            }
+        }
+        .type-btn {
+            display: flex;
+            align-items: flex-end;
+            flex-direction: column;
+            
+            Button {
+                margin: 4px;
+            }
+        }
+        .content {
+            flex-direction: column;
+            .form {
+                width: 95%;
+                .form-input {
+                    padding: 10px;
+                    height: 100px;
+                    &--header{
+                        margin-bottom: 5px;
+                        &--token {
+                            img {
+                                width: 2rem;
+                                height: 2rem;
+                                margin-right: 6px;   
+                            }
+                            p {
+                                font-size: 1.4rem;
+                            }
+                        }
+                    }
+    
+                    &--content {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: space-between;
+                        &--input {
+                            width: 120px;
+                            padding: 2px 0px;
+                            .ant-input-number-input{
+                                font-size: 1.4rem;
+                            }
+                        }
+                        &--amount {
+                            font-size: 1.2rem;
+                            Button {
+                                margin-left: 6px;
+                            }
+                        }
+                    }
+                }
+    
+    
+            }
+    
+            .divider {
+                display: none;
+            }
+    
+            .info {
+                flex: 0.35;
+                .info-title {
+                    font-size: 1.6rem;
+                    font-weight: 500;
+                    color: black;
+                    margin-bottom: 10px;
+                }
+                
+                .average {
+                    .pair{
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        padding-right: 0px;
+                        .average {
+                            font-size: 1.6rem;
+                        }
+                    }
+                }
+            }
+        }
+    
+        .btn-create-order {
+            height: 40px;
+            width: 150px;
+    
+            margin-top: 20px;
+            margin-left: calc((100% - 150px) / 2);
+    
+            font-size: 1.6rem;
+            color: var(--color-text-white);
+            font-weight: 600;
+        }
+        .icon-container {
+            border-radius: 20px;
+            border: 2px solid black;
+    
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            align-self: center;
+            margin: 10px auto 10px auto;
+            .icon {
+                color: black;
+                font-size: 1.2rem;
+                rotate: 90deg;
+            }
+        }
+    
+    }
+
+}

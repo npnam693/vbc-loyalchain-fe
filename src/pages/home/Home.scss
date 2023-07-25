@@ -237,6 +237,9 @@ $padding-v-intro: 40px;
             &--pc {
                 display: none;
             }
+            &--mobile {
+                display: block;
+            }
             .title {
                 font-size: 2rem;
                 font-weight: 700;

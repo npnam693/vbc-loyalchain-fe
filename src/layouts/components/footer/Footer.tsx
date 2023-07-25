@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import cookie from "react-cookies";
 

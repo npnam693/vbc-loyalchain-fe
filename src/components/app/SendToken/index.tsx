@@ -11,7 +11,7 @@ import { showConfirmConnectWallet } from '../../../pages/marketplace'
 import { useAppDispatch, useAppSelector } from '../../../state/hooks'
 import { getBalanceAccount, mappingNetwork } from '../../../utils/blockchain'
 import { ITask, ITaskState, createTask, doneOneTask, updateTask } from '../../../state/task/taskSlice'
-import { fixStringBalance } from '../../../utils/string'
+import { fixStringBalance, shortenAddress } from '../../../utils/string'
 interface ISendToken {
     token?: any;
     onCloseBtn: () => void
@@ -41,8 +41,8 @@ const SendToken = (props : ISendToken) => {
         dispatch(createTask(transferTask))
     }
     const sendToken = async (taskState: ITaskState, idTask: number) => {
-        const toaster = toast.loading("Transfering token...")
         let task : ITask = {...taskState.taskList[idTask], status: 2}
+        const toaster = toast.loading(`Transfering ${task.from.amount} ${task.from.token.symbol} to ${shortenAddress(String(task.to?.address))}!`)
         dispatch(updateTask({task, id: idTask}))
         try {
             const tokenContract = getTokenContract(appState.web3, props.token.token.deployedAddress)
@@ -79,7 +79,7 @@ const SendToken = (props : ISendToken) => {
                 id: idTask
             }))
             dispatch(doneOneTask())
-            toast.update(toaster, { render: "Transfer Token fail!", type: "error", isLoading: false, autoClose: 1000});
+            toast.update(toaster, { render: "Transfer Token failed!", type: "error", isLoading: false, autoClose: 1000});
         }
     }
     return (

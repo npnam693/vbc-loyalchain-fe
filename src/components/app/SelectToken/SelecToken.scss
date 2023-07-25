@@ -68,3 +68,76 @@
         background-color: #C2EDFC;
     }
 }
+
+@media only screen and (max-width: 600px) {
+    .app-select_token {
+        position: fixed;
+        top:0;
+        left:0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba($color: #000000, $alpha: 0.5);
+        .container {
+            background-color: white;
+            border-radius: 16px;
+            min-height: 600px;
+            width: 90vw;
+        
+            position: fixed;
+            padding: 20px;
+            top: 100px;
+            right: 5vw;
+    
+            .header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+    
+                .title {
+                    font-size: 2.0rem;
+                    font-weight: 600;
+                    color: black;
+                    margin: 0
+                }
+                .desc {
+                    color: #9CA3AF;
+                    font-size: 1.4rem;
+                    margin: 0
+                }
+            }
+            .divider {
+                border-color: rgba($color: #000000, $alpha: 0.3);
+                margin: 10px 0px;
+            }
+    
+        }
+    }
+    
+    .close {
+        position: absolute;
+        right: 30px;
+        &--icon{
+            color: black;
+            font-size: 2.5rem;
+            cursor: pointer;
+        }
+    }
+    
+    .token-item-container {
+        width: 100%;
+        margin: 10px 0;
+        background-color: rgba($color: #000000, $alpha: 0.1);
+        border-radius: 10px;
+        padding: 10px 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 5px;
+        cursor: pointer;
+    
+        &:hover {
+            background-color: #C2EDFC;
+        }
+    }
+}

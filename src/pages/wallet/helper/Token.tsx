@@ -27,7 +27,6 @@ const Token = ({userState} : any) => {
             token={transfering.token}
           />
         }
-
         <p className="balance">{userState.balance} {mappingCurrency((userState.network))}</p>
         <div className="wallet-action">
             <Button type="primary" size="large" onClick={() => setIsSelectToken(true)}>
@@ -48,11 +47,6 @@ const Token = ({userState} : any) => {
                 data={data}
                 key={index}
                 onClickSend={() => setTransfering({open: true, token: data}) }
-                // name={data.token.name}
-                // network={data.token.network}
-                // symbol={data.token.symbol}
-                // balance={data.balance}
-                // uriImg={data.token.image}
               />
             ))
           }

@@ -197,3 +197,21 @@ p {
   /* top: 80px; */
   /* opacity: 0.15; */
 }
+
+
+
+.task-manage{
+  height: 300px;
+  min-width: 500px;
+  overflow: scroll;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 600px)  {
+  .task-manage{
+    display: none;
+  }
+  .btn-task {
+    display: none;
+  }
+}

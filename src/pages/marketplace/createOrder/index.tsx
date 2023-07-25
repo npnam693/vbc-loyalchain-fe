@@ -134,7 +134,7 @@ export default function CreateOrder() {
         BigInt(10 ** Number(18) * Number(formData.from.amount))
       )
       .send({ from: userState.address });
-      toast.update(toastify, { render: "Successfully approve token", type: "success", isLoading: false, autoClose: 500});
+      toast.update(toastify, { render: "Approve token successfully!", type: "success", isLoading: false, autoClose: 500});
       task = {...task, status: 2}
       dispatch(updateTask({task, id: idTask}))
 
@@ -180,7 +180,7 @@ export default function CreateOrder() {
     } catch (error) {
       console.log(error);
       toast.update(toastify, {
-        render: "The order was created fail, see detail in console.",
+        render: "The order was created failed, see detail in console.",
         type: "error", isLoading: false, autoClose: 1000,
       });
       dispatch(updateTask({
@@ -237,7 +237,7 @@ export default function CreateOrder() {
     } catch (error) {
       console.log(error);
       toast.update(toastify, {
-        render: "The order was created fail, see detail in console.",
+        render: "The order was created failed, see detail in console.",
         type: "error",
         isLoading: false,
         autoClose: 1000,
@@ -263,7 +263,7 @@ export default function CreateOrder() {
           <p className="title--desc">Easy way to exchange your loyalty points</p>
         </div>
 
-        <div>
+        <div className="type-btn">
           <Button
             style={isOneChain ? { backgroundColor: "#597ef7" } : {}}
             onClick={() => {setIsOneChain(true); setFormData({...formData, to: {

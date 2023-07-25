@@ -102,20 +102,21 @@ const MyOrder = () => {
                     value: 'completedOrder',
                     icon: <BarsOutlined rev={""}/>,
                 },
-            ]}/>
+            ]} className='segmented'/>
 
-        <div className="pagination-container">
-            <Tooltip placement="bottom" title={page > 1 ? "Previous page" : "This is end."}>
-                <LeftOutlined rev={""} className="pagination-btn"  style= {{fontSize: '1.8rem'}} 
-                    onClick={() => (page > 1 && !loading) && setPage(page - 1) }
-                />
-            </Tooltip>
-            <div className="pagination-current"> {page} </div>
-            <Tooltip placement="bottom" title={next ? "Next page" : "This is end."}>
-                <RightOutlined rev={""} className="pagination-btn" style= {{fontSize: '1.8rem'}} 
-                    onClick={() => {next && !loading && setPage(page + 1)}}/>
-            </Tooltip>
-        </div>
+            <div className="pagination-container">
+                <Tooltip placement="bottom" title={page > 1 ? "Previous page" : "This is end."}>
+                    <LeftOutlined rev={""} className="pagination-btn"  style= {{fontSize: '1.8rem'}} 
+                        onClick={() => (page > 1 && !loading) && setPage(page - 1) }
+                    />
+                </Tooltip>
+                <div className="pagination-current"> {page} </div>
+                <Tooltip placement="bottom" title={next ? "Next page" : "This is end."}>
+                    <RightOutlined rev={""} className="pagination-btn" style= {{fontSize: '1.8rem'}} 
+                        onClick={() => {next && !loading && setPage(page + 1)}}/>
+                </Tooltip>
+            </div>
+            
         </div>
         <div className='list-order'>
             {

@@ -24,25 +24,19 @@ const Reward = () => {
     <div className="app-reward">
       {contextHolder}
       <p className="title">Discover Rewards with Loyalty Points</p>
-      <RewardPane />
-
-      <Row gutter={[16, 16]}>
-        <Col span={6}>
-          <RewardItem />
-        </Col>
-        <Col span={6}>
-          <RewardItem />
-        </Col>
-        <Col span={6}>
-          <RewardItem />
-        </Col>
-        <Col span={6}>
-          <RewardItem />
-        </Col>
-        <Col span={6}>
-          <RewardItem />
-        </Col>
-      </Row>
+      <div className="app-reward-pane">
+        <RewardPane />
+      </div>
+      <div className="list-rewards">
+      <RewardItem />
+      <RewardItem />
+      <RewardItem />
+      <RewardItem />
+      <RewardItem />
+      <RewardItem />
+      <RewardItem />
+      <RewardItem />
+      </div>
     </div>
 ) 
 
