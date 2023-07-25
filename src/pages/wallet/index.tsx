@@ -47,8 +47,6 @@ const Wallet = () => {
       <div className="content">
         <div className="content--left">
           <p className="title">My Wallet</p>
-          
-
           <div className="account-info">Your address: <CopyOutlined rev={""} className="copy-icon"
             onClick={() => handleAddressClick(userState.address)}
           /> 
@@ -67,12 +65,17 @@ const Wallet = () => {
             </div>
           </div>
         </div>
-        <div className="content--right" style={{overflow:'scroll'}}>
+        <div className="content--right">
           <header>
             <div className={`header-item${page === WalletPage.TOKEN ? ' header-item--selected' : ''}`}
               onClick={() => page !== WalletPage.TOKEN && setPage(WalletPage.TOKEN)}
             >
               <p>Token</p>
+            </div>
+            <div className={`header-item${page === WalletPage.HISTORY ? ' header-item--selected' : ''}`}
+              onClick={() => page !== WalletPage.HISTORY && setPage(WalletPage.HISTORY)}
+            >
+              <p>History</p>
             </div>
             <div className={`header-item${page === WalletPage.REWARD ? ' header-item--selected' : ''}`}
               onClick={() => page !== WalletPage.REWARD && setPage(WalletPage.REWARD)}
@@ -80,17 +83,12 @@ const Wallet = () => {
             >
               <p>Reward</p>
             </div>
-            <div className={`header-item${page === WalletPage.HISTORY ? ' header-item--selected' : ''}`}
-              onClick={() => page !== WalletPage.HISTORY && setPage(WalletPage.HISTORY)}
-            >
-              <p>History</p>
-            </div>
           </header>
-          <main >
+          <div>
           {
               contentPage()
           }
-          </main>
+          </div>
         </div>
       </div>
     </div>

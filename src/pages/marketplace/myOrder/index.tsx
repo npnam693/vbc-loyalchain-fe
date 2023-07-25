@@ -22,22 +22,50 @@ const MyOrder = () => {
     const [page, setPage] = useState<number>(1)
     const [loading, setLoading] = useState<boolean>(true)
     const [render, setRender ] = useState<boolean>(false)
+    const [next, setNext] = useState<boolean>(false)
     const userState = useAppSelector(state => state.userState)
     const fetchData = async () => {
         let res;
         if (pageName === 'pendingOrder') {
             res = await appApi.getUserOrder({status: 0, page})
-            res.data.length !== 0 && setdataFetch({...dataFetch, pendingOrders: res.data})
+            if (res.data.length < 12) {
+                setdataFetch({...dataFetch, pendingOrders: res.data})
+                setNext(false)
+            } else if (res.data.length === 0) {
+                setNext(false)
+                setPage(page - 1)                
+            } else {
+                setdataFetch({...dataFetch, pendingOrders: res.data})
+                setNext(true)
+            }
         }
         if (pageName === 'inprogressOrder') {
             res = await appApi.getUserOrder({status: 1, page})
             res.data.length !== 0 &&  setdataFetch({...dataFetch, inprogressOrders: res.data})
+            if (res.data.length < 12) {
+                setdataFetch({...dataFetch, inprogressOrders: res.data})
+                setNext(false)
+            } else if (res.data.length === 0) {
+                setNext(false)
+                setPage(page - 1)                
+            } else {
+                setdataFetch({...dataFetch, inprogressOrders: res.data})
+                setNext(true)
+            }
         }
         if (pageName === 'completedOrder') {
             res = await appApi.getUserOrder({status: 2, page})
-            res.data.length !== 0 &&  setdataFetch({...dataFetch, completedOrders: res.data})
+            if (res.data.length < 12) {
+                setdataFetch({...dataFetch, completedOrders: res.data})
+                setNext(false)
+            } else if (res.data.length === 0) {
+                setNext(false)
+                setPage(page - 1)                
+            } else {
+                setdataFetch({...dataFetch, completedOrders: res.data})
+                setNext(true)
+            }
         }
-        if (res?.data.length === 0 && page > 1) setPage(page - 1)
         setLoading(false)
     }
     
@@ -77,15 +105,15 @@ const MyOrder = () => {
             ]}/>
 
         <div className="pagination-container">
-            <Tooltip placement="bottom" title={"Previous page"}>
+            <Tooltip placement="bottom" title={page > 1 ? "Previous page" : "This is end."}>
                 <LeftOutlined rev={""} className="pagination-btn"  style= {{fontSize: '1.8rem'}} 
-                    onClick={() => setPage(page - 1) }
+                    onClick={() => (page > 1 && !loading) && setPage(page - 1) }
                 />
             </Tooltip>
             <div className="pagination-current"> {page} </div>
-            <Tooltip placement="bottom" title={"Next page"}>
+            <Tooltip placement="bottom" title={next ? "Next page" : "This is end."}>
                 <RightOutlined rev={""} className="pagination-btn" style= {{fontSize: '1.8rem'}} 
-                    onClick={() => {setPage(page + 1)}}/>
+                    onClick={() => {next && !loading && setPage(page + 1)}}/>
             </Tooltip>
         </div>
         </div>

@@ -1,12 +1,12 @@
 import axiosClient from "./axiosClient";
-// import { LOYALCHAIN_API } from "../constants/host";
 import axios from "axios";
-
+import { APP_LOYALCHAIN_API } from "../constants/host";
 class AppAPI {
     LOYALCHAIN_API: string;
-
-    constructor(api: string) {
+    constructor(api: string | undefined) {
         this.LOYALCHAIN_API = api ? api : "http://localhost:3333/api";
+
+        console.log("DCM API", api)
     }
     // Authen
     login = (data: any) => {
@@ -96,7 +96,7 @@ class AppAPI {
     }
 }
 
-const LOYALCHAIN_API = 'http://localhost:3333/api'
+const LOYALCHAIN_API = APP_LOYALCHAIN_API
 const appApi = new AppAPI(LOYALCHAIN_API);
 
 export default appApi;

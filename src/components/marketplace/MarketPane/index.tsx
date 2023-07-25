@@ -14,6 +14,7 @@ interface IMarketPaneProps {
   funcClearFilter?: () => void;
   funcChangePage: (page: number) => void;
   nextpage?: boolean;
+  loading? : boolean;
 }
 
 const MarketPane = (props: IMarketPaneProps) => {
@@ -92,15 +93,15 @@ const MarketPane = (props: IMarketPaneProps) => {
 
       <div style={{display: 'flex', flexDirection:"row", alignItems:'center'}}>
         <div className="pagination-container">
-          <Tooltip placement="bottom" title={"Previous page"}>
+          <Tooltip placement="bottom" title={props.dataFilter.page > 1 ? "Previous page" : "This is end."}>
             <LeftOutlined rev={""} className="pagination-btn"  style= {{fontSize: '1.8rem'}} 
-              onClick={() => props.dataFilter.page  > 1 && props.funcChangePage(Number(props.dataFilter.page - 1))}
+              onClick={() => props.dataFilter.page  > 1 && !props.loading && props.funcChangePage(Number(props.dataFilter.page - 1))}
             />
           </Tooltip>
           <div className="pagination-current"> {props.dataFilter.page} </div>
-          <Tooltip placement="bottom" title={ props.nextpage ? "Next page" : "End of items"}>
+          <Tooltip placement="bottom" title={ props.nextpage ? "Next page" : "This is end."}>
             <RightOutlined rev={""} className="pagination-btn" style= {{fontSize: '1.8rem'}} 
-              onClick={() => {props.nextpage  && props.funcChangePage(Number(props.dataFilter.page + 1))}}/>
+              onClick={() => {props.nextpage  && !props.loading && props.funcChangePage(Number(props.dataFilter.page + 1))}}/>
           </Tooltip>
         </div>
         <Tooltip placement="bottom" title={"View list"}>
