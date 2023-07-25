@@ -5,8 +5,6 @@ class AppAPI {
     LOYALCHAIN_API: string;
     constructor(api: string | undefined) {
         this.LOYALCHAIN_API = api ? api : "http://localhost:3333/api";
-
-        console.log("DCM API", api)
     }
     // Authen
     login = (data: any) => {
