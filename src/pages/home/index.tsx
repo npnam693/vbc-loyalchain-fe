@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, FloatButton } from "antd";
 import Lottie from "lottie-react";
+import { useNavigate } from "react-router-dom";
 
 import SVGIntro1 from "../../assets/svg/home/intro1.svg";
 import SVGIntro2 from "../../assets/svg/home/intro2.svg";
@@ -10,9 +11,8 @@ import WhyChoose from "../../components/home/whychoose";
 import Package from "../../components/home/package";
 import Contact from "../../components/home/contact";
 import "./Home.scss";
-import { VerticalAlignTopOutlined } from "@ant-design/icons";
 export default function Home() {
-
+  const navigate = useNavigate();
   return (
     <div className="app-home">
       <div className="app-home--intro1">
@@ -29,10 +29,14 @@ export default function Home() {
             tokens can be used to access a wide range of rewards, including
             exclusive products, services, discounts, or even cashback options.
           </p>
-          <Button type="default" className="btn-1" size="large">
+          <Button type="default" className="btn-1" size="large"
+            onClick={() => navigate("/faucet")}
+          >
             Join now
           </Button>
-          <Button type="primary" className="btn-2" size="large">
+          <Button type="primary" className="btn-2" size="large"
+            onClick={() => navigate("/marketplace")}
+          >
             Explore Marketplace
           </Button>
         </div>
@@ -65,10 +69,15 @@ export default function Home() {
           </p>
 
           <div className="btn-group">
-            <Button type="default" className="btn-1" size="large">
+            <Button type="default" className="btn-1" size="large"
+              onClick={() => navigate("/faucet")}
+
+            >
               Join now
             </Button>
-            <Button type="primary" className="btn-2" size="large">
+            <Button type="primary" className="btn-2" size="large"
+              onClick={() => navigate("/market")}
+            >
               Explore Marketplace
             </Button>
           </div>
