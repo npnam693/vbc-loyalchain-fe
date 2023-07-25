@@ -29,7 +29,6 @@ function shortenAddress(address : string) {
 }
 
 function fixStringBalance(balance:string, decimal: number){
-  console.log(balance.length)
   if (balance.length < 15) return '0';
 
   for (let i = balance.length - 1; i >= 0; i--){
@@ -41,8 +40,6 @@ function fixStringBalance(balance:string, decimal: number){
     };
   }
   const idxDot : number = balance.length - decimal;
-
-  console.log(idxDot, balance)
 
 
   if(idxDot < 0){

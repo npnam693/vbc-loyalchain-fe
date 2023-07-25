@@ -60,8 +60,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
     })
   }
 
-  
-
   useEffect(() =>     {
     userState.address === data.from.address ? setDataOrder(data) : 
     setDataOrder({...data, fromValue: data.toValue, toValue: data.fromValue})
@@ -69,10 +67,9 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       getDataOnChain()
       setOkBtn(textOkBtn(data.status))
     }
-  }, [userState.balance, data.status])
+  }, [userState.balance, data.status, openModel, contentOnchain])
 
   const onClickRemove = async () => {
-    const storeData = store.getState()  
     let task: ITask = {
       id: taskState.taskList.length,
       status: 0,
@@ -93,7 +90,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
     dispatch(createTask(task));
   }
   const removeOrder1Chain = async (taskState: ITaskState, idTask: number) => {
-    const toaster = toast.loading("Remove Order..")
+    const toaster = toast.loading("Remove Order ..")
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     dispatch(updateTask({task, id: idTask}))
     try {
@@ -130,6 +127,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
       rerender && rerender()
+      getDataOnChain()
     } catch (error) {
       dispatch(updateTask({ task: { ...task, status: -1 }, id: task.id}))
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
@@ -149,6 +147,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       }))
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
       rerender && rerender()
+      getDataOnChain()
     } catch (error) {
       console.log(error)
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
@@ -191,6 +190,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         dispatch(updateTask({ task: task, id: task.id}))
         toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
         rerender && rerender()
+        getDataOnChain()
       } catch (error) {
         console.log(error);
         dispatch(updateTask({
@@ -251,6 +251,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
         console.log('alo')
         rerender && rerender()
+        getDataOnChain()
       } catch (error) {
         console.log(error);
         dispatch(updateTask({
@@ -303,7 +304,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
           true,
         )
         await createMethod.estimateGas({from: userState.address})
-        const createReceipt = createMethod.send({from: userState.address})
+        const createReceipt = await createMethod.send({from: userState.address})
 
 
         console.log(await appApi.updateStatusOrder(data._id, "sender accepted")
@@ -320,6 +321,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         task = {...task, status: 3, transactionHash: createReceipt.transactionHash}
         dispatch(updateTask({ task: task, id: task.id}))
         rerender && rerender()
+        getDataOnChain()
         setOpenModal(false)
       } catch (error) {
         console.log(error);
@@ -378,6 +380,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
           )
           toast.update(toaster, { render: "Token was refund successfully.", type: "success", isLoading: false, autoClose: 1000});
           rerender && rerender()
+          getDataOnChain()
       } catch (error) {
         dispatch(updateTask({ 
           task: { ...task, status: task.status === 1 ? -1 : -2 }, 
@@ -630,7 +633,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
                   onClick={() => hdOnOk(dataOrder.status)}>
                     {
                       (!IS_SELLER && data.status === "receiver withdrawn") ? "You have withdrawn" :
-                      textOkBtn(dataOrder.status)
+                      okBtn
                     }
                 </Button>
               }
@@ -783,44 +786,70 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
                   <>
                   <p>Lock contract ID:  
                     <span style={{fontWeight: 400}}> {
+                        data.fromValue.token.network !== data.toValue.token.network ?
                         generateContractID(appState.web3, data._id, data.from.address, data.to.address)
+                        :
+                        appState.web3.utils.keccak256(data._id)
                     }</span>
                 </p>
                 <p>Onchain data:</p>
-                <div style={{display: "flex", flexDirection:"row", alignItems:'flex-start', flex: 1}}>
-                    <Collapse
-                      size="small"
-                      style={{flex: 0.5, marginRight: 20}}
-                      items={[{label: <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
-                        <p>Buyer lock contract</p>
-                        {
-                          (IS_SELLER && dataOnChain != null && dataOnChain.buyer.timelock !== "0")  &&
-                          <Tooltip title="On-chain data confirmed accurate.">
-                            <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
-                          </Tooltip>
-                        }
-                      </div>, 
-                      children: contentOnchain.buyer ? contentOnchain.buyer : <></>}]}
-                      bordered={false}
-                    />
-                    <Collapse
-                      size="small"
-                      style={{flex: 0.5}}
-                      items={[{label: 
-                      <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
-                        <p>Seller lock contract</p>
-                        {
-                          (!IS_SELLER && dataOnChain != null && dataOnChain.seller.timelock !== "0")  &&
-                          <Tooltip title="On-chain data confirmed accurate.">
-                            <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
-                          </Tooltip>
-                        }
-                      </div>
-                    , children: contentOnchain.seller ? contentOnchain.seller : <></>}]}
-                      bordered={false}
-                    />
-                </div>
-                  </>
+                {
+                  data.fromValue.token.network !== data.toValue.token.network ? (
+                  <div style={{display: "flex", flexDirection:"row", alignItems:'flex-start', flex: 1}}>
+                      <Collapse
+                        size="small"
+                        style={{flex: 0.5, marginRight: 20}}
+                        items={[{label: <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                          <p>Buyer lock contract</p>
+                          {
+                            (IS_SELLER && dataOnChain != null && dataOnChain.buyer.timelock !== "0")  &&
+                            <Tooltip title="On-chain data confirmed accurate.">
+                              <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                            </Tooltip>
+                          }
+                        </div>, 
+                        children: contentOnchain.buyer ? contentOnchain.buyer : <></>}]}
+                        bordered={false}
+                      />
+                      <Collapse
+                        size="small"
+                        style={{flex: 0.5}}
+                        items={[{label: 
+                        <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                          <p>Seller lock contract</p>
+                          {
+                            (!IS_SELLER && dataOnChain != null && dataOnChain.seller.timelock !== "0")  &&
+                            <Tooltip title="On-chain data confirmed accurate.">
+                              <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                            </Tooltip>
+                          }
+                        </div>
+                      , children: contentOnchain.seller ? contentOnchain.seller : <></>}]}
+                        bordered={false}
+                      />
+                  </div>)
+                  :
+                  (
+                  <Collapse
+                  size="small"
+                  style={{flex: 0.5}}
+                  items={[{label: 
+                  <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                    <p>Seller lock contract</p>
+                    {
+                      (!IS_SELLER && dataOnChain != null && dataOnChain.seller.timelock !== "0")  &&
+                      <Tooltip title="On-chain data confirmed accurate.">
+                        <CheckCircleTwoTone twoToneColor="#52c41a" rev={""} style={{fontSize: '2rem', marginRight: 10}}/>
+                      </Tooltip>
+                    }
+                  </div>
+                , children: contentOnchain.seller ? contentOnchain.seller : <></>}]}
+                  bordered={false}
+                  />
+
+                  )
+                }
+              </>
                   
                 }
                 

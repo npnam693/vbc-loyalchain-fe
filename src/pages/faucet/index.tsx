@@ -98,7 +98,7 @@ const Faucet = () => {
             setIsLoading(false)
             setTxID(faucetRecipt.transactionHash)
             toast.update(toaster, { render: `Faceting ${selectedAmount} ${tokenSelected.token ? tokenSelected.token.symbol : tokenSelected.symbol} successfully` , type: "success", isLoading: false, autoClose: 1000});
-
+            onChangeWallet()
         } catch (error) {
             setIsLoading(false)
             toast.update(toaster, { render: "The faucet was fail.", type: "error", isLoading: false, autoClose: 1000});
@@ -227,7 +227,7 @@ const Faucet = () => {
             openSelect &&
             <SelectToken 
                 closeFunction={() => setOpenSelect(false)}
-                onClickSelect={(token) => {setTokenSelected(token); setOpenSelect(false)}}
+                onClickSelect={(token) => {setTokenSelected(token); setOpenSelect(false); onChangeWallet()}}
                 isCheckNetwork
             />
         }
