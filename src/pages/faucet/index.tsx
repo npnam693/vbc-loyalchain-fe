@@ -93,7 +93,6 @@ const Faucet = () => {
         try {
             await faucetMethod.estimateGas({from: userState.address})
             const faucetRecipt = await faucetMethod.send({from: userState.address})
-            console.log(faucetRecipt)
             dispatch(saveInfo({...userState, wallet: await getBalanceAccount(appState.web3, userState, appState.tokens)}))
             setIsLoading(false)
             setTxID(faucetRecipt.transactionHash)

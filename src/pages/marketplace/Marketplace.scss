@@ -13,6 +13,11 @@
         align-items: flex-end;
         justify-content: space-between;
         margin-bottom: 20px;
+        .market-btn-container {
+            display: flex;
+            flex-direction:column;
+            justify-content: flex-start
+        }
         .btn-create {
             background-color: var(--color-secondary);
             border: 2px solid #ccc;
@@ -136,4 +141,129 @@
 
 :where(.css-dev-only-do-not-override-1wazalj).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
     z-index: 0;
+}
+
+@media only screen and (max-width: 600px) {
+    .app-market{
+        .title {
+            font-size: 2rem;
+        }
+        .header{
+            display: flex;
+            flex-direction: column;
+            
+            .statistic-list{
+                display: flex;
+                flex-direction: row;
+            }
+            
+            .btn-create{
+                width: 40%;
+            }
+
+            .market-btn-container {
+                margin-top: 20px;
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between
+            }
+        }
+    
+    }
+    .app-market-filter {
+        .header{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            
+            &--tab {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                &--item {
+                    font-size: 1.6rem;
+                    font-weight: 500;
+                    color: black;
+                    min-width: 60px;
+                    border-bottom: 3px solid #fafafa;
+                    margin-right: 16px;
+                    cursor: pointer;
+                    &--show {
+                        border-bottom: 3px solid var(--color-secondary);
+                        padding-bottom: 2px;
+                    }
+                }
+            }
+    
+            &--option {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                
+                &--item {
+                    font-size: 1.6rem;
+                    font-weight: 500;
+                    color: var(--color-secondary);
+                    cursor: pointer;
+                }
+    
+                .close-icon {
+                    margin-left: 30px;
+                    color: black;
+                    font-size: 2.5rem;
+                    cursor: pointer;
+                }
+            }
+        }
+    
+        .divider {
+            border-color: rgba($color: #a3a3a3, $alpha: 0.6);
+            margin: 10px 0px;
+        }
+            
+        .content-filter {
+            margin-top: 20px;
+            .item {
+                margin-bottom: 50px;
+                &--title {
+                    font-size: 1.6rem;
+                    font-weight: 600;
+                    color: var(--color-primary);
+                    margin-bottom: 16px;
+                }
+    
+                &--token {
+                    margin-bottom: 16px;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    p {
+                        color: black;
+                        font-weight: 400;
+                        margin: 6px 0;
+                        font-size: 1.4rem;
+                        min-width: 100px;
+                    }
+    
+                    Button {
+                        // background-color: var(--color-secox  ndary);
+                    }
+                }
+    
+                &--amount {
+                    margin-top: -16px;
+                    margin-left: 100px;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                }
+            }
+        }
+    }
+    
+    .grid-order {
+        grid-template-columns: repeat(auto-fill, 320px); /* 2 */
+        grid-gap: 20px; /* 3 */
+        justify-content: center; /* 4 */
+    }
 }

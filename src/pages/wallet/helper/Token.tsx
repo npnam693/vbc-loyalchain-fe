@@ -45,7 +45,6 @@ const Token = ({userState} : any) => {
           {
             userState.wallet.map((data : any, index:number) => (
               <TokenItemWallet 
-                // onClickItem={() => console.log(data.token.address)}
                 data={data}
                 key={index}
                 onClickSend={() => setTransfering({open: true, token: data}) }

@@ -224,7 +224,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       dispatch(updateTask({task, id: idTask}))
       try {
         const exchangeContract = getSwapTwoContract(appState.web3, data.fromValue.token.network);
-        console.log(secretKey)
         await exchangeContract.methods.withdraw(
           generateContractID(appState.web3, data._id, data.from.address, data.to.address),
           secretKey
@@ -249,7 +248,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         task = {...task, status: 3, transactionHash: withdrawReceipt.transactionHash}
         dispatch(updateTask({ task: task, id: task.id}))
         toast.update(toaster, { render: "Withdraw token for order successfully.", type: "success", isLoading: false, autoClose: 1000});
-        console.log('alo')
         rerender && rerender()
         getDataOnChain()
       } catch (error) {

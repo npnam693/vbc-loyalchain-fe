@@ -152,7 +152,6 @@ export default function CreateOrder() {
         BigInt(10 ** Number(18) * Number(formData.to.amount)),
       ).send({from: userState.address})
       
-      console.log(createRecipt)
       // Save order to database
       const orderData = await appApi.createOrder({
         fromValue: formData.from.amount,

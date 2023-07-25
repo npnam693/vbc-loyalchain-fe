@@ -49,7 +49,6 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(async (config) => {
   let token = await getToken();
-  console.log('TOKEN', token)
   if (token) {
     config.headers = {
       Authorization: `Bearer ${token}`,

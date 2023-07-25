@@ -72,3 +72,30 @@
     min-width: 34px;
     text-align: center;
 }
+
+@media only screen and (max-width: 600px) {
+    .app-market--pane{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        Button {
+            display: none;
+            margin: 0 0.5rem;
+            background-color: #ccc;
+            color: black;
+            font-weight: 500;
+        }
+        .icon-clearfilter{
+            display: none;
+        }
+        .all-filter{
+            display: block;
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            font-weight: 500;
+            margin-left: 0;
+        }
+    }
+}

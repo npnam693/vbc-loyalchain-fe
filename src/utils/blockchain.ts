@@ -12,7 +12,6 @@ export const getBalanceToken = async (myWeb3: any, userState: IUserState, token:
     let balance = await tokenContract.methods.balanceOf(userState.address).call(
         {from: userState.address}
     )
-    console.log(balance)
     const decimals = await tokenContract.methods.decimals().call({from: userState.address})
 
 

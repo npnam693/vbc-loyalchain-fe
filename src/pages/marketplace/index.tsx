@@ -118,7 +118,6 @@ const Marketplace = () => {
   }, [filter.filterData, userState.wallet, userState.balance])
 
 
-  console.log(filter.filterData)
   
   const toggleModeView = () => { setIsListMode(!isListMode) };
   const openFilter = () => {
@@ -399,7 +398,7 @@ const Marketplace = () => {
           }
         </div>
         
-        <div style={{display: 'flex', flexDirection:'column', justifyContent: 'flex-start'}}>
+        <div className="market-btn-container">
           <Button className="btn-create" style={{marginTop: 10}}
             onClick={appState.isConnectedWallet ? () => navigate('create') 
               : () => showConfirmConnectWallet(dispatch, appState, userState, () => navigate('create') )}>

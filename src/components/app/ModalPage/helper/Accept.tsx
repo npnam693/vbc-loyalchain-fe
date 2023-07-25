@@ -6,7 +6,6 @@ import PairToken from '../../PairToken';
 import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain';
 
 const ModalAccept = ({task, taskState, afterClose} : IModalElement) => {
-  console.log(task)
   return (
     <Modal
       title="Accept Order"

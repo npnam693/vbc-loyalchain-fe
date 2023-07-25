@@ -38,7 +38,6 @@ export default function TableOrder(props : any) {
 
   const standardizeData = props.data.map((item : any) => {
     const itemData : any = []
-    console.log(item._id)
     itemData.push('#' + item._id.slice(0,4) + '...' + item._id.slice(-5))
     itemData.push(< PairToken from_img={item.fromValue.token.image} to_img={item.toValue.token.image} />)
     itemData.push(`${item.fromValue.amount} ${item.fromValue.token.symbol}`)
@@ -209,19 +208,6 @@ export default function TableOrder(props : any) {
           </div>
           ))
         }
-        
-        
-        {/* {mockData.map((value : any, index) => (
-          <div className="content-item">
-            <div className="item-field">
-              {baseTable.map((element, index) => (
-                <div className="header-item" style={{ flex: element.size }}>
-                  {value[element.title]}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))} */}
       </div>
     </div>
   );

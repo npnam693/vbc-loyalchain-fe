@@ -25,3 +25,4 @@ export const getTxOneOnchain = async (contractID: string, chainID: number) => {
     const data = await contract.methods.transactions(contractID).call()
     return data
 }
+
