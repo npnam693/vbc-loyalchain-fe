@@ -12,13 +12,31 @@ import AppLayout from "./layouts";
 import 'react-toastify/dist/ReactToastify.css';
 import LoadingPage from "./components/app/LoadingPage";
 import ModalPage from "./components/app/ModalPage";
-import { closeTaskModel } from "./state/task/taskSlice";
+import { closeTaskModel, doneOneTask, updateTask } from "./state/task/taskSlice";
 const queryClient = new QueryClient();
 
 function App() {
   useEffect(() => {
     store.dispatch(closeTaskModel())
-  })
+    const myTasks = store.getState().taskState.taskList
+    
+    for (let i = 0; i < myTasks.length; i++) {
+      if (![3, -1,-2].includes(myTasks[myTasks.length - i -1].status)) {
+        store.dispatch(updateTask({
+          id: myTasks.length - i -1,  
+          task: {...myTasks[myTasks.length - i -1], status: myTasks[myTasks.length - i -1].status === 1 ? -1 : -2 }}))
+        store.dispatch(doneOneTask())
+        }
+      else {
+        break
+      }
+    }
+
+
+
+
+
+  }, [])
 
   return (
     <Provider store={store}>

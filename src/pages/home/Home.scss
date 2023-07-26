@@ -9,6 +9,7 @@ $padding-v-intro: 40px;
         align-items: flex-end;
         height: 800px;
         flex: 1;
+        overflow: hidden;
         .intro-left{
             flex:0.6;
             .title {
@@ -66,7 +67,7 @@ $padding-v-intro: 40px;
         .intro-right{
             flex:0.6;
             .title {
-                font-size: 2rem;
+                font-size: 3rem;
                 color: var(--color-text-white);
                 text-align: right;
             }   
@@ -107,7 +108,7 @@ $padding-v-intro: 40px;
     }
 
     &--whychoose{
-        // padding: 100px;
+        padding: 0 50px 0 50px;
         &--mobile {
             display: none;
         }
@@ -136,7 +137,7 @@ $padding-v-intro: 40px;
     }
 
     &--package {
-        padding: 100px 0 200px 0;
+        padding: 100px 200px 200px 200px;
         .title {
             font-size: 3rem;
             font-weight: 700;
@@ -234,6 +235,7 @@ $padding-v-intro: 40px;
         }
     
         &--whychoose{
+            padding: 0;
             &--pc {
                 display: none;
             }

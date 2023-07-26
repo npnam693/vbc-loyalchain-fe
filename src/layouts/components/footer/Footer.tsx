@@ -39,8 +39,7 @@ const Footer = () => {
               </div>
             </a>
             <p className="footer-company-intro">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. In urna
-              ultrices amet tellus ornare. Faucibus id posuere massa
+            <span style={{fontWeight: 600}}>Vietnam Blockchain Corporation</span> - A leading pioneer of the Blockchain field in Vietnam aims to create new value for high quality Vietnamese branded products.
             </p>
           </div>
 

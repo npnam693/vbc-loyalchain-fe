@@ -76,12 +76,16 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       type: "",
       funcExecute: () => {},
       from: {address: data.from.address, token: data.fromValue.token, amount: data.fromValue.amount},
-      to: {address: data.to.address, token: data.toValue.token, amount: data.toValue.amount},
+      to: {address: data.to?.address, token: data.toValue.token, amount: data.toValue.amount},
       orderID: data._id
     }
 
     // Check whether the order is swap one chain or two chain.
     if (data.fromValue.token.network === data.toValue.token.network) {
+      if (userState.network !== data.fromValue.token.network) {
+        requestChangeNetwork(data.fromValue.token.network)
+        return
+      }      
       task = {...task, type: "REMOVE", funcExecute: removeOrder1Chain}
     }
     else {
@@ -90,25 +94,18 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
     dispatch(createTask(task));
   }
   const removeOrder1Chain = async (taskState: ITaskState, idTask: number) => {
+    console.log(data)
     const toaster = toast.loading("Remove Order ..")
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     dispatch(updateTask({task, id: idTask}))
     try {
       const exchangeContract = getSwapOneContract(appState.web3, userState.network);
-      const SWAP_ADDRESS_CONTRACT = getAddressOneChainContract(userState.network)
       
-      const refundMethod = exchangeContract.methods.refund( data.txId )
-      const refundRecepit = await appState.web3.eth.sendTransaction({
-        from: userState.address,
-        gasPrice: "0",
-        gas: await refundMethod.estimateGas({
-          from: userState.address,
-          data: refundMethod.encodeABI()
-        }),
-        to: SWAP_ADDRESS_CONTRACT,
-        value: "0",
-        data: refundMethod.encodeABI(),
-      })
+      const refundMethod = exchangeContract.methods.refund( data.contractId )
+
+      await refundMethod.estimateGas({from: userState.address})
+
+      const refundRecepit = await refundMethod.send({from: userState.address})
       
       task = {...task, status: 2, transactionHash: refundRecepit.transactionHash}
       dispatch(updateTask({ task, id: task.id }))
@@ -124,11 +121,10 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       
       task = {...task, status: 3}
       dispatch(updateTask({ task: task, id: task.id}))
-      
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
       rerender && rerender()
-      getDataOnChain()
     } catch (error) {
+      console.log(error)
       dispatch(updateTask({ task: { ...task, status: -1 }, id: task.id}))
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
     }
@@ -147,7 +143,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       }))
       toast.update(toaster, { render: "The order was removed successfully.", type: "success", isLoading: false, autoClose: 1000});
       rerender && rerender()
-      getDataOnChain()
     } catch (error) {
       console.log(error)
       toast.update(toaster, { render: "Remove order fail.", type: "error", isLoading: false, autoClose: 1000});
@@ -320,7 +315,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         dispatch(updateTask({ task: task, id: task.id}))
         rerender && rerender()
         getDataOnChain()
-        setOpenModal(false)
       } catch (error) {
         console.log(error);
         dispatch(updateTask({
@@ -672,8 +666,8 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
               ] : (
               data.status === 'sender cancelled' ? 
               [
-                {title: "Deposit", status: "finish"},
-                {title: "Wait Recipient", status: "error"},
+                {title: "Deposit", status: "error"},
+                {title: "Wait Recipient", status: "wait"},
                 {title: "Withdraw", status: "wait"},
                 {title: "Done", status: "wait"}
               ]  : // "receiver cancelled"

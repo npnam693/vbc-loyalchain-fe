@@ -48,7 +48,7 @@ export const hdConnectWallet = async () => {
             }
             myUserState.wallet = await getBalanceAccount(myWeb3, myUserState, storeData.appState.tokens)
             if (!storeData.appState.isListening) {
-                window.ethereum.on("accountsChanged", () => hdAccountChange())
+                window.ethereum.on("accountsChanged", () =>  hdAccountChange())
                 window.ethereum.on("chainChanged", () => hdNetworkChange())
             }
             store.dispatch(saveInfo(myUserState));
@@ -67,11 +67,11 @@ const hdAccountChange = async () => {
     let storeData = store.getState();
     if (!storeData.appState.isListening) return;
     const toastify = toast.loading("Account changed, sign message to continue...")
+    try {
     const myWeb3 = new Web3(window.ethereum);
     await window.ethereum.request({ method: "eth_requestAccounts" });
     const address = (await myWeb3.eth.getAccounts())[0];
     const signature = await signatureLogin(myWeb3, address);
-    try {
         const res = await appApi.login({
             address: address,
             signature: signature,

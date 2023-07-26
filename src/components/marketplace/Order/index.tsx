@@ -225,19 +225,16 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
     <div className="app-order">
     <div className="app-order--info" style={{marginBottom: 51}}>
       <div className="app-order--info--token">
-        {/* <img src={data.toValue.token.image} alt="StarBuck" width={60} /> */}
-          <Skeleton.Avatar active size={68} shape={'circle'} style={{backgroundColor: "#273c4f"}} />
+          <Skeleton.Avatar active size={60} shape={'circle'} style={{backgroundColor: "#273c4f"}} />
         <div>
-          {/* <p className="quantity">{data.toValue.amount} <span className="symbol">{data.toValue.token.symbol}</span></p> */}
         </div>
       </div>
       <div className="icon-container" style={{borderColor: "#aaa", position:"relative", bottom: -10}} >
         <SwapOutlined rev={""} className="icon" style={{color: "#aaa"}}/>
       </div>
       <div className="app-order--info--token">
-        <Skeleton.Avatar active size={68} shape={'circle'} style={{backgroundColor: "#273c4f"}} />
+        <Skeleton.Avatar active size={60} shape={'circle'} style={{backgroundColor: "#273c4f"}} />
         <div>
-          {/* <p className="quantity">{data.fromValue.amount} <span className="symbol">{data.fromValue.token.symbol}</span></p> */}
         </div>
       </div>
     </div>

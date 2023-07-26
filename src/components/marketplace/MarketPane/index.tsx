@@ -31,7 +31,7 @@ const MarketPane = (props: IMarketPaneProps) => {
         </Button>
         <div>
           <Button style={{margin: 0, borderRadius: 0, borderTopLeftRadius: 6, borderBottomLeftRadius: 6, 
-            backgroundColor: props.dataFilter.network === 4444 ? 'rgba(21, 191, 253, 0.5)' : '#ccc' }}
+            backgroundColor: props.dataFilter.network === 4444 ? 'rgba(21, 191, 253, 0.5)' : 'white' }}
             onClick={() => {
               if (props.dataFilter.network === 4444)
                 props.funcNetwork(-1)
@@ -42,7 +42,7 @@ const MarketPane = (props: IMarketPaneProps) => {
           </Button>
 
           <Button style={{margin: 0, borderRadius: 0,
-            backgroundColor: props.dataFilter.network === 8888 ? 'rgba(21, 191, 253, 0.5)' : '#ccc' }}
+            backgroundColor: props.dataFilter.network === 8888 ? 'rgba(21, 191, 253, 0.5)' : 'white' }}
             onClick={() => {
               if (props.dataFilter.network === 8888)
                 props.funcNetwork(-1)
@@ -53,7 +53,7 @@ const MarketPane = (props: IMarketPaneProps) => {
 
           <Button style={{margin: 0, borderRadius: 0, borderTopRightRadius: 6, borderBottomRightRadius: 6,
             marginRight: 10,
-            backgroundColor: props.dataFilter.network === 0 ? 'rgba(21, 191, 253, 0.5)' : '#ccc' }}
+            backgroundColor: props.dataFilter.network === 0 ? 'rgba(21, 191, 253, 0.5)' : 'white' }}
             onClick={() => {
               if (props.dataFilter.network === 0)
                 props.funcNetwork(-1)
@@ -114,7 +114,7 @@ const MarketPane = (props: IMarketPaneProps) => {
             style={{
               backgroundColor: !props.isListMode
                 ? "var(--color-secondary)"
-                : "#ccc",
+                : "white",
             }}
           >
             <AppstoreOutlined rev={""} />
@@ -130,7 +130,7 @@ const MarketPane = (props: IMarketPaneProps) => {
             style={{
               backgroundColor: props.isListMode
                 ? "var(--color-secondary)"
-                : "#ccc",
+                : "white",
             }}
           >
             <BarsOutlined rev={""} />

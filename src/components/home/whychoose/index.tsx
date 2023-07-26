@@ -1,5 +1,4 @@
 import React from "react";
-import imgmy from "../../../assets/svg/home/whychoose-img1.svg";
 import "./WhyChoose.scss";
 interface IWhyChooseProps {
   size: number;
@@ -27,7 +26,7 @@ export default function WhyChoose(props: IWhyChooseProps): JSX.Element {
   if (props.size === 1) {
     return (
       <div className="app-whychoose">
-        <img src={imgmy} alt="loyalChain" />
+        <img src={props.uriImg} alt="loyalChain" className="app-whychoose--img--2" />
 
         <p
             className="app-whychoose--title"

@@ -55,7 +55,6 @@ const Layout = ({ children }: LayoutProps) => {
     }
     // Clear modal in application
     fetchTokens()
-    
 
   }, [])    
   
@@ -124,7 +123,7 @@ const Layout = ({ children }: LayoutProps) => {
         {
           taskState.taskList.length === 0 ?
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> :
-          taskState.taskList.map((task, index) => {
+          taskState.taskList.slice(0).reverse().map((task, index) => {
             return (
               <div key={index} style={{ 
                 display:'flex', flexDirection:'row', alignItems:"center", 
@@ -150,7 +149,7 @@ const Layout = ({ children }: LayoutProps) => {
                   }
                   </p>
                   <p style={{fontSize: '1.2rem'}}>Task ID: #0{task.id}
-                    <span style={{marginLeft: 10}}>Address: {
+                    <span style={{marginLeft: 10}}>Account: {
                       getAddress(task, task.type)?.slice(0, 5) +'...' + getAddress(task, task.type)?.slice(-10)
                     }</span>
                   </p>

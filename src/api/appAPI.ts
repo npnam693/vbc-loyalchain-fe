@@ -74,7 +74,6 @@ class AppAPI {
         return axiosClient.post(url, {nonce: nonce})
     }
 
-
     createTransfer = (data: any) => {
         const url = this.LOYALCHAIN_API.concat("/transactions/create");
         return axiosClient.post(url, {

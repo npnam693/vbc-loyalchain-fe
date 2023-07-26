@@ -64,12 +64,13 @@ const Header = () => {
               flexDirection: "row",
               alignItems: "center",
             }}
+            className="gotoTop"
           >
             
             <ConnectWallet />
             {
               (headerShow && currentUrl === "/") &&
-              <FloatButton style={{right: 80}} icon={<VerticalAlignTopOutlined rev={""}/>} 
+              <FloatButton style={{right: 80}} icon={<VerticalAlignTopOutlined rev={""} />} 
                 onClick={() => window.scrollTo({top: 0, left: 0, behavior: 'smooth'})}
               />
             }

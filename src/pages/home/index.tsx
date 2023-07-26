@@ -5,6 +5,12 @@ import { useNavigate } from "react-router-dom";
 
 import SVGIntro1 from "../../assets/svg/home/intro1.svg";
 import SVGIntro2 from "../../assets/svg/home/intro2.svg";
+
+import WhyConnect from '../../assets/svg/home/whychoose-connect.svg'
+import WhyExchange from '../../assets/svg/home/whychoose-exchange.svg'
+import WhyReward from '../../assets/svg/home/whychoose-rewards.svg'
+import WhySecurity from '../../assets/svg/home/whychoose-img1.svg'
+
 import Logo from "../../assets/svg/logo_loyal-chain.svg";
 import Gift_Lottie from "../../assets/lottie/gift.json";
 import WhyChoose from "../../components/home/whychoose";
@@ -95,39 +101,47 @@ export default function Home() {
               size={2}
               uriImg={SVGIntro2}
               title="Integration other"
-              content="Lorem ipsum dolor sit amet, consectetur
-              adipisicing elit, sed do eiusmod tempor
-              incididunt Laoreet non curabitur gravida
-              sagittis aliquam bibendum."
+              content="The Loyalchain solution has successfully integrated numerous renowned brands such as Starbucks, 
+              McDonald's, Walmart, and more. Loyalchain enables your loyalty program to reach the rest of the world, 
+              opening up significant opportunities to attract customers and establish connections with other businesses."
             />{" "}
             <WhyChoose
               size={1}
-              uriImg={SVGIntro2}
-              title="Integration other"
-              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-            />
+              uriImg={WhyExchange}
+              title="Point Exchange"
+              content="Loyalchain focuses on creating a mechanism that allows users 
+              to exchange ERC20 loyalty points peer-to-peer, even when they are on different 
+              networks, based on proprietary technology."
+            />{" "}
           </div>
+
+          : 
           <div
             className="app-home--whychoose--list-2"
           >
+
+        <WhyChoose
+              size={1}
+              uriImg={WhyReward}
+              title="Reward Redemption"
+              content="Loyalchain also enables businesses to deploy NFT rewards for customers 
+              directly using blockchain technology. Users can use 
+              their accumulated loyalty points to redeem these NFT rewards."
+            />
             <WhyChoose
               size={1}
-              uriImg={SVGIntro2}
-              title="Integration other"
-              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+              uriImg={WhyConnect}
+              title="Interoperability"
+              content="The main strengths of Loyalchain is ability to connect and facilitate transactions 
+              between diverse loyalty programs, providing users with a more comprehensive and flexible rewards ecosystem."
             />{" "}
             <WhyChoose
               size={1}
-              uriImg={SVGIntro2}
-              title="Integration other"
-              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-            />{" "}
-            <WhyChoose
-              size={1}
-              uriImg={SVGIntro2}
-              title="Integration other"
-              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-            />{" "}
+              uriImg={WhySecurity}
+              title="Transparency and Trust"
+              content="Blockchain's inherent transparency ensures that all loyalty program builds 
+              trust among users, as they can verify the authenticity of each reward and point transfer."
+            />
           </div>
         </div>
 
@@ -139,39 +153,46 @@ export default function Home() {
               size={2}
               uriImg={SVGIntro2}
               title="Integration other"
-              content="Lorem ipsum dolor sit amet, consectetur
-              adipisicing elit, sed do eiusmod tempor
-              incididunt Laoreet non curabitur gravida
-              sagittis aliquam bibendum."
+              content="The Loyalchain solution has successfully integrated numerous renowned brands such as Starbucks, 
+              McDonald's, Walmart, and more. Loyalchain enables your loyalty program to reach the rest of the world, 
+              opening up significant opportunities to attract customers and establish connections with other businesses."
             />{" "}
+
           </div>
           <div
             className="app-home--whychoose--list-2"
           >
             <WhyChoose
               size={1}
-              uriImg={SVGIntro2}
-              title="Integration other"
-              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+              uriImg={WhyExchange}
+              title="Point Exchange"
+              content="Loyalchain focuses on creating a mechanism that allows users 
+              to exchange ERC20 loyalty points peer-to-peer, even when they are on different 
+              networks, based on proprietary technology."
+            />{" "}
+
+            <WhyChoose
+              size={1}
+              uriImg={WhyReward}
+              title="Reward Redemption"
+              content="Loyalchain also enables businesses to deploy NFT rewards for customers 
+              directly using blockchain technology. Users can use 
+              their accumulated loyalty points to redeem these NFT rewards."
             />
             <WhyChoose
               size={1}
-              uriImg={SVGIntro2}
-              title="Integration other"
-              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
+              uriImg={WhyConnect}
+              title="Interoperability"
+              content="The main strengths of Loyalchain is ability to connect and facilitate transactions 
+              between diverse loyalty programs, providing users with a more comprehensive and flexible rewards ecosystem."
             />{" "}
             <WhyChoose
               size={1}
-              uriImg={SVGIntro2}
-              title="Integration other"
-              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-            />{" "}
-            <WhyChoose
-              size={1}
-              uriImg={SVGIntro2}
-              title="Integration other"
-              content="Easily integrate with all your need favorite tools through and APIsing including automatic "
-            />{" "}
+              uriImg={WhySecurity}
+              title="Transparency and Trust"
+              content="Blockchain's inherent transparency ensures that all loyalty program builds 
+              trust among users, as they can verify the authenticity of each reward and point transfer."
+            />
           </div>
         </div>
 

@@ -85,25 +85,25 @@ const ModalSellerCreate = ({task, taskState, afterClose} : IModalElement) => {
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 30}}>
         <div>
           <p style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem"}}>
-            {task.to?.token.name}
+            {task.from?.token.name}
           </p>
-          <p style={{textAlign: "right"}}>{mappingNetwork(task.to?.token.network)}</p>
+          <p style={{textAlign: "right"}}>{mappingNetwork(task.from?.token.network)}</p>
           <p style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--color-secondary)", textAlign: "right"}}>
-            {task.to?.amount} {task.to?.token.symbol}
+            {task.from?.amount} {task.from?.token.symbol}
           </p>
         </div>
         <PairToken
-          from_img={task.to?.token.image}
-          to_img={task.from?.token.image}
+          from_img={task.from.token.image}
+          to_img={task.to?.token.image}
           width={60}
         />
         <div>
           <p
             style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: "1.6rem",}}
           >
-            {task.from.token.name}
+            {task.to?.token.name}
           </p>
-          <p>{mappingNetwork(task.from.token.network)}</p>
+          <p>{mappingNetwork(task.to?.token.network)}</p>
           <p
             style={{
               fontSize: "1.6rem",
@@ -111,7 +111,7 @@ const ModalSellerCreate = ({task, taskState, afterClose} : IModalElement) => {
               color: "var(--color-secondary)",
             }}
           >
-            {task.from.amount} {task.from.token.symbol}
+            {task.to?.amount} {task.to?.token.symbol}
           </p>
         </div>
       </div>

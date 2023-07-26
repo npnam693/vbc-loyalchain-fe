@@ -50,7 +50,8 @@ const HistoryItem = (props : any) => {
                     data.transactionType === "transfer" ? 
                         <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
                             <img src={data.fromValue.token ? data.fromValue.token.image : 'token'} alt={""} style={{height: 50, marginRight: 20}}/>
-                            <p style={{fontWeight: 600, color: IS_TRANSFER ? "greenyellow" : '#ddd', fontSize: '1.4rem', minWidth: 70}}>+{data.fromValue.amount} {data.fromValue.token.symbol}</p>
+                            <p style={{fontWeight: 600, color: data.from.address !== userState.address ? "greenyellow" : '#ddd', fontSize: '1.4rem', minWidth: 70}}>
+                                {data.from.address === userState.address ? '-' : '+'}{data.fromValue.amount} {data.fromValue.token.symbol}</p>
                         </div>
                     :
                     <div style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
