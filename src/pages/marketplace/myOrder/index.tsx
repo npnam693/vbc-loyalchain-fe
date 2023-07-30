@@ -6,6 +6,11 @@ import { AppstoreOutlined, BarsOutlined, LeftOutlined, RightOutlined } from '@an
 import MyOrderItem from '../../../components/marketplace/MyOrderItem';
 import { useAppSelector } from '../../../state/hooks';
 import Order from '../../../components/marketplace/Order';
+import { getSwapOneContract, getSwapTwoContract } from '../../../services/contract';
+import { generateContractID } from '../../../services/blockchain';
+import Web3 from 'web3';
+import { RPC_SOCKET_URL, RPC_URL } from '../../../constants/network';
+import { getAddressTwoChainContract } from '../../../utils/blockchain';
 
 interface IDataOrder {
     pendingOrders: any[],
@@ -23,6 +28,7 @@ const MyOrder = () => {
     const [loading, setLoading] = useState<boolean>()
     const [render, setRender ] = useState<boolean>(false)
     const [next, setNext] = useState<boolean>(false)
+    const {appState, userState} = useAppSelector(state => state)
     const fetchData = async () => {
         let res;
         if (pageName === 'pendingOrder') {
@@ -68,8 +74,7 @@ const MyOrder = () => {
         }
         setLoading(false)
     }
-    console.log(dataFetch)
-    
+        
     useEffect(() => {
         setLoading(true)
         fetchData()
@@ -78,9 +83,13 @@ const MyOrder = () => {
     useEffect(() => {
         fetchData()
     }, [render])
+    useEffect(() => {
+        setInterval(() => {
+            setRender((render) => !render)
+        }, 3000)
+    }, [])
 
-
-
+    console.log('render')
   return (
     <div className='app-myOrder'>      
         <p className="title">Marketplace / My Order</p>

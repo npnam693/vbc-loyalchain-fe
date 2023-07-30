@@ -188,7 +188,7 @@ const Layout = ({ children }: LayoutProps) => {
       />
       <Header />
       <div style={{ height: "var(--header-height)" }}></div>
-      <div style={{ margin: "30px var(--app-margin) 0 var(--app-margin)" }}>
+      <div style={{margin: "30px var(--app-margin) 0 var(--app-margin)" }}>
         {children}
       </div>
 

@@ -26,8 +26,6 @@ const Header = () => {
     }
   };
 
-
-
   return (
     <>
       <div
@@ -49,6 +47,7 @@ const Header = () => {
                 <div key={idx}>
                   <Link
                     to={item.path}
+                    style={{padding: '20px 0 20px 0'}}
                     className={clsx({ tabFocus: currentUrl === item.path })}
                   >
                     {t(item.key)}

@@ -67,7 +67,7 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
       getDataOnChain()
       setOkBtn(textOkBtn(data.status))
     }
-  }, [userState.balance, data.status, openModel, contentOnchain])
+  }, [data, openModel])
 
   const onClickRemove = async () => {
     let task: ITask = {

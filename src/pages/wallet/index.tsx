@@ -41,7 +41,6 @@ const Wallet = () => {
     return String(joinedTime.toFixed(0)) + ' days'
   }
 
-  console.log(getJoinedTime())
   return (
     <div className="app-wallet">
       <div className="content">

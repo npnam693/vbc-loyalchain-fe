@@ -9,7 +9,6 @@ $padding-v-intro: 40px;
         align-items: flex-end;
         height: 800px;
         flex: 1;
-        overflow: hidden;
         .intro-left{
             flex:0.6;
             .title {
@@ -47,7 +46,7 @@ $padding-v-intro: 40px;
                 position: absolute;                
                 height: 500px;
                 bottom: 50px;
-                right: -9vw;
+                right: -8.8vw;
             }
             .lottie-gift {
                 height: 20rem;

@@ -21,3 +21,8 @@ export const RPC_URL : IRPC_URL= {
     4444: 'https://mbctest.vbchain.vn/VBCinternship2023',
     8888: 'https://agridential.vbchain.vn/VBCinternship2023'
 }
+
+export const RPC_SOCKET_URL : IRPC_URL= {
+    4444: 'wss://mbctest.vbchain.vn/VBCinternship2023',
+    8888: 'wss://agridential.vbchain.vn/VBCinternship2023'
+}
