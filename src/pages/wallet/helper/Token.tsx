@@ -3,21 +3,36 @@ import TokenItemWallet from "../../../components/wallet/TokenItem"
 import { SendOutlined, SwapOutlined } from "@ant-design/icons"
 // import { fixStringBalance } from "../../../utils/string"
 import SendToken from "../../../components/app/SendToken"
-import { useState } from "react"
-import { mappingCurrency } from "../../../utils/blockchain"
+import { useEffect, useState } from "react"
+import { getBalanceAccount, mappingCurrency } from "../../../utils/blockchain"
 import { useNavigate } from "react-router-dom"
 import SelectToken from "../../../components/app/SelectToken"
+import { useAppDispatch, useAppSelector } from "../../../state/hooks"
+import { saveInfo } from "../../../state/user/userSlice"
+import { fixStringBalance } from "../../../utils/string"
 
 const Token = ({userState} : any) => {
   const navigate = useNavigate()
-  
+  const dispatch = useAppDispatch()
+  const {appState} = useAppSelector(state => state)
+
   const [transfering, setTransfering] = useState<any>({
     open: false,
     token: {},
   });
 
   const [isSelectToken, setIsSelectToken] = useState(false)
-
+  useEffect(() => {
+    const getBalance = async () => {
+      dispatch(saveInfo({...userState, 
+        wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
+        balance:fixStringBalance(String(
+            await appState.web3.eth.getBalance(userState.address)
+        ), 18)})
+      )
+    }
+    getBalance()
+  }, [])
 
   return (
       <div className="app-wallet--token">

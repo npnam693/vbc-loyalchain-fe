@@ -170,7 +170,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         await withdrawMethod.estimateGas({from: userState.address})
 
         const withdrawReceipt = await withdrawMethod.send({from: userState.address})
-        
 
         dispatch(saveInfo({...userState, 
           wallet: await getBalanceAccount(appState.web3, userState, appState.tokens),
@@ -461,6 +460,10 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
         }
         return onSellerClickDeposit()
       } else if (status === "receiver withdrawn") {
+        if (data.toValue.token.network !== userState.network) {
+          await requestChangeNetwork(data.toValue.token.network);
+          return;
+        }
         return onSellerClickWithdraw()
       } else {
         return setOpenModal(false)
