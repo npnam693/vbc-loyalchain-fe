@@ -136,7 +136,6 @@ const Order = ({data, skeleton} : IOrderItemProps) => {
     dispatch(doneOneTask())
   }
   const onClickAccept = async () => {
-    console.log(data)
     if (data.toValue.token.network !== userState.network) {
       requestChangeNetwork(data.toValue.token.network);
       return;

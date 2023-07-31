@@ -129,7 +129,7 @@ const Layout = ({ children }: LayoutProps) => {
                 display:'flex', flexDirection:'row', alignItems:"center", 
                 padding: "5px 20px",   margin: "5px 0", borderRadius: 3, 
                 backgroundColor: 'rgba(219, 219, 219, 0.5)'}}
-                onClick={() => dispatch(openTaskModel(index))}
+                onClick={() => dispatch(openTaskModel(taskState.taskList.length - index - 1))}
               >
                 <div style={{margin: "0 16px 0 -10px"}}>
                   {

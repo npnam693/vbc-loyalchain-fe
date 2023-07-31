@@ -22,7 +22,6 @@ class AppAPI {
 
     // App
     getTokens = () => {
-        console.log(this.LOYALCHAIN_API)
         const url = this.LOYALCHAIN_API.concat("/enterprises");  
         return axios.get(url);
     }

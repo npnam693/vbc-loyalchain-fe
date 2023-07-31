@@ -3,7 +3,6 @@ import { ITask, ITaskState } from '../../../../state/task/taskSlice'
 import { Modal, Steps, Tooltip } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import { getLinkExplore, mappingNetwork } from '../../../../utils/blockchain'
-import PairToken from '../../PairToken'
 import { useAppSelector } from '../../../../state/hooks'
 
 
@@ -15,7 +14,6 @@ export interface IModalElement {
 
 const ModalRefund = ({task, taskState, afterClose} : IModalElement) => {
     const {userState} = useAppSelector(state => state)
-    console.log(task.from.address === userState.address)
   return (
       <Modal
         title="Refund Order"

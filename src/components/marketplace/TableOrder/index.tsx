@@ -33,7 +33,6 @@ export default function TableOrder(props : any) {
     if (data !== null) {
       onClickAccept()
     }
-    console.log(data)
   }, [data])
 
   const standardizeData = props.data.map((item : any) => {

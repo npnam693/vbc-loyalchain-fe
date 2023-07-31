@@ -94,7 +94,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
     dispatch(createTask(task));
   }
   const removeOrder1Chain = async (taskState: ITaskState, idTask: number) => {
-    console.log(data)
     const toaster = toast.loading("Remove Order ..")
     let task : ITask = {...taskState.taskList[idTask], status: 1}
     dispatch(updateTask({task, id: idTask}))
@@ -414,7 +413,6 @@ const MyOrderItem = ({data, isPendingOrder, rerender} : IMyOrderItem) => {
     }
   }
   const getRemoveBtn = async (timeLock: number) => {
-    console.log(timeLock, data, IS_SELLER)
     let myBtn = <div></div>
     if (IS_SELLER) {
       if (data.status === "receiver accepted") {

@@ -43,7 +43,6 @@ const MyOrder = () => {
             } else {
                 setdataFetch({...dataFetch, pendingOrders: res.data})
                 setNext(true)
-                console.log('hahahaah')
             }
         }
         else if (pageName === 'inprogressOrder') {
@@ -89,7 +88,6 @@ const MyOrder = () => {
         }, 3000)
     }, [])
 
-    console.log('render')
   return (
     <div className='app-myOrder'>      
         <p className="title">Marketplace / My Order</p>

@@ -483,7 +483,6 @@ export default function CreateOrder() {
         <SelectToken
           closeFunction={hdClickSelectTokenFrom}
           onClickSelect={(token: any) => {
-            console.log(token)
             setFormData({ ...formData, from: {...formData.from, token: token.token, balance: token.balance} });
             hdClickSelectTokenFrom();
 
